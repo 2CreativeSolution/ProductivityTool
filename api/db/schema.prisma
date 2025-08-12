@@ -6,7 +6,7 @@
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DIRECT_URL")
 }
 
 generator client {
@@ -47,46 +47,46 @@ enum EmployeeDesignation {
 }
 
 model User {
-  id                  Int                  @id @default(autoincrement())
-  name                String?              
-  email               String   @unique
-  
+  id    Int     @id @default(autoincrement())
+  name  String?
+  email String  @unique
+
   // Employee Information
-  department          Department?
-  designation         EmployeeDesignation?
-  employeeId          String?              @unique // Company employee ID
-  dateOfJoining       DateTime?
-  reportingManager    Int?                 // ID of reporting manager
-  reportingManagerUser User?               @relation("ReportingManager", fields: [reportingManager], references: [id])
-  directReports       User[]               @relation("ReportingManager")
-  
-  hashedPassword      String?   @default("")
-  salt                String?   @default("")
+  department           Department?
+  designation          EmployeeDesignation?
+  employeeId           String?              @unique // Company employee ID
+  dateOfJoining        DateTime?
+  reportingManager     Int? // ID of reporting manager
+  reportingManagerUser User?                @relation("ReportingManager", fields: [reportingManager], references: [id])
+  directReports        User[]               @relation("ReportingManager")
+
+  hashedPassword      String?              @default("")
+  salt                String?              @default("")
   resetToken          String?
   resetTokenExpiresAt DateTime?
   bookings            Booking[]
   attendances         Attendance[]
   exceptionRequests   ExceptionRequest[]
-  overtimeAttendances  OvertimeAttendance[]
-  vacationRequests VacationRequest[]
+  overtimeAttendances OvertimeAttendance[]
+  vacationRequests    VacationRequest[]
   assetAssignments    AssetAssignment[]
   assetRequests       AssetRequest[]
   supplyRequests      SupplyRequest[]
-  
-  selectedMeetingRoomId Int? 
+
+  selectedMeetingRoomId Int?
   selectedMeetingRoom   MeetingRoom? @relation("UserSelectedMeetingRoom", fields: [selectedMeetingRoomId], references: [id])
 
-  roles                 Role[]  
+  roles Role[]
 
   // Add these fields for Microsoft SSO
-  microsoftId String?  @unique  // Store Microsoft's unique ID
+  microsoftId String?  @unique // Store Microsoft's unique ID
   lastLogin   DateTime @default(now())
-  
+
   // Project management relationships
-  managedProjects       Project[] @relation("ProjectManager")
-  projectAllocations    ProjectAllocation[] @relation("ProjectAllocations")
-  allocatedProjects     ProjectAllocation[] @relation("AllocationManager")
-  organizedMeetings     ProjectMeeting[] @relation("MeetingOrganizer")
+  managedProjects    Project[]           @relation("ProjectManager")
+  projectAllocations ProjectAllocation[] @relation("ProjectAllocations")
+  allocatedProjects  ProjectAllocation[] @relation("AllocationManager")
+  organizedMeetings  ProjectMeeting[]    @relation("MeetingOrganizer")
 }
 
 model Booking {
@@ -111,16 +111,16 @@ model MeetingRoom {
 }
 
 model Attendance {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date      DateTime
-  clockIn   DateTime?
-  clockOut  DateTime?
-  duration  String?
-  status    String
-  location  String?
-  breaks    AttendanceBreak[]
+  id       Int               @id @default(autoincrement())
+  userId   Int
+  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date     DateTime
+  clockIn  DateTime?
+  clockOut DateTime?
+  duration String?
+  status   String
+  location String?
+  breaks   AttendanceBreak[]
 }
 
 model AttendanceBreak {
@@ -133,23 +133,23 @@ model AttendanceBreak {
 }
 
 model OvertimeAttendance {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date      DateTime
-  clockIn   DateTime?
-  clockOut  DateTime?
-  duration  String?
-  breaks    OvertimeBreak[]
+  id       Int             @id @default(autoincrement())
+  userId   Int
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date     DateTime
+  clockIn  DateTime?
+  clockOut DateTime?
+  duration String?
+  breaks   OvertimeBreak[]
 }
 
 model OvertimeBreak {
-  id           Int        @id @default(autoincrement())
-  overtime     OvertimeAttendance @relation(fields: [overtimeId], references: [id], onDelete: Cascade)
-  overtimeId   Int
-  breakIn      DateTime
-  breakOut     DateTime?
-  duration     String?
+  id         Int                @id @default(autoincrement())
+  overtime   OvertimeAttendance @relation(fields: [overtimeId], references: [id], onDelete: Cascade)
+  overtimeId Int
+  breakIn    DateTime
+  breakOut   DateTime?
+  duration   String?
 }
 
 model ExceptionRequest {
@@ -165,273 +165,273 @@ model ExceptionRequest {
 
 model OfficeHours {
   id        Int      @id @default(autoincrement())
-  startTime String   // e.g. "09:00"
-  endTime   String   // e.g. "18:00"
+  startTime String // e.g. "09:00"
+  endTime   String // e.g. "18:00"
   updatedAt DateTime @updatedAt
 }
 
 model VacationRequest {
-  id          Int      @id @default(autoincrement())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  startDate   DateTime
-  endDate     DateTime
-  reason      String   @db.Text
-  status      String   @default("Pending") // "Pending", "Approved", "Rejected"
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  startDate DateTime
+  endDate   DateTime
+  reason    String   @db.Text
+  status    String   @default("Pending") // "Pending", "Approved", "Rejected"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Asset Tracker Models
 model AssetCategory {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique  // "Laptop", "Monitor", "Phone", "Tablet", etc.
-  description String?
-  assets      Asset[]
+  id            Int            @id @default(autoincrement())
+  name          String         @unique // "Laptop", "Monitor", "Phone", "Tablet", etc.
+  description   String?
+  assets        Asset[]
   assetRequests AssetRequest[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Asset {
-  id              Int               @id @default(autoincrement())
-  assetId         String            @unique  // Custom asset ID like "LP001", "MON001"
-  name            String            // e.g., "MacBook Pro 16-inch"
-  model           String            // e.g., "A2338"
-  serialNumber    String?           @unique
-  purchaseDate    DateTime
-  warrantyExpiry  DateTime?
-  purchasePrice   Float?
-  vendor          String?
-  status          String            @default("Available") // "Available", "Assigned", "Under Repair", "Retired"
-  condition       String            @default("Good") // "Excellent", "Good", "Fair", "Poor"
-  location        String?           // Physical location when not assigned
-  notes           String?           @db.Text
-  
+  id             Int       @id @default(autoincrement())
+  assetId        String    @unique // Custom asset ID like "LP001", "MON001"
+  name           String // e.g., "MacBook Pro 16-inch"
+  model          String // e.g., "A2338"
+  serialNumber   String?   @unique
+  purchaseDate   DateTime
+  warrantyExpiry DateTime?
+  purchasePrice  Float?
+  vendor         String?
+  status         String    @default("Available") // "Available", "Assigned", "Under Repair", "Retired"
+  condition      String    @default("Good") // "Excellent", "Good", "Fair", "Poor"
+  location       String? // Physical location when not assigned
+  notes          String?   @db.Text
+
   // Proof of purchase documents
-  proofOfPurchaseUrl String?        // URL to uploaded document (PDF, image)
-  proofOfPurchaseType String?       // "pdf", "image", etc.
-  proofOfPurchaseFileName String?   // Original filename
-  
+  proofOfPurchaseUrl      String? // URL to uploaded document (PDF, image)
+  proofOfPurchaseType     String? // "pdf", "image", etc.
+  proofOfPurchaseFileName String? // Original filename
+
   // Relations
-  categoryId      Int
-  category        AssetCategory     @relation(fields: [categoryId], references: [id])
-  assignments     AssetAssignment[]
-  requests        AssetRequest[]
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  categoryId  Int
+  category    AssetCategory     @relation(fields: [categoryId], references: [id])
+  assignments AssetAssignment[]
+  requests    AssetRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AssetAssignment {
-  id            Int       @id @default(autoincrement())
-  
+  id Int @id @default(autoincrement())
+
   // Asset and User relations
-  assetId       Int
-  asset         Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
-  userId        Int
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  assetId Int
+  asset   Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  userId  Int
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Assignment details
-  issueDate     DateTime  @default(now())
-  returnDate    DateTime?
+  issueDate          DateTime  @default(now())
+  returnDate         DateTime?
   expectedReturnDate DateTime?
-  department    String?   // Department the asset is assigned to
-  
+  department         String? // Department the asset is assigned to
+
   // Assignment metadata
-  issuedBy      String?   // Name/ID of person who issued the asset
-  returnedBy    String?   // Name/ID of person who received the returned asset
-  issueNotes    String?   @db.Text
-  returnNotes   String?   @db.Text
-  condition     String?   // Condition when issued/returned
-  
+  issuedBy    String? // Name/ID of person who issued the asset
+  returnedBy  String? // Name/ID of person who received the returned asset
+  issueNotes  String? @db.Text
+  returnNotes String? @db.Text
+  condition   String? // Condition when issued/returned
+
   // Status tracking
-  status        String    @default("Active") // "Active", "Returned", "Lost", "Damaged"
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  status String @default("Active") // "Active", "Returned", "Lost", "Damaged"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AssetRequest {
-  id              Int       @id @default(autoincrement())
-  
+  id Int @id @default(autoincrement())
+
   // User requesting the asset
-  userId          Int
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Request details
   assetCategoryId Int?
   assetCategory   AssetCategory? @relation(fields: [assetCategoryId], references: [id])
   specificAssetId Int?
-  specificAsset   Asset?    @relation(fields: [specificAssetId], references: [id])
-  
+  specificAsset   Asset?         @relation(fields: [specificAssetId], references: [id])
+
   // Request metadata
-  reason          String    @db.Text
-  urgency         String    @default("Medium") // "Low", "Medium", "High", "Critical"
-  expectedDuration String?  // "Permanent", "1 week", "1 month", etc.
-  
+  reason           String  @db.Text
+  urgency          String  @default("Medium") // "Low", "Medium", "High", "Critical"
+  expectedDuration String? // "Permanent", "1 week", "1 month", etc.
+
   // Approval workflow
-  status          String    @default("Pending") // "Pending", "Approved", "Rejected", "Fulfilled"
-  approvedBy      String?   // Admin who approved/rejected
-  approvedAt      DateTime?
-  rejectionReason String?   @db.Text
-  fulfillmentNotes String?  @db.Text
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  status           String    @default("Pending") // "Pending", "Approved", "Rejected", "Fulfilled"
+  approvedBy       String? // Admin who approved/rejected
+  approvedAt       DateTime?
+  rejectionReason  String?   @db.Text
+  fulfillmentNotes String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Resource Allocation & Daily Project Tracker Models
 
 model Project {
-  id              Int               @id @default(autoincrement())
-  name            String
-  description     String?           @db.Text
-  code            String            @unique  // Project code like "PROJ-001"
-  status          String            @default("Active") // "Active", "On Hold", "Completed", "Cancelled"
-  priority        String            @default("Medium") // "Low", "Medium", "High", "Critical"
-  
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String? @db.Text
+  code        String  @unique // Project code like "PROJ-001"
+  status      String  @default("Active") // "Active", "On Hold", "Completed", "Cancelled"
+  priority    String  @default("Medium") // "Low", "Medium", "High", "Critical"
+
   // Project dates
-  startDate       DateTime
-  endDate         DateTime?
-  estimatedHours  Float?
-  budget          Float?            // Project budget
-  
+  startDate      DateTime
+  endDate        DateTime?
+  estimatedHours Float?
+  budget         Float? // Project budget
+
   // Project manager
-  managerId       Int?
-  manager         User?             @relation("ProjectManager", fields: [managerId], references: [id])
-  
+  managerId Int?
+  manager   User? @relation("ProjectManager", fields: [managerId], references: [id])
+
   // Relationships
-  allocations     ProjectAllocation[]
-  meetings        ProjectMeeting[]
-  dailyUpdates    DailyProjectUpdate[]
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  allocations  ProjectAllocation[]
+  meetings     ProjectMeeting[]
+  dailyUpdates DailyProjectUpdate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ProjectAllocation {
-  id              Int               @id @default(autoincrement())
-  
+  id Int @id @default(autoincrement())
+
   // Project and User relationship
-  projectId       Int
-  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  userId          Int
-  user            User              @relation("ProjectAllocations", fields: [userId], references: [id], onDelete: Cascade)
-  
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User    @relation("ProjectAllocations", fields: [userId], references: [id], onDelete: Cascade)
+
   // Allocation details
-  allocatedDate   DateTime          @default(now())
-  role            String?           // "Developer", "Designer", "Tester", etc.
-  hoursAllocated  Float?            // Hours allocated for this project per day
-  isActive        Boolean           @default(true)
-  
+  allocatedDate  DateTime @default(now())
+  role           String? // "Developer", "Designer", "Tester", etc.
+  hoursAllocated Float? // Hours allocated for this project per day
+  isActive       Boolean  @default(true)
+
   // Manager who made the allocation
   allocatedBy     Int?
-  allocatedByUser User?             @relation("AllocationManager", fields: [allocatedBy], references: [id])
-  
+  allocatedByUser User? @relation("AllocationManager", fields: [allocatedBy], references: [id])
+
   // Daily updates for this allocation
-  dailyUpdates    DailyProjectUpdate[]
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
+  dailyUpdates DailyProjectUpdate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([projectId, userId, allocatedDate])
 }
 
 model ProjectMeeting {
-  id              Int               @id @default(autoincrement())
-  
+  id Int @id @default(autoincrement())
+
   // Meeting details
-  title           String
-  description     String?           @db.Text
-  meetingDate     DateTime
-  duration        Int               // Duration in minutes
-  location        String?           // Physical location or meeting link
-  meetingType     String            @default("Standup") // "Standup", "Review", "Planning", "Retrospective", "Other"
-  
+  title       String
+  description String?  @db.Text
+  meetingDate DateTime
+  duration    Int // Duration in minutes
+  location    String? // Physical location or meeting link
+  meetingType String   @default("Standup") // "Standup", "Review", "Planning", "Retrospective", "Other"
+
   // Project relationship
-  projectId       Int
-  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   // Meeting organizer
-  organizerId     Int?
-  organizer       User?             @relation("MeetingOrganizer", fields: [organizerId], references: [id])
-  
+  organizerId Int?
+  organizer   User? @relation("MeetingOrganizer", fields: [organizerId], references: [id])
+
   // Meeting status
-  status          String            @default("Scheduled") // "Scheduled", "In Progress", "Completed", "Cancelled"
-  isRecurring     Boolean           @default(false)
-  
+  status      String  @default("Scheduled") // "Scheduled", "In Progress", "Completed", "Cancelled"
+  isRecurring Boolean @default(false)
+
   // Meeting participants (can be tracked separately if needed)
-  attendeeIds     Int[]             // Array of user IDs who attended
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  attendeeIds Int[] // Array of user IDs who attended
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model DailyProjectUpdate {
-  id              Int               @id @default(autoincrement())
-  
+  id Int @id @default(autoincrement())
+
   // Links to allocation
-  allocationId    Int
-  allocation      ProjectAllocation @relation(fields: [allocationId], references: [id], onDelete: Cascade)
-  
+  allocationId Int
+  allocation   ProjectAllocation @relation(fields: [allocationId], references: [id], onDelete: Cascade)
+
   // Links to project (for easier querying)
-  projectId       Int
-  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   // Date for this update
-  date            DateTime          @default(now())
-  
+  date DateTime @default(now())
+
   // Status updates
-  status          String            @default("ON_TRACK") // ON_TRACK, DELAYED, BLOCKED, COMPLETED
-  description     String            @db.Text // What was accomplished today
-  hoursWorked     Float?            // Actual hours worked on this project
-  blockers        String?           @db.Text // Any blockers or issues
-  nextDayPlan     String?           @db.Text // Plan for next day
-  
+  status      String  @default("ON_TRACK") // ON_TRACK, DELAYED, BLOCKED, COMPLETED
+  description String  @db.Text // What was accomplished today
+  hoursWorked Float? // Actual hours worked on this project
+  blockers    String? @db.Text // Any blockers or issues
+  nextDayPlan String? @db.Text // Plan for next day
+
   // Progress tracking
-  completionPercentage Float?       // Estimated completion percentage
-  milestoneReached     String?      // Any milestone reached today
-  
+  completionPercentage Float? // Estimated completion percentage
+  milestoneReached     String? // Any milestone reached today
+
   // Meeting attendance for project meetings
-  meetingsAttended     Int[]        // Array of meeting IDs attended today
-  
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
+  meetingsAttended Int[] // Array of meeting IDs attended today
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([allocationId, date])
 }
 
 // Office Supplies Management System Models
 model OfficeSupplyCategory {
-  id          Int              @id @default(autoincrement())
-  name        String           @unique
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
   description String?
   supplies    OfficeSupply[]
 }
 
 model OfficeSupply {
-  id          Int                   @id @default(autoincrement())
+  id          Int                  @id @default(autoincrement())
   name        String
   description String?
   stockCount  Int
   unitPrice   Float
   categoryId  Int
-  category    OfficeSupplyCategory  @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
+  category    OfficeSupplyCategory @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
   requests    SupplyRequest[]
 }
 
 model SupplyRequest {
   id                Int          @id @default(autoincrement())
-  quantityRequested Int          // Renamed from quantity
-  justification     String       // Renamed from reason  
+  quantityRequested Int // Renamed from quantity
+  justification     String // Renamed from reason
   urgency           String       @default("MEDIUM") // LOW, MEDIUM, HIGH
   status            String       @default("PENDING") // PENDING, APPROVED, REJECTED, FULFILLED
-  approvedAt        DateTime?    // When request was approved/rejected
-  approverNotes     String?      // Admin notes
-  totalCost         Float?       // Calculated total cost
+  approvedAt        DateTime? // When request was approved/rejected
+  approverNotes     String? // Admin notes
+  totalCost         Float? // Calculated total cost
   isOverdue         Boolean      @default(false) // If request is overdue
   userId            Int
   user              User         @relation(fields: [userId], references: [id])
@@ -440,4 +440,3 @@ model SupplyRequest {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 }
-
