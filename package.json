@@ -10,6 +10,7 @@
     "@capacitor/cli": "^7.4.0",
     "@redwoodjs/auth-dbauth-setup": "8.6.1",
     "@redwoodjs/auth-supabase-setup": "8.6.1",
+    "@redwoodjs/cli-data-migrate": "8.6.1",
     "@redwoodjs/core": "8.6.1",
     "@redwoodjs/project-config": "8.6.1",
     "esbuild": "0.21.5",
