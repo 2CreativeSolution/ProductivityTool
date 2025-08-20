@@ -22,6 +22,5 @@ api/src/lib/generateGraphiQLHeader.*
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-yarn.lock
 package-lock.json
 
