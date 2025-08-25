@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+
 import { supabase } from 'src/lib/supabase'
 
 const AuthContext = createContext({})
@@ -9,14 +10,18 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       setUser(session?.user ?? null)
       setLoading(false)
     }
     getSession()
 
     // Listen for changes on auth state
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
 
@@ -29,8 +34,8 @@ export const AuthProvider = ({ children }) => {
         provider: 'azure',
         options: {
           scopes: 'email profile',
-          domain: '2creative.com' // Replace with your domain
-        }
+          domain: '2creative.com', // Replace with your domain
+        },
       })
       if (error) throw error
     } catch (error) {

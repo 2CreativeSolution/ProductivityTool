@@ -1,5 +1,5 @@
 [build]
-  command = "yarn rw deploy netlify"
+  command = "yarn rw build"
   publish = "web/dist"
   functions = "api/dist/functions"
 
@@ -24,4 +24,3 @@
   targetPort = 8910
   # Point your browser to this port to access your app:
   port = 8888
- 
