@@ -41,11 +41,22 @@ export const schema = gql`
   }
 
   type Mutation {
-    createVacationRequest(input: CreateVacationRequestInput!): VacationRequest! @requireAuth
-    updateVacationRequest(id: Int!, input: UpdateVacationRequestInput!): VacationRequest! @requireAuth
-    approveVacationRequest(id: Int!): VacationRequest! @requireAuth(roles: ["ADMIN"])
-    rejectVacationRequest(id: Int!, input: RejectVacationRequestInput!): VacationRequest! @requireAuth(roles: ["ADMIN"])
+    createVacationRequest(input: CreateVacationRequestInput!): VacationRequest!
+      @requireAuth
+    updateVacationRequest(
+      id: Int!
+      input: UpdateVacationRequestInput!
+    ): VacationRequest! @requireAuth
+    approveVacationRequest(id: Int!): VacationRequest!
+      @requireAuth(roles: ["ADMIN"])
+    rejectVacationRequest(
+      id: Int!
+      input: RejectVacationRequestInput!
+    ): VacationRequest! @requireAuth(roles: ["ADMIN"])
     deleteVacationRequest(id: Int!): VacationRequest! @requireAuth
-    resubmitVacationRequest(originalId: Int!, input: CreateVacationRequestInput!): VacationRequest! @requireAuth
+    resubmitVacationRequest(
+      originalId: Int!
+      input: CreateVacationRequestInput!
+    ): VacationRequest! @requireAuth
   }
 `

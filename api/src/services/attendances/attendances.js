@@ -53,8 +53,6 @@ export const deleteAttendance = ({ id }) => {
 
 export const Attendance = {
   breaks: (_obj, { root }) => {
-    return db.attendance
-      .findUnique({ where: { id: root.id } })
-      .breaks()
+    return db.attendance.findUnique({ where: { id: root.id } }).breaks()
   },
 }

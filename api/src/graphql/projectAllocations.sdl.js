@@ -22,7 +22,8 @@ export const schema = gql`
     activeProjectAllocations: [ProjectAllocation!]! @requireAuth
     allocationsByProject(projectId: Int!): [ProjectAllocation!]! @requireAuth
     allocationsByUser(userId: Int!): [ProjectAllocation!]! @requireAuth
-    dailyAllocations(userId: Int!, date: DateTime!): [ProjectAllocation!]! @requireAuth
+    dailyAllocations(userId: Int!, date: DateTime!): [ProjectAllocation!]!
+      @requireAuth
   }
 
   input CreateProjectAllocationInput {
@@ -41,10 +42,13 @@ export const schema = gql`
   }
 
   type Mutation {
-    createProjectAllocation(input: CreateProjectAllocationInput!): ProjectAllocation!
-      @requireAuth(roles: ["ADMIN"])
-    updateProjectAllocation(id: Int!, input: UpdateProjectAllocationInput!): ProjectAllocation!
-      @requireAuth(roles: ["ADMIN"])
+    createProjectAllocation(
+      input: CreateProjectAllocationInput!
+    ): ProjectAllocation! @requireAuth(roles: ["ADMIN"])
+    updateProjectAllocation(
+      id: Int!
+      input: UpdateProjectAllocationInput!
+    ): ProjectAllocation! @requireAuth(roles: ["ADMIN"])
     deleteProjectAllocation(id: Int!): ProjectAllocation!
       @requireAuth(roles: ["ADMIN"])
     deactivateProjectAllocation(id: Int!): ProjectAllocation!

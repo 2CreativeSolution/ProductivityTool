@@ -1,3 +1,7 @@
+import { useState, useEffect } from 'react'
+
+import { FaRegCalendarAlt, FaRegClock } from 'react-icons/fa'
+
 import {
   Form,
   FormError,
@@ -9,8 +13,6 @@ import {
   Submit,
   Select,
 } from '@redwoodjs/forms'
-import { useState, useEffect } from 'react'
-import { FaRegCalendarAlt, FaRegClock } from 'react-icons/fa'
 import { useQuery } from '@redwoodjs/web'
 
 const formatDatetime = (value) => {
@@ -47,18 +49,20 @@ const CHECK_AVAILABILITY = gql`
 `
 
 const BookingForm = (props) => {
-  const { data, loading, error } = useQuery(GET_MEETING_ROOMS)
-  const [selectedRoomId, setSelectedRoomId] = useState(props?.booking?.meetingRoomId || '')
+  const { data, loading } = useQuery(GET_MEETING_ROOMS)
+  const [selectedRoomId, setSelectedRoomId] = useState(
+    props?.booking?.meetingRoomId || ''
+  )
   const [selectedDate, setSelectedDate] = useState('')
 
   const { data: availabilityData, loading: availabilityLoading } = useQuery(
     CHECK_AVAILABILITY,
     {
-      variables: { 
-        meetingRoomId: parseInt(selectedRoomId), 
-        date: selectedDate 
+      variables: {
+        meetingRoomId: parseInt(selectedRoomId),
+        date: selectedDate,
       },
-      skip: !selectedRoomId || !selectedDate
+      skip: !selectedRoomId || !selectedDate,
     }
   )
 
@@ -78,7 +82,7 @@ const BookingForm = (props) => {
     return new Date(dateTime).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
     })
   }
 
@@ -86,19 +90,19 @@ const BookingForm = (props) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-gray-100 px-6 py-16">
-      <div className="max-w-[1600px] mx-auto bg-white/60 backdrop-blur-xl border border-gray-200 rounded-[2rem] shadow-2xl p-10 md:p-16 space-y-14">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-center text-gray-800">
+      <div className="mx-auto max-w-[1600px] space-y-14 rounded-[2rem] border border-gray-200 bg-white/60 p-10 shadow-2xl backdrop-blur-xl md:p-16">
+        <h1 className="text-center text-4xl font-extrabold text-gray-800 md:text-5xl">
           Book a Meeting Room
         </h1>
 
         <Form
           onSubmit={onSubmit}
           error={props.error}
-          className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start w-full"
+          className="grid w-full grid-cols-1 items-start gap-16 md:grid-cols-2"
         >
           {/* Calendar Column */}
-          <div className="w-full bg-white/70 backdrop-blur-md border border-gray-300 rounded-3xl px-4 sm:px-10 py-10 shadow-md hover:shadow-xl transition">
-            <div className="flex items-center gap-2 mb-6 text-red-500 justify-center">
+          <div className="w-full rounded-3xl border border-gray-300 bg-white/70 px-4 py-10 shadow-md backdrop-blur-md transition hover:shadow-xl sm:px-10">
+            <div className="mb-6 flex items-center justify-center gap-2 text-red-500">
               <FaRegCalendarAlt className="text-xl" />
               <h2 className="text-xl font-semibold tracking-wide">
                 Meeting Details
@@ -107,7 +111,7 @@ const BookingForm = (props) => {
 
             <Label
               name="title"
-              className="rw-label text-gray-700 font-semibold mb-2"
+              className="rw-label mb-2 font-semibold text-gray-700"
               errorClassName="rw-label rw-label-error"
             >
               Title
@@ -115,18 +119,18 @@ const BookingForm = (props) => {
             <TextField
               name="title"
               defaultValue={props.booking?.title}
-              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               errorClassName="rw-input rw-input-error"
               validation={{ required: true }}
             />
             <FieldError
               name="title"
-              className="rw-field-error text-red-500 mt-1"
+              className="rw-field-error mt-1 text-red-500"
             />
 
             <Label
               name="notes"
-              className="rw-label text-gray-700 font-semibold mt-4 mb-2"
+              className="rw-label mb-2 mt-4 font-semibold text-gray-700"
               errorClassName="rw-label rw-label-error"
             >
               Notes
@@ -134,25 +138,27 @@ const BookingForm = (props) => {
             <TextField
               name="notes"
               defaultValue={props.booking?.notes}
-              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               errorClassName="rw-input rw-input-error"
             />
             <FieldError
               name="notes"
-              className="rw-field-error text-red-500 mt-1"
+              className="rw-field-error mt-1 text-red-500"
             />
           </div>
 
           {/* Time Slots Column */}
-          <div className="w-full bg-white/70 backdrop-blur-md border border-gray-300 rounded-3xl px-4 sm:px-10 py-10 shadow-md hover:shadow-xl transition">
-            <div className="flex items-center gap-2 mb-4 text-red-500">
+          <div className="w-full rounded-3xl border border-gray-300 bg-white/70 px-4 py-10 shadow-md backdrop-blur-md transition hover:shadow-xl sm:px-10">
+            <div className="mb-4 flex items-center gap-2 text-red-500">
               <FaRegClock className="text-xl" />
-              <h2 className="text-xl font-semibold tracking-wide">Choose Time</h2>
+              <h2 className="text-xl font-semibold tracking-wide">
+                Choose Time
+              </h2>
             </div>
 
             <Label
               name="startTime"
-              className="rw-label text-gray-700 font-semibold mb-2"
+              className="rw-label mb-2 font-semibold text-gray-700"
               errorClassName="rw-label rw-label-error"
             >
               Start Time
@@ -160,18 +166,18 @@ const BookingForm = (props) => {
             <DatetimeLocalField
               name="startTime"
               defaultValue={formatDatetime(props.booking?.startTime)}
-              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               errorClassName="rw-input rw-input-error"
               validation={{ required: true }}
             />
             <FieldError
               name="startTime"
-              className="rw-field-error text-red-500 mt-1"
+              className="rw-field-error mt-1 text-red-500"
             />
 
             <Label
               name="endTime"
-              className="rw-label text-gray-700 font-semibold mt-4 mb-2"
+              className="rw-label mb-2 mt-4 font-semibold text-gray-700"
               errorClassName="rw-label rw-label-error"
             >
               End Time
@@ -179,18 +185,18 @@ const BookingForm = (props) => {
             <DatetimeLocalField
               name="endTime"
               defaultValue={formatDatetime(props.booking?.endTime)}
-              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               errorClassName="rw-input rw-input-error"
               validation={{ required: true }}
             />
             <FieldError
               name="endTime"
-              className="rw-field-error text-red-500 mt-1"
+              className="rw-field-error mt-1 text-red-500"
             />
 
             <Label
               name="userId"
-              className="rw-label text-gray-700 font-semibold mt-4 mb-2"
+              className="rw-label mb-2 mt-4 font-semibold text-gray-700"
               errorClassName="rw-label rw-label-error"
             >
               User ID
@@ -198,18 +204,18 @@ const BookingForm = (props) => {
             <NumberField
               name="userId"
               defaultValue={props.booking?.userId}
-              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               errorClassName="rw-input rw-input-error"
               validation={{ required: true }}
             />
             <FieldError
               name="userId"
-              className="rw-field-error text-red-500 mt-1"
+              className="rw-field-error mt-1 text-red-500"
             />
 
             <Label
               name="meetingRoomId"
-              className="rw-label text-gray-700 font-semibold mt-4 mb-2"
+              className="rw-label mb-2 mt-4 font-semibold text-gray-700"
               errorClassName="rw-label rw-label-error"
             >
               Select Meeting Room
@@ -217,7 +223,7 @@ const BookingForm = (props) => {
             <Select
               name="meetingRoomId"
               defaultValue={props.booking?.meetingRoomId}
-              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               errorClassName="rw-input rw-input-error"
               validation={{ required: true }}
               disabled={loading}
@@ -232,13 +238,13 @@ const BookingForm = (props) => {
             </Select>
             <FieldError
               name="meetingRoomId"
-              className="rw-field-error text-red-500 mt-1"
+              className="rw-field-error mt-1 text-red-500"
             />
 
             {/* Date Selection for Availability */}
             <Label
               name="bookingDate"
-              className="rw-label text-gray-700 font-semibold mt-4 mb-2"
+              className="rw-label mb-2 mt-4 font-semibold text-gray-700"
               errorClassName="rw-label rw-label-error"
             >
               Select Date to Check Availability
@@ -247,28 +253,36 @@ const BookingForm = (props) => {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500"
+              className="rw-input w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               min={new Date().toISOString().split('T')[0]}
             />
 
             {/* Availability Display */}
             {selectedRoomId && selectedDate && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold text-gray-700 mb-2">
+              <div className="mt-4 rounded-lg bg-gray-50 p-4">
+                <h3 className="mb-2 font-semibold text-gray-700">
                   Room Availability for {selectedDate}
                 </h3>
                 {availabilityLoading ? (
                   <p className="text-gray-500">Checking availability...</p>
                 ) : bookedSlots.length === 0 ? (
-                  <p className="text-green-600 font-medium">✅ This room is available all day!</p>
+                  <p className="font-medium text-green-600">
+                    ✅ This room is available all day!
+                  </p>
                 ) : (
                   <div>
-                    <p className="text-amber-600 font-medium mb-2">⚠️ Already booked times:</p>
+                    <p className="mb-2 font-medium text-amber-600">
+                      ⚠️ Already booked times:
+                    </p>
                     <div className="space-y-2">
                       {bookedSlots.map((slot) => (
-                        <div key={slot.id} className="bg-red-50 border border-red-200 rounded p-2">
+                        <div
+                          key={slot.id}
+                          className="rounded border border-red-200 bg-red-50 p-2"
+                        >
                           <div className="text-sm font-medium text-red-800">
-                            {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                            {formatTime(slot.startTime)} -{' '}
+                            {formatTime(slot.endTime)}
                           </div>
                           <div className="text-xs text-red-600">
                             Booked by: {slot.user.name} ({slot.user.email})
@@ -276,7 +290,7 @@ const BookingForm = (props) => {
                         </div>
                       ))}
                     </div>
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="mt-2 text-sm text-gray-600">
                       💡 Choose a different time slot to avoid conflicts
                     </p>
                   </div>
@@ -285,10 +299,10 @@ const BookingForm = (props) => {
             )}
           </div>
 
-          <div className="col-span-2 flex justify-center mt-8">
+          <div className="col-span-2 mt-8 flex justify-center">
             <Submit
               disabled={props.loading}
-              className="rw-button rw-button-blue px-6 py-3 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition disabled:opacity-50"
+              className="rw-button rw-button-blue rounded-lg bg-red-500 px-6 py-3 font-semibold text-white transition hover:bg-red-600 disabled:opacity-50"
             >
               {props.loading ? 'Saving...' : 'Save Booking'}
             </Submit>

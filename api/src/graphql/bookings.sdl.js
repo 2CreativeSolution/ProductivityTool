@@ -22,7 +22,7 @@ export const schema = gql`
   }
 
   type Query {
-    bookings(userId: Int): [Booking!]! @requireAuth  # Back to @requireAuth
+    bookings(userId: Int): [Booking!]! @requireAuth # Back to @requireAuth
     booking(id: Int!): Booking @requireAuth
     meetingRooms: [MeetingRoom!]! @requireAuth
     meetingRoom(id: Int!): MeetingRoom @requireAuth

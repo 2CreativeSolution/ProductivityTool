@@ -57,10 +57,20 @@ export const schema = gql`
   }
 
   type Mutation {
-    createAssetRequest(input: CreateAssetRequestInput!): AssetRequest! @requireAuth
-    updateAssetRequest(id: Int!, input: UpdateAssetRequestInput!): AssetRequest! @requireAuth
+    createAssetRequest(input: CreateAssetRequestInput!): AssetRequest!
+      @requireAuth
+    updateAssetRequest(
+      id: Int!
+      input: UpdateAssetRequestInput!
+    ): AssetRequest! @requireAuth
     deleteAssetRequest(id: Int!): AssetRequest! @requireAuth
-    approveAssetRequest(id: Int!, input: ApproveAssetRequestInput!): AssetRequest! @requireAuth(roles: ["ADMIN"])
-    rejectAssetRequest(id: Int!, input: RejectAssetRequestInput!): AssetRequest! @requireAuth(roles: ["ADMIN"])
+    approveAssetRequest(
+      id: Int!
+      input: ApproveAssetRequestInput!
+    ): AssetRequest! @requireAuth(roles: ["ADMIN"])
+    rejectAssetRequest(
+      id: Int!
+      input: RejectAssetRequestInput!
+    ): AssetRequest! @requireAuth(roles: ["ADMIN"])
   }
 `

@@ -82,7 +82,7 @@ export const allocationsByUser = ({ userId }) => {
 export const dailyAllocations = ({ userId, date }) => {
   const startOfDay = new Date(date)
   startOfDay.setHours(0, 0, 0, 0)
-  
+
   const endOfDay = new Date(date)
   endOfDay.setHours(23, 59, 59, 999)
 
@@ -172,15 +172,21 @@ export const deactivateProjectAllocation = ({ id }, { context }) => {
 
 export const ProjectAllocation = {
   project: (_obj, { root }) => {
-    return db.projectAllocation.findUnique({ where: { id: root?.id } }).project()
+    return db.projectAllocation
+      .findUnique({ where: { id: root?.id } })
+      .project()
   },
   user: (_obj, { root }) => {
     return db.projectAllocation.findUnique({ where: { id: root?.id } }).user()
   },
   allocatedByUser: (_obj, { root }) => {
-    return db.projectAllocation.findUnique({ where: { id: root?.id } }).allocatedByUser()
+    return db.projectAllocation
+      .findUnique({ where: { id: root?.id } })
+      .allocatedByUser()
   },
   dailyUpdates: (_obj, { root }) => {
-    return db.projectAllocation.findUnique({ where: { id: root?.id } }).dailyUpdates()
+    return db.projectAllocation
+      .findUnique({ where: { id: root?.id } })
+      .dailyUpdates()
   },
 }

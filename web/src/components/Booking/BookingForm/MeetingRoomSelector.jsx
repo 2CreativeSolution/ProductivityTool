@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+
 import { useQuery, gql } from '@apollo/client'
 
 const MEETING_ROOMS_QUERY = gql`
@@ -29,19 +30,20 @@ const MeetingRoomSelector = ({ selectedRoomId, onChange }) => {
   }, [refetch])
 
   if (loading) return <div>Loading meeting rooms...</div>
-  if (error) return <div className="text-red-500">Error loading meeting rooms</div>
+  if (error)
+    return <div className="text-red-500">Error loading meeting rooms</div>
 
   return (
     <div className="mb-4">
-      <label className="block font-semibold mb-1">Select Meeting Room</label>
+      <label className="mb-1 block font-semibold">Select Meeting Room</label>
       <select
         value={selectedRoomId}
-        onChange={e => onChange(e.target.value)}
-        className="rw-input w-full px-4 py-2 rounded-lg border border-gray-300"
+        onChange={(e) => onChange(e.target.value)}
+        className="rw-input w-full rounded-lg border border-gray-300 px-4 py-2"
         required
       >
         <option value="">-- Select a room --</option>
-        {data.meetingRooms.map(room => (
+        {data.meetingRooms.map((room) => (
           <option key={room.id} value={room.id}>
             {room.name} {room.description ? `(${room.description})` : ''}
           </option>

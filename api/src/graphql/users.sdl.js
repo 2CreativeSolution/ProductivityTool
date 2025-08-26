@@ -47,7 +47,7 @@ export const schema = gql`
     selectedMeetingRoom: MeetingRoom
     assetAssignments: [AssetAssignment!]!
     vacationRequests: [VacationRequest!]!
-    
+
     # Employee Management Fields
     employeeId: String
     department: Department
@@ -56,7 +56,7 @@ export const schema = gql`
     reportingManagerId: Int
     reportingManagerUser: User
     directReports: [User!]!
-    
+
     # Project Allocations
     projectAllocations: [ProjectAllocation!]!
     managedProjects: [Project!]!

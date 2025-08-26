@@ -1,6 +1,12 @@
 import React, { useState } from 'react'
 
-const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) => {
+const AllocationDialog = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  project,
+  users = [],
+}) => {
   const [formData, setFormData] = useState({
     userId: '',
     role: '',
@@ -27,14 +33,14 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }))
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
+      setErrors((prev) => ({ ...prev, [name]: '' }))
     }
   }
 
@@ -51,7 +57,10 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
 
     if (!formData.hoursAllocated) {
       newErrors.hoursAllocated = 'Hours per day is required'
-    } else if (isNaN(parseFloat(formData.hoursAllocated)) || parseFloat(formData.hoursAllocated) <= 0) {
+    } else if (
+      isNaN(parseFloat(formData.hoursAllocated)) ||
+      parseFloat(formData.hoursAllocated) <= 0
+    ) {
       newErrors.hoursAllocated = 'Hours must be a positive number'
     } else if (parseFloat(formData.hoursAllocated) > 24) {
       newErrors.hoursAllocated = 'Hours cannot exceed 24 per day'
@@ -63,7 +72,7 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
@@ -96,43 +105,46 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
   }
 
   // Filter out users who are already allocated to this project
-  const availableUsers = users.filter(user => 
-    !project?.allocations?.some(allocation => 
-      allocation.user.id === user.id && allocation.isActive
-    )
+  const availableUsers = users.filter(
+    (user) =>
+      !project?.allocations?.some(
+        (allocation) => allocation.user.id === user.id && allocation.isActive
+      )
   )
 
   if (!isOpen || !project) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white">
+        <div className="flex items-center justify-between border-b border-gray-200 p-6">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Allocate Team Member</h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Allocate Team Member
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
               {project.name} ({project.code})
             </p>
           </div>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl"
+            className="text-2xl text-gray-400 hover:text-gray-600"
           >
             ×
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 p-6">
           {/* Team Member Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Team Member *
             </label>
             <select
               name="userId"
               value={formData.userId}
               onChange={handleChange}
-              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.userId ? 'border-red-500' : 'border-gray-300'
               }`}
             >
@@ -143,9 +155,11 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
                 </option>
               ))}
             </select>
-            {errors.userId && <p className="text-red-500 text-xs mt-1">{errors.userId}</p>}
+            {errors.userId && (
+              <p className="mt-1 text-xs text-red-500">{errors.userId}</p>
+            )}
             {availableUsers.length === 0 && (
-              <p className="text-yellow-600 text-xs mt-1">
+              <p className="mt-1 text-xs text-yellow-600">
                 All users are already allocated to this project
               </p>
             )}
@@ -153,14 +167,14 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Role *
             </label>
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.role ? 'border-red-500' : 'border-gray-300'
               }`}
             >
@@ -171,12 +185,14 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
                 </option>
               ))}
             </select>
-            {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
+            {errors.role && (
+              <p className="mt-1 text-xs text-red-500">{errors.role}</p>
+            )}
           </div>
 
           {/* Hours Allocated */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Hours per Day *
             </label>
             <input
@@ -187,13 +203,17 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
               min="0.5"
               max="24"
               step="0.5"
-              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.hoursAllocated ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="e.g., 8"
             />
-            {errors.hoursAllocated && <p className="text-red-500 text-xs mt-1">{errors.hoursAllocated}</p>}
-            <p className="text-xs text-gray-500 mt-1">
+            {errors.hoursAllocated && (
+              <p className="mt-1 text-xs text-red-500">
+                {errors.hoursAllocated}
+              </p>
+            )}
+            <p className="mt-1 text-xs text-gray-500">
               Number of hours per day allocated to this project
             </p>
           </div>
@@ -205,7 +225,7 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
               name="isActive"
               checked={formData.isActive}
               onChange={handleChange}
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label className="ml-2 text-sm text-gray-700">
               Active allocation (team member can log time immediately)
@@ -214,19 +234,26 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
 
           {/* Current Allocations Info */}
           {project.allocations && project.allocations.length > 0 && (
-            <div className="bg-gray-50 rounded-lg p-3">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Current Team:</h4>
+            <div className="rounded-lg bg-gray-50 p-3">
+              <h4 className="mb-2 text-sm font-medium text-gray-900">
+                Current Team:
+              </h4>
               <div className="space-y-1">
                 {project.allocations.map((allocation) => (
-                  <div key={allocation.id} className="flex items-center justify-between text-xs">
+                  <div
+                    key={allocation.id}
+                    className="flex items-center justify-between text-xs"
+                  >
                     <span className="text-gray-700">
                       {allocation.user.name} - {allocation.role}
                     </span>
-                    <span className={`px-2 py-1 rounded-full ${
-                      allocation.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
+                    <span
+                      className={`rounded-full px-2 py-1 ${
+                        allocation.isActive
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
                       {allocation.hoursAllocated}h/day
                     </span>
                   </div>
@@ -240,14 +267,14 @@ const AllocationDialog = ({ isOpen, onClose, onSubmit, project, users = [] }) =>
             <button
               type="submit"
               disabled={availableUsers.length === 0}
-              className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="flex-1 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-400"
             >
               Allocate Member
             </button>
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              className="flex-1 rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               Cancel
             </button>

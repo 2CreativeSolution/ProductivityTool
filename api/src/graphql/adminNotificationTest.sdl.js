@@ -5,7 +5,9 @@ export const schema = gql`
   }
 
   type Mutation {
-    testAdminNotification(type: String!, testData: String!): TestNotificationResult!
-      @requireAuth(roles: ["ADMIN"])
+    testAdminNotification(
+      type: String!
+      testData: String!
+    ): TestNotificationResult! @requireAuth(roles: ["ADMIN"])
   }
 `

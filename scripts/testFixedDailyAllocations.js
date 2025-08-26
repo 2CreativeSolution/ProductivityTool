@@ -4,11 +4,11 @@ export default async ({ args }) => {
   console.log('Testing fixed dailyAllocations...\n')
 
   const userId = 1
-  const date = new Date()  // Today
+  const date = new Date() // Today
 
   const startOfDay = new Date(date)
   startOfDay.setHours(0, 0, 0, 0)
-  
+
   const endOfDay = new Date(date)
   endOfDay.setHours(23, 59, 59, 999)
 
@@ -55,12 +55,16 @@ export default async ({ args }) => {
     })
 
     console.log(`Found ${allocations.length} allocations for user ${userId}:`)
-    
+
     allocations.forEach((allocation, index) => {
       console.log(`\nAllocation ${index + 1}:`)
-      console.log(`  - Project: ${allocation.project.name} (Status: ${allocation.project.status})`)
+      console.log(
+        `  - Project: ${allocation.project.name} (Status: ${allocation.project.status})`
+      )
       console.log(`  - Role: ${allocation.role || 'Not specified'}`)
-      console.log(`  - Hours Allocated: ${allocation.hoursAllocated || 'Not specified'}`)
+      console.log(
+        `  - Hours Allocated: ${allocation.hoursAllocated || 'Not specified'}`
+      )
       console.log(`  - Allocated Date: ${allocation.allocatedDate}`)
       console.log(`  - Manager: ${allocation.project.manager?.name || 'None'}`)
       console.log(`  - Daily Updates Today: ${allocation.dailyUpdates.length}`)
@@ -83,9 +87,10 @@ export default async ({ args }) => {
           project: true,
         },
       })
-      console.log(`\nUser ${testUserId} has ${userAllocations.length} active allocations`)
+      console.log(
+        `\nUser ${testUserId} has ${userAllocations.length} active allocations`
+      )
     }
-
   } catch (error) {
     console.error('Error testing fixed dailyAllocations:', error)
   }

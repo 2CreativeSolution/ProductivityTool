@@ -1,7 +1,12 @@
-import { db } from 'src/lib/db'
-import { ForbiddenError, ValidationError, UserInputError } from '@redwoodjs/graphql-server'
-import { requireAuth } from 'src/lib/auth'
+import {
+  ForbiddenError,
+  ValidationError,
+  UserInputError,
+} from '@redwoodjs/graphql-server'
 import { context } from '@redwoodjs/graphql-server'
+
+import { requireAuth } from 'src/lib/auth'
+import { db } from 'src/lib/db'
 
 export const officeSupplies = () => {
   return db.officeSupply.findMany({
@@ -22,7 +27,7 @@ export const officeSupply = ({ id }) => {
 
 export const createOfficeSupply = ({ input }) => {
   requireAuth()
-  
+
   // Check if user is admin
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
   if (!isAdmin) {
@@ -33,15 +38,15 @@ export const createOfficeSupply = ({ input }) => {
   if (!input.categoryId) {
     throw new ValidationError('Category ID is required')
   }
-  
+
   if (!input.name || input.name.trim() === '') {
     throw new ValidationError('Name is required')
   }
-  
+
   if (input.stockCount === null || input.stockCount === undefined) {
     throw new ValidationError('Stock count is required')
   }
-  
+
   if (input.unitPrice === null || input.unitPrice === undefined) {
     throw new ValidationError('Unit price is required')
   }
@@ -62,7 +67,7 @@ export const createOfficeSupply = ({ input }) => {
 
 export const updateOfficeSupply = ({ id, input }) => {
   requireAuth()
-  
+
   // Check if user is admin
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
   if (!isAdmin) {
@@ -72,7 +77,8 @@ export const updateOfficeSupply = ({ id, input }) => {
   // Clean the input to remove any unwanted fields
   const cleanInput = {}
   if (input.name !== undefined) cleanInput.name = input.name
-  if (input.description !== undefined) cleanInput.description = input.description
+  if (input.description !== undefined)
+    cleanInput.description = input.description
   if (input.stockCount !== undefined) cleanInput.stockCount = input.stockCount
   if (input.unitPrice !== undefined) cleanInput.unitPrice = input.unitPrice
   if (input.categoryId !== undefined) cleanInput.categoryId = input.categoryId
@@ -85,24 +91,24 @@ export const updateOfficeSupply = ({ id, input }) => {
 
 export const deleteOfficeSupply = async ({ id }, { context }) => {
   requireAuth({}, context)
-  
+
   // Check if user is admin
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
   if (!isAdmin) {
     throw new ForbiddenError('Only administrators can delete office supplies')
   }
-  
+
   // Check if there are any supply requests for this office supply
   const existingRequests = await db.supplyRequest.findMany({
-    where: { supplyId: id }
+    where: { supplyId: id },
   })
-  
+
   if (existingRequests.length > 0) {
     throw new UserInputError(
       `Cannot delete this office supply because it has ${existingRequests.length} existing supply request(s). Please handle or delete the related requests first.`
     )
   }
-  
+
   return db.officeSupply.delete({
     where: { id },
   })
@@ -111,16 +117,16 @@ export const deleteOfficeSupply = async ({ id }, { context }) => {
 // Bulk update stock levels
 export const updateStockLevel = ({ id, quantity, operation }) => {
   requireAuth()
-  
+
   // Check if user is admin
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
   if (!isAdmin) {
     throw new ForbiddenError('Only administrators can update stock levels')
   }
-  
+
   return db.$transaction(async (tx) => {
     const supply = await tx.officeSupply.findUnique({ where: { id } })
-    
+
     if (!supply) {
       throw new ValidationError('Office supply not found')
     }
@@ -142,7 +148,7 @@ export const updateStockLevel = ({ id, quantity, operation }) => {
 
     return tx.officeSupply.update({
       where: { id },
-      data: { 
+      data: {
         stockCount: newStock,
       },
     })
@@ -153,7 +159,7 @@ export const updateStockLevel = ({ id, quantity, operation }) => {
 export const lowStockSupplies = () => {
   return db.officeSupply.findMany({
     where: {
-      stockCount: { lte: 10 }
+      stockCount: { lte: 10 },
     },
     include: {
       category: true,
@@ -163,16 +169,14 @@ export const lowStockSupplies = () => {
 
 export const OfficeSupply = {
   category: (_obj, { root }) => {
-    return db.officeSupply
-      .findUnique({ where: { id: root?.id } })
-      .category()
+    return db.officeSupply.findUnique({ where: { id: root?.id } }).category()
   },
-  
+
   // Calculate if supply is low stock (stockCount <= 10)
   isLowStock: (obj) => {
     return obj.stockCount <= 10
   },
-  
+
   // Calculate stock status
   stockStatus: (obj) => {
     if (obj.stockCount === 0) return 'OUT_OF_STOCK'

@@ -1,13 +1,13 @@
-import { 
-  supplyRequests, 
-  supplyRequest, 
-  createSupplyRequest, 
-  updateSupplyRequest, 
+import {
+  supplyRequests,
+  supplyRequest,
+  createSupplyRequest,
+  updateSupplyRequest,
   deleteSupplyRequest,
   mySupplyRequests,
   pendingSupplyRequests,
   approveSupplyRequest,
-  rejectSupplyRequest
+  rejectSupplyRequest,
 } from './supplyRequests'
 
 // Mock the auth context
@@ -42,17 +42,19 @@ describe('supplyRequests', () => {
 
   scenario('returns pending supply requests', async (scenario) => {
     const result = await pendingSupplyRequests()
-    const pendingRequests = result.filter(request => request.status === 'PENDING')
+    const pendingRequests = result.filter(
+      (request) => request.status === 'PENDING'
+    )
     expect(pendingRequests.length).toBe(result.length)
   })
 
   scenario('creates a supplyRequest', async (scenario) => {
     const result = await createSupplyRequest({
-      input: { 
+      input: {
         supplyId: scenario.officeSupply.one.id,
         quantityRequested: 5,
         justification: 'Need for project work',
-        urgency: 'MEDIUM'
+        urgency: 'MEDIUM',
       },
     })
 
@@ -62,7 +64,9 @@ describe('supplyRequests', () => {
   })
 
   scenario('updates a supplyRequest', async (scenario) => {
-    const original = await supplyRequest({ id: scenario.supplyRequest.pending.id })
+    const original = await supplyRequest({
+      id: scenario.supplyRequest.pending.id,
+    })
     const result = await updateSupplyRequest({
       id: original.id,
       input: { quantityRequested: 10 },
@@ -72,7 +76,9 @@ describe('supplyRequests', () => {
   })
 
   scenario('deletes a supplyRequest', async (scenario) => {
-    const original = await deleteSupplyRequest({ id: scenario.supplyRequest.pending.id })
+    const original = await deleteSupplyRequest({
+      id: scenario.supplyRequest.pending.id,
+    })
     const result = await supplyRequest({ id: original.id })
 
     expect(result).toEqual(null)
@@ -81,7 +87,7 @@ describe('supplyRequests', () => {
   scenario('approves a supply request', async (scenario) => {
     const result = await approveSupplyRequest({
       id: scenario.supplyRequest.pending.id,
-      approverNotes: 'Approved for urgent project need'
+      approverNotes: 'Approved for urgent project need',
     })
 
     expect(result.status).toEqual('APPROVED')
@@ -92,7 +98,7 @@ describe('supplyRequests', () => {
   scenario('rejects a supply request', async (scenario) => {
     const result = await rejectSupplyRequest({
       id: scenario.supplyRequest.pending.id,
-      approverNotes: 'Budget constraints'
+      approverNotes: 'Budget constraints',
     })
 
     expect(result.status).toEqual('REJECTED')

@@ -1,5 +1,5 @@
-import { db } from 'src/lib/db'
 import { requireAuth } from 'src/lib/auth'
+import { db } from 'src/lib/db'
 
 export const assetAssignments = (args, { context }) => {
   requireAuth({}, context)
@@ -74,13 +74,18 @@ export const myAssetAssignments = (args, { context }) => {
   })
 }
 
-export const myAssetAssignmentReport = async ({ startDate, endDate }, { context }) => {
+export const myAssetAssignmentReport = async (
+  { startDate, endDate },
+  { context }
+) => {
   requireAuth({}, context)
   const userId = parseInt(context.currentUser.id)
 
   // Set default date range if not provided (last 6 months)
   const endDateTime = endDate ? new Date(endDate) : new Date()
-  const startDateTime = startDate ? new Date(startDate) : new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000)
+  const startDateTime = startDate
+    ? new Date(startDate)
+    : new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000)
 
   // Get all assignments for the user within date range
   const assignments = await db.assetAssignment.findMany({
@@ -106,17 +111,22 @@ export const myAssetAssignmentReport = async ({ startDate, endDate }, { context 
 
   // Calculate statistics
   const totalAssignments = assignments.length
-  const activeAssignments = assignments.filter(a => a.status === 'Active').length
-  const returnedAssignments = assignments.filter(a => a.status === 'Returned').length
-  const overdueAssignments = assignments.filter(a => 
-    a.status === 'Active' && 
-    a.expectedReturnDate && 
-    new Date(a.expectedReturnDate) < new Date()
+  const activeAssignments = assignments.filter(
+    (a) => a.status === 'Active'
+  ).length
+  const returnedAssignments = assignments.filter(
+    (a) => a.status === 'Returned'
+  ).length
+  const overdueAssignments = assignments.filter(
+    (a) =>
+      a.status === 'Active' &&
+      a.expectedReturnDate &&
+      new Date(a.expectedReturnDate) < new Date()
   ).length
 
   // Group by asset category
   const categoryStats = {}
-  assignments.forEach(assignment => {
+  assignments.forEach((assignment) => {
     const categoryName = assignment.asset.category.name
     if (!categoryStats[categoryName]) {
       categoryStats[categoryName] = {
@@ -136,7 +146,7 @@ export const myAssetAssignmentReport = async ({ startDate, endDate }, { context 
 
   // Group by month for monthly stats
   const monthlyStats = {}
-  assignments.forEach(assignment => {
+  assignments.forEach((assignment) => {
     const date = new Date(assignment.issueDate)
     const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`
     const monthName = date.toLocaleDateString('en-US', { month: 'long' })
@@ -151,7 +161,11 @@ export const myAssetAssignmentReport = async ({ startDate, endDate }, { context 
       }
     }
     monthlyStats[monthKey].assignedCount++
-    if (assignment.returnDate && new Date(assignment.returnDate) >= startDateTime && new Date(assignment.returnDate) <= endDateTime) {
+    if (
+      assignment.returnDate &&
+      new Date(assignment.returnDate) >= startDateTime &&
+      new Date(assignment.returnDate) <= endDateTime
+    ) {
       monthlyStats[monthKey].returnedCount++
     }
   })
@@ -164,19 +178,30 @@ export const myAssetAssignmentReport = async ({ startDate, endDate }, { context 
     assignments,
     assetsByCategory: Object.values(categoryStats),
     monthlyStats: Object.values(monthlyStats).sort((a, b) => {
-      const dateA = new Date(a.year, new Date(Date.parse(a.month +" 1, 2012")).getMonth())
-      const dateB = new Date(b.year, new Date(Date.parse(b.month +" 1, 2012")).getMonth())
+      const dateA = new Date(
+        a.year,
+        new Date(Date.parse(a.month + ' 1, 2012')).getMonth()
+      )
+      const dateB = new Date(
+        b.year,
+        new Date(Date.parse(b.month + ' 1, 2012')).getMonth()
+      )
       return dateA - dateB
     }),
   }
 }
 
-export const allUsersAssetReport = async ({ startDate, endDate }, { context }) => {
+export const allUsersAssetReport = async (
+  { startDate, endDate },
+  { context }
+) => {
   requireAuth({ roles: ['ADMIN'] }, context)
 
   // Set default date range if not provided (last 6 months)
   const endDateTime = endDate ? new Date(endDate) : new Date()
-  const startDateTime = startDate ? new Date(startDate) : new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000)
+  const startDateTime = startDate
+    ? new Date(startDate)
+    : new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000)
 
   // Get all assignments for all users within date range
   const assignments = await db.assetAssignment.findMany({
@@ -201,17 +226,22 @@ export const allUsersAssetReport = async ({ startDate, endDate }, { context }) =
 
   // Calculate statistics
   const totalAssignments = assignments.length
-  const activeAssignments = assignments.filter(a => a.status === 'Active').length
-  const returnedAssignments = assignments.filter(a => a.status === 'Returned').length
-  const overdueAssignments = assignments.filter(a => 
-    a.status === 'Active' && 
-    a.expectedReturnDate && 
-    new Date(a.expectedReturnDate) < new Date()
+  const activeAssignments = assignments.filter(
+    (a) => a.status === 'Active'
+  ).length
+  const returnedAssignments = assignments.filter(
+    (a) => a.status === 'Returned'
+  ).length
+  const overdueAssignments = assignments.filter(
+    (a) =>
+      a.status === 'Active' &&
+      a.expectedReturnDate &&
+      new Date(a.expectedReturnDate) < new Date()
   ).length
 
   // Group by asset category
   const categoryStats = {}
-  assignments.forEach(assignment => {
+  assignments.forEach((assignment) => {
     const categoryName = assignment.asset.category.name
     if (!categoryStats[categoryName]) {
       categoryStats[categoryName] = {
@@ -231,7 +261,7 @@ export const allUsersAssetReport = async ({ startDate, endDate }, { context }) =
 
   // Group by month for monthly stats
   const monthlyStats = {}
-  assignments.forEach(assignment => {
+  assignments.forEach((assignment) => {
     const date = new Date(assignment.issueDate)
     const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`
     const monthName = date.toLocaleDateString('en-US', { month: 'long' })
@@ -246,7 +276,11 @@ export const allUsersAssetReport = async ({ startDate, endDate }, { context }) =
       }
     }
     monthlyStats[monthKey].assignedCount++
-    if (assignment.returnDate && new Date(assignment.returnDate) >= startDateTime && new Date(assignment.returnDate) <= endDateTime) {
+    if (
+      assignment.returnDate &&
+      new Date(assignment.returnDate) >= startDateTime &&
+      new Date(assignment.returnDate) <= endDateTime
+    ) {
       monthlyStats[monthKey].returnedCount++
     }
   })
@@ -259,8 +293,14 @@ export const allUsersAssetReport = async ({ startDate, endDate }, { context }) =
     assignments,
     assetsByCategory: Object.values(categoryStats),
     monthlyStats: Object.values(monthlyStats).sort((a, b) => {
-      const dateA = new Date(a.year, new Date(Date.parse(a.month +" 1, 2012")).getMonth())
-      const dateB = new Date(b.year, new Date(Date.parse(b.month +" 1, 2012")).getMonth())
+      const dateA = new Date(
+        a.year,
+        new Date(Date.parse(a.month + ' 1, 2012')).getMonth()
+      )
+      const dateB = new Date(
+        b.year,
+        new Date(Date.parse(b.month + ' 1, 2012')).getMonth()
+      )
       return dateA - dateB
     }),
   }
@@ -323,7 +363,7 @@ export const assetHistory = ({ assetId }, { context }) => {
 
 export const createAssetAssignment = async ({ input }, { context }) => {
   requireAuth({ roles: ['ADMIN'] }, context)
-  
+
   // Check if asset is available
   const asset = await db.asset.findUnique({
     where: { id: input.assetId },
@@ -387,7 +427,7 @@ export const updateAssetAssignment = ({ id, input }, { context }) => {
 
 export const returnAsset = async ({ assignmentId, input }, { context }) => {
   requireAuth({}, context)
-  
+
   const assignment = await db.assetAssignment.findUnique({
     where: { id: assignmentId },
     include: {
@@ -403,7 +443,7 @@ export const returnAsset = async ({ assignmentId, input }, { context }) => {
   // Check if user is admin or owns the assignment
   const isAdmin = context.currentUser?.roles?.includes('ADMIN')
   const isOwner = assignment.userId === parseInt(context.currentUser?.id)
-  
+
   if (!isAdmin && !isOwner) {
     throw new Error('You can only return your own assets')
   }
@@ -434,7 +474,7 @@ export const returnAsset = async ({ assignmentId, input }, { context }) => {
     }),
     db.asset.update({
       where: { id: assignment.assetId },
-      data: { 
+      data: {
         status: 'Available',
         condition: input.condition,
       },

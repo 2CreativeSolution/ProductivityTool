@@ -15,7 +15,11 @@ export const schema = gql`
   type Query {
     attendances(userId: Int, date: DateTime): [Attendance!]! @requireAuth
     attendance(id: Int!): Attendance @requireAuth
-    attendancesInRange(userId: Int!, start: DateTime!, end: DateTime!): [Attendance!]! @requireAuth
+    attendancesInRange(
+      userId: Int!
+      start: DateTime!
+      end: DateTime!
+    ): [Attendance!]! @requireAuth
   }
 
   input CreateAttendanceInput {
@@ -40,7 +44,8 @@ export const schema = gql`
 
   type Mutation {
     createAttendance(input: CreateAttendanceInput!): Attendance! @requireAuth
-    updateAttendance(id: Int!, input: UpdateAttendanceInput!): Attendance! @requireAuth
+    updateAttendance(id: Int!, input: UpdateAttendanceInput!): Attendance!
+      @requireAuth
     deleteAttendance(id: Int!): Attendance! @requireAuth
   }
 `

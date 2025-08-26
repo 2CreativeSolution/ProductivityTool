@@ -13,12 +13,12 @@ export const DEPARTMENTS = [
   'Quality Assurance',
   'Production',
   'Logistics',
-  'Business Development'
+  'Business Development',
 ]
 
 export const getDepartmentOptions = () => {
-  return DEPARTMENTS.map(dept => ({
+  return DEPARTMENTS.map((dept) => ({
     value: dept,
-    label: dept
+    label: dept,
   }))
 }

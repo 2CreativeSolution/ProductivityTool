@@ -49,7 +49,9 @@ export const schema = gql`
     ): SupplyRequest! @requireAuth
     deleteSupplyRequest(id: Int!): SupplyRequest! @requireAuth
     fulfillSupplyRequest(id: Int!): SupplyRequest! @requireAuth
-    approveSupplyRequest(id: Int!, approverNotes: String): SupplyRequest! @requireAuth
-    rejectSupplyRequest(id: Int!, approverNotes: String!): SupplyRequest! @requireAuth
+    approveSupplyRequest(id: Int!, approverNotes: String): SupplyRequest!
+      @requireAuth
+    rejectSupplyRequest(id: Int!, approverNotes: String!): SupplyRequest!
+      @requireAuth
   }
 `

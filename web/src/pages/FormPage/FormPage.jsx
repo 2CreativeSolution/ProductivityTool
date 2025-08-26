@@ -103,12 +103,10 @@ const FormPage = () => {
       })
       setSuccess(true)
       setTimeout(() => navigate('/'), 1500)
-    window.dispatchEvent(new Event('exceptionRequestsChanged'))
-    window.localStorage.setItem('exceptionRequestsChanged', Date.now())
-
+      window.dispatchEvent(new Event('exceptionRequestsChanged'))
+      window.localStorage.setItem('exceptionRequestsChanged', Date.now())
     } catch (error) {
       console.error('Submission failed:', error)
-   
     }
   }
 
@@ -164,7 +162,9 @@ const FormPage = () => {
               </div>
             )}
 
-            {['Remote Work', 'Leave', 'Vacation', 'Training'].includes(type) && (
+            {['Remote Work', 'Leave', 'Vacation', 'Training'].includes(
+              type
+            ) && (
               <>
                 <div>
                   <label className="mb-1 block text-sm font-medium">From</label>

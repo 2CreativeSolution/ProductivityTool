@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react'
+
+import Calendar from 'react-calendar'
+
 import { useMutation, useQuery } from '@redwoodjs/web'
+
 import { useAuth } from 'src/auth'
 //import { toast } from '@redwoodjs/web/toast'
 import BookingLog from 'src/components/BookingLog/BookingLog'
-import Calendar from 'react-calendar'
+
 import 'react-calendar/dist/Calendar.css'
 import { format } from 'date-fns'
 import { FaRegCalendarAlt, FaRegClock } from 'react-icons/fa'
+
 import MeetingRoomSelector from '../BookingForm/MeetingRoomSelector'
 const CREATE_BOOKING = gql`
   mutation CreateBookingMutation($input: CreateBookingInput!) {
@@ -37,9 +42,12 @@ export const BookingForm = ({ refetchBookings }) => {
   const [success, setSuccess] = useState('')
   const [createBooking] = useMutation(CREATE_BOOKING)
   const [selectRoomId, setSelectedRoomId] = useState('')
-  const { data: bookingsData, refetch: refetchBookingsData } = useQuery(BOOKINGS_QUERY, {
-    variables: { userId: currentUser?.id },
-  })
+  const { data: bookingsData, refetch: refetchBookingsData } = useQuery(
+    BOOKINGS_QUERY,
+    {
+      variables: { userId: currentUser?.id },
+    }
+  )
 
   const slots = [
     { start: '09:00 AM', end: '09:30 AM' },
@@ -93,7 +101,7 @@ export const BookingForm = ({ refetchBookings }) => {
       if (booking.meetingRoomId !== Number(selectRoomId)) {
         return false
       }
-      
+
       const bookingStart = new Date(booking.startTime)
       const bookingEnd = new Date(booking.endTime)
       // Check if slot overlaps with booking
@@ -139,9 +147,17 @@ export const BookingForm = ({ refetchBookings }) => {
 
     // Use parseSlotTime for mobile compatibility!
     const startTime = parseSlotTime(selectedDate, selectedSlots[0].start)
-    const endTime = parseSlotTime(selectedDate, selectedSlots[selectedSlots.length - 1].end)
+    const endTime = parseSlotTime(
+      selectedDate,
+      selectedSlots[selectedSlots.length - 1].end
+    )
 
-    if (!startTime || isNaN(startTime.getTime()) || !endTime || isNaN(endTime.getTime())) {
+    if (
+      !startTime ||
+      isNaN(startTime.getTime()) ||
+      !endTime ||
+      isNaN(endTime.getTime())
+    ) {
       setError('Invalid start or end time.')
       setSuccess('')
       return
@@ -165,11 +181,11 @@ export const BookingForm = ({ refetchBookings }) => {
       setTitle('')
       setSelectedSlots([])
       setNotes('')
-      
+
       // Notify other components about the update
       window.dispatchEvent(new Event('bookingsUpdated'))
       window.localStorage.setItem('bookingsUpdated', Date.now())
-      
+
       if (refetchBookings) refetchBookings()
       if (refetchBookingsData) refetchBookingsData()
     } catch (err) {
@@ -191,29 +207,32 @@ export const BookingForm = ({ refetchBookings }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-gray-100 px-2 py-8 sm:px-4 md:px-6 lg:px-8">
-      <div className="max-w-[1600px] mx-auto bg-white/60 backdrop-blur-xl border border-gray-200 rounded-[2rem] shadow-2xl p-2 sm:p-6 md:p-10 lg:p-16 space-y-10">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-center text-gray-800">
+      <div className="mx-auto max-w-[1600px] space-y-10 rounded-[2rem] border border-gray-200 bg-white/60 p-2 shadow-2xl backdrop-blur-xl sm:p-6 md:p-10 lg:p-16">
+        <h1 className="text-center text-3xl font-extrabold text-gray-800 sm:text-4xl md:text-5xl">
           Book a Meeting Room
         </h1>
 
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-start w-full"
+          className="grid w-full grid-cols-1 items-start gap-6 md:grid-cols-2 md:gap-12"
         >
           {/* Calendar Column */}
-          <div className="w-full bg-white/70 backdrop-blur-md border border-gray-300 rounded-3xl px-2 sm:px-6 md:px-10 py-6 md:py-10 shadow-md hover:shadow-xl transition">
-            <div className="flex items-center gap-2 mb-4 md:mb-6 text-red-500 justify-center">
+          <div className="w-full rounded-3xl border border-gray-300 bg-white/70 px-2 py-6 shadow-md backdrop-blur-md transition hover:shadow-xl sm:px-6 md:px-10 md:py-10">
+            <div className="mb-4 flex items-center justify-center gap-2 text-red-500 md:mb-6">
               <FaRegCalendarAlt className="text-xl" />
-              <h2 className="text-lg md:text-xl font-semibold tracking-wide">Choose Date</h2>
+              <h2 className="text-lg font-semibold tracking-wide md:text-xl">
+                Choose Date
+              </h2>
             </div>
             <div className="flex justify-center">
               <Calendar
                 onChange={setSelectedDate}
                 value={selectedDate}
                 minDate={new Date()}
-                className="react-calendar w-full max-w-[350px] md:max-w-[700px] p-2 md:p-6 rounded-2xl"
+                className="react-calendar w-full max-w-[350px] rounded-2xl p-2 md:max-w-[700px] md:p-6"
                 tileClassName={({ date }) =>
-                  format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
+                  format(date, 'yyyy-MM-dd') ===
+                  format(selectedDate, 'yyyy-MM-dd')
                     ? 'bg-red-500 text-white font-semibold rounded-xl shadow-md'
                     : 'hover:bg-red-100 hover:shadow-sm rounded-xl transition-all'
                 }
@@ -222,40 +241,46 @@ export const BookingForm = ({ refetchBookings }) => {
           </div>
 
           {/* Time Slots Column */}
-          <div className="w-full bg-white/70 backdrop-blur-md border border-gray-300 rounded-3xl px-2 sm:px-6 md:px-10 py-6 md:py-10 shadow-md hover:shadow-xl transition flex flex-col items-center">
-            <div className="flex items-center gap-2 mb-2 md:mb-4 text-red-500">
+          <div className="flex w-full flex-col items-center rounded-3xl border border-gray-300 bg-white/70 px-2 py-6 shadow-md backdrop-blur-md transition hover:shadow-xl sm:px-6 md:px-10 md:py-10">
+            <div className="mb-2 flex items-center gap-2 text-red-500 md:mb-4">
               <FaRegClock className="text-xl" />
-              <h2 className="text-lg md:text-xl font-semibold tracking-wide">Choose Time Slots</h2>
+              <h2 className="text-lg font-semibold tracking-wide md:text-xl">
+                Choose Time Slots
+              </h2>
             </div>
-            <p className="text-center text-gray-600 mb-4 md:mb-6 font-medium text-sm md:text-base">
+            <p className="mb-4 text-center text-sm font-medium text-gray-600 md:mb-6 md:text-base">
               {format(selectedDate, 'eeee, MMMM do yyyy')}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 w-full max-w-[520px] max-h-[400px] overflow-y-auto pr-1">
+            <div className="grid max-h-[400px] w-full max-w-[520px] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 md:gap-4">
               {slots
                 .filter((slot) => !isSlotInPast(slot) && !isSlotBooked(slot))
                 .map((slot, idx) => (
                   <button
                     key={idx}
                     onClick={() => toggleSlotSelection(slot)}
-                    className={`py-2 md:py-3 rounded-xl text-sm md:text-base font-semibold transition transform duration-200 border ${
-                      selectedSlots.some((s) => s.start === slot.start && s.end === slot.end)
-                        ? 'bg-red-500 text-white shadow-lg scale-105'
-                        : 'bg-white hover:bg-red-100 hover:scale-105 text-gray-800'
+                    className={`transform rounded-xl border py-2 text-sm font-semibold transition duration-200 md:py-3 md:text-base ${
+                      selectedSlots.some(
+                        (s) => s.start === slot.start && s.end === slot.end
+                      )
+                        ? 'scale-105 bg-red-500 text-white shadow-lg'
+                        : 'bg-white text-gray-800 hover:scale-105 hover:bg-red-100'
                     }`}
                   >
                     {slot.start} - {slot.end}
                   </button>
                 ))}
             </div>
-            {slots.filter((slot) => !isSlotInPast(slot) && !isSlotBooked(slot)).length === 0 && (
-              <p className="text-center text-gray-600 mt-4">
-                No available slots for the selected date. Please choose another date or check back later.
+            {slots.filter((slot) => !isSlotInPast(slot) && !isSlotBooked(slot))
+              .length === 0 && (
+              <p className="mt-4 text-center text-gray-600">
+                No available slots for the selected date. Please choose another
+                date or check back later.
               </p>
             )}
           </div>
 
           {/* Meeting Title and Notes */}
-          <div className="col-span-1 md:col-span-2 flex flex-col gap-4 mt-6 md:mt-8">
+          <div className="col-span-1 mt-6 flex flex-col gap-4 md:col-span-2 md:mt-8">
             <div>
               <MeetingRoomSelector
                 selectedRoomId={selectRoomId}
@@ -267,28 +292,34 @@ export const BookingForm = ({ refetchBookings }) => {
               placeholder="Meeting Title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="rw-input w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring focus:ring-red-500"
+              className="rw-input w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:ring focus:ring-red-500"
             />
             <textarea
               placeholder="Notes (optional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="rw-input w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring focus:ring-red-500"
+              className="rw-input w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:ring focus:ring-red-500"
             />
           </div>
 
-          <div className="col-span-1 md:col-span-2 flex justify-center mt-6 md:mt-8">
+          <div className="col-span-1 mt-6 flex justify-center md:col-span-2 md:mt-8">
             <button
               type="submit"
-              className="rw-button rw-button-blue px-6 py-3 rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+              className="rw-button rw-button-blue rounded-lg bg-red-500 px-6 py-3 font-semibold text-white transition hover:bg-red-600"
               disabled={!selectRoomId}
             >
               Book Now
             </button>
           </div>
         </form>
-        {error && <div className="text-red-600 font-bold text-center mb-2">{error}</div>}
-        {success && <div className="text-green-600 font-bold text-center mb-2">{success}</div>}
+        {error && (
+          <div className="mb-2 text-center font-bold text-red-600">{error}</div>
+        )}
+        {success && (
+          <div className="mb-2 text-center font-bold text-green-600">
+            {success}
+          </div>
+        )}
       </div>
       <BookingLog />
     </div>
@@ -297,7 +328,7 @@ export const BookingForm = ({ refetchBookings }) => {
 
 export const BookingDetail = () => {
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
+    <div className="rounded-lg bg-white p-6 shadow-md">
       <h2 className="text-xl font-bold text-gray-800">Booking Detail</h2>
       <p className="text-gray-600">Details about the booking will go here.</p>
     </div>

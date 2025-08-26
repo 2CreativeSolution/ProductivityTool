@@ -42,7 +42,7 @@ export const meetingsByProject = ({ projectId }) => {
 
 export const upcomingMeetings = ({ userId }) => {
   const now = new Date()
-  
+
   return db.projectMeeting.findMany({
     where: {
       meetingDate: {
@@ -82,7 +82,7 @@ export const upcomingMeetings = ({ userId }) => {
 export const todaysMeetings = ({ userId }) => {
   const startOfDay = new Date()
   startOfDay.setHours(0, 0, 0, 0)
-  
+
   const endOfDay = new Date()
   endOfDay.setHours(23, 59, 59, 999)
 

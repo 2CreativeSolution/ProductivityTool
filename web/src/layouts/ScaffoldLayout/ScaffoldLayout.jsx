@@ -10,7 +10,6 @@ const ScaffoldLayout = ({
 }) => {
   return (
     <>
-     
       <div className="rw-scaffold">
         <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
         <header className="rw-header">

@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useAuth } from 'src/auth'
+
 import { Link, routes } from '@redwoodjs/router'
 import { useMutation, gql } from '@redwoodjs/web'
+
+import { useAuth } from 'src/auth'
 
 const UPDATE_USER_MUTATION = gql`
   mutation UpdateUser($id: Int!, $input: UpdateUserInput!) {
@@ -40,7 +42,10 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuOpen(false)
       }
-      if (resourcesDropdownRef.current && !resourcesDropdownRef.current.contains(event.target)) {
+      if (
+        resourcesDropdownRef.current &&
+        !resourcesDropdownRef.current.contains(event.target)
+      ) {
         setResourcesDropdownOpen(false)
       }
     }
@@ -89,44 +94,52 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
 
   return (
     <>
-   
-
       {/* Profile Update Modal */}
       {showProfileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md relative">
+          <div className="relative w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
             <button
-              className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-2xl"
+              className="absolute right-3 top-2 text-2xl text-gray-400 hover:text-gray-700"
               onClick={() => setShowProfileModal(false)}
               aria-label="Close"
-            >×</button>
-            <h2 className="text-lg font-bold mb-4">Update Personal Info</h2>
+            >
+              ×
+            </button>
+            <h2 className="mb-4 text-lg font-bold">Update Personal Info</h2>
             <form onSubmit={handleProfileSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <label className="mb-1 block text-sm font-medium">Name</label>
                 <input
                   type="text"
                   value={profileForm.name}
-                  onChange={e => setProfileForm(f => ({ ...f, name: e.target.value }))}
-                  className="w-full border px-3 py-2 rounded"
+                  onChange={(e) =>
+                    setProfileForm((f) => ({ ...f, name: e.target.value }))
+                  }
+                  className="w-full rounded border px-3 py-2"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="mb-1 block text-sm font-medium">Email</label>
                 <input
                   type="email"
                   value={profileForm.email}
-                  onChange={e => setProfileForm(f => ({ ...f, email: e.target.value }))}
-                  className="w-full border px-3 py-2 rounded"
+                  onChange={(e) =>
+                    setProfileForm((f) => ({ ...f, email: e.target.value }))
+                  }
+                  className="w-full rounded border px-3 py-2"
                   required
                 />
               </div>
-              {profileError && <div className="text-red-600">{profileError}</div>}
-              {profileSuccess && <div className="text-green-600">{profileSuccess}</div>}
+              {profileError && (
+                <div className="text-red-600">{profileError}</div>
+              )}
+              {profileSuccess && (
+                <div className="text-green-600">{profileSuccess}</div>
+              )}
               <button
                 type="submit"
-                className="w-full bg-orange-500 text-white py-2 rounded font-semibold hover:bg-orange-600 transition"
+                className="w-full rounded bg-orange-500 py-2 font-semibold text-white transition hover:bg-orange-600"
                 disabled={profileLoading}
               >
                 {profileLoading ? 'Saving...' : 'Save Changes'}
@@ -136,49 +149,57 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
         </div>
       )}
 
-      <header className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
+      <header className="fixed left-0 right-0 top-0 z-50 bg-white shadow-lg">
         <div className="flex items-center justify-between px-6 py-4">
           {/* Logo and Home */}
           <div className="flex items-center gap-6">
-            <Link to={routes.home()} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <img src="/logo.jpg"
+            <Link
+              to={routes.home()}
+              className="flex items-center gap-3 transition-opacity hover:opacity-80"
+            >
+              <img
+                src="/logo.jpg"
                 className="h-10 w-40 rounded-full object-cover"
                 alt="2Creative Logo"
                 loading="lazy"
               />
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Productivity Tool</h1>
+                <h1 className="text-xl font-bold text-gray-800">
+                  Productivity Tool
+                </h1>
                 <p className="text-xs text-gray-500">2Creative Solutions</p>
               </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden items-center space-x-8 md:flex">
             <Link
               to={routes.home()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 font-medium"
+              className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-gray-700 transition-all duration-200 hover:bg-blue-50 hover:text-blue-600"
             >
               <i className="ri-home-4-line text-lg"></i>
               <span>Home</span>
             </Link>
-            
+
             {/* Resources */}
             <div className="relative" ref={resourcesDropdownRef}>
-              <button 
+              <button
                 onClick={() => setResourcesDropdownOpen(!resourcesDropdownOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all duration-200 font-medium"
+                className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-gray-700 transition-all duration-200 hover:bg-purple-50 hover:text-purple-600"
               >
                 <i className="ri-stack-line text-lg"></i>
                 <span>Resources</span>
-                <i className={`ri-arrow-down-s-line text-sm transition-transform duration-200 ${resourcesDropdownOpen ? 'rotate-180' : ''}`}></i>
+                <i
+                  className={`ri-arrow-down-s-line text-sm transition-transform duration-200 ${resourcesDropdownOpen ? 'rotate-180' : ''}`}
+                ></i>
               </button>
               {resourcesDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                <div className="absolute left-0 top-full z-50 mt-2 w-48 rounded-xl border border-gray-200 bg-white py-2 shadow-xl">
                   <Link
                     to={routes.assetTracker()}
                     onClick={() => setResourcesDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors duration-200"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 transition-colors duration-200 hover:bg-purple-50 hover:text-purple-600"
                   >
                     <i className="ri-computer-line text-lg"></i>
                     <span>Assets</span>
@@ -186,7 +207,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                   <Link
                     to={routes.officeSupplies()}
                     onClick={() => setResourcesDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors duration-200"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 transition-colors duration-200 hover:bg-purple-50 hover:text-purple-600"
                   >
                     <i className="ri-archive-line text-lg"></i>
                     <span>Supplies</span>
@@ -194,7 +215,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                   <Link
                     to={routes.supplyRequests()}
                     onClick={() => setResourcesDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors duration-200"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 transition-colors duration-200 hover:bg-purple-50 hover:text-purple-600"
                   >
                     <i className="ri-shopping-cart-line text-lg"></i>
                     <span>Supply Requests</span>
@@ -205,7 +226,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
 
             <Link
               to={routes.projectTracker()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200 font-medium"
+              className="flex items-center gap-2 rounded-lg px-4 py-2 font-medium text-gray-700 transition-all duration-200 hover:bg-orange-50 hover:text-orange-600"
             >
               <i className="ri-project-line text-lg"></i>
               <span>Projects</span>
@@ -214,7 +235,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
             {hasRole && hasRole('ADMIN') && (
               <Link
                 to={routes.adminPanel()}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-all duration-200 font-medium shadow-md"
+                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-medium text-white shadow-md transition-all duration-200 hover:bg-red-700"
               >
                 <i className="ri-admin-line text-lg"></i>
                 <span>Admin</span>
@@ -223,31 +244,41 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
           </nav>
 
           {/* Desktop Auth/User Section */}
-          <div className="hidden md:flex items-center gap-4 relative">
+          <div className="relative hidden items-center gap-4 md:flex">
             {isAuthenticated ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   type="button"
                   onClick={() => setUserMenuOpen((open) => !open)}
-                  className="flex items-center gap-3 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-all duration-200"
+                  className="flex items-center gap-3 rounded-lg bg-gray-100 px-4 py-2 transition-all duration-200 hover:bg-gray-200"
                   aria-label="Account"
                 >
-                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">
-                      {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : '�'}
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600">
+                    <span className="text-sm font-bold text-white">
+                      {currentUser?.name
+                        ? currentUser.name.charAt(0).toUpperCase()
+                        : '�'}
                     </span>
                   </div>
                   <div className="text-left">
-                    <div className="text-sm font-medium text-gray-800">{currentUser?.name || 'User'}</div>
-                    <div className="text-xs text-gray-500">{hasRole && hasRole('ADMIN') ? 'Admin' : 'Employee'}</div>
+                    <div className="text-sm font-medium text-gray-800">
+                      {currentUser?.name || 'User'}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {hasRole && hasRole('ADMIN') ? 'Admin' : 'Employee'}
+                    </div>
                   </div>
                   <i className="ri-arrow-down-s-line text-gray-400"></i>
                 </button>
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50">
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <div className="text-xs text-gray-500 mb-1">Signed in as</div>
-                      <div className="font-semibold text-gray-800 truncate">{currentUser.email}</div>
+                  <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-gray-200 bg-white shadow-xl">
+                    <div className="border-b border-gray-100 px-4 py-3">
+                      <div className="mb-1 text-xs text-gray-500">
+                        Signed in as
+                      </div>
+                      <div className="truncate font-semibold text-gray-800">
+                        {currentUser.email}
+                      </div>
                     </div>
                     <button
                       type="button"
@@ -259,7 +290,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                           email: currentUser?.email || '',
                         })
                       }}
-                      className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center gap-2"
+                      className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-gray-700 transition hover:bg-gray-50"
                     >
                       <i className="ri-user-settings-line"></i>
                       Update Profile
@@ -267,7 +298,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                     <button
                       type="button"
                       onClick={logOut}
-                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-b-xl transition flex items-center gap-2"
+                      className="flex w-full items-center gap-2 rounded-b-xl px-4 py-3 text-left text-sm text-red-600 transition hover:bg-red-50"
                     >
                       <i className="ri-logout-circle-line"></i>
                       Sign Out
@@ -278,7 +309,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
             ) : (
               <Link
                 to={routes.login()}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition hover:bg-blue-700"
               >
                 Sign In
               </Link>
@@ -286,55 +317,55 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
           </div>
 
           {/* Mobile Menu Button - Hamburger Style */}
-          <button 
-            className="md:hidden flex flex-col items-center justify-center p-3 rounded-lg hover:bg-gray-100 transition-colors z-50 group"
+          <button
+            className="group z-50 flex flex-col items-center justify-center rounded-lg p-3 transition-colors hover:bg-gray-100 md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle mobile menu"
             style={{ minWidth: '44px', minHeight: '44px' }}
           >
-            <div className="relative w-6 h-5">
+            <div className="relative h-5 w-6">
               {/* Top line */}
-              <span className={`absolute block w-6 h-0.5 bg-gray-700 transform transition-all duration-300 ${
-                mobileMenuOpen 
-                  ? 'rotate-45 translate-y-2' 
-                  : 'translate-y-0'
-              }`}></span>
-              
+              <span
+                className={`absolute block h-0.5 w-6 transform bg-gray-700 transition-all duration-300 ${
+                  mobileMenuOpen ? 'translate-y-2 rotate-45' : 'translate-y-0'
+                }`}
+              ></span>
+
               {/* Middle line */}
-              <span className={`absolute block w-6 h-0.5 bg-gray-700 transform transition-all duration-300 translate-y-2 ${
-                mobileMenuOpen 
-                  ? 'opacity-0' 
-                  : 'opacity-100'
-              }`}></span>
-              
+              <span
+                className={`absolute block h-0.5 w-6 translate-y-2 transform bg-gray-700 transition-all duration-300 ${
+                  mobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                }`}
+              ></span>
+
               {/* Bottom line */}
-              <span className={`absolute block w-6 h-0.5 bg-gray-700 transform transition-all duration-300 ${
-                mobileMenuOpen 
-                  ? '-rotate-45 translate-y-2' 
-                  : 'translate-y-4'
-              }`}></span>
+              <span
+                className={`absolute block h-0.5 w-6 transform bg-gray-700 transition-all duration-300 ${
+                  mobileMenuOpen ? 'translate-y-2 -rotate-45' : 'translate-y-4'
+                }`}
+              ></span>
             </div>
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 shadow-xl border-t border-blue-200 z-40 backdrop-blur-md">
-            <div className="px-4 py-4 space-y-2">
+          <div className="absolute left-0 right-0 top-full z-40 border-t border-blue-200 bg-gradient-to-br from-blue-50 via-white to-purple-50 shadow-xl backdrop-blur-md md:hidden">
+            <div className="space-y-2 px-4 py-4">
               <Link
                 to={routes.home()}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-white/70 hover:text-blue-600 font-medium transition-all duration-200 group shadow-sm hover:shadow-md"
+                className="group flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-gray-700 shadow-sm transition-all duration-200 hover:bg-white/70 hover:text-blue-600 hover:shadow-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center group-hover:from-blue-500 group-hover:to-blue-700 transition-all shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-blue-400 to-blue-600 shadow-sm transition-all group-hover:from-blue-500 group-hover:to-blue-700">
                   <i className="ri-home-4-line text-lg text-white"></i>
                 </div>
                 <span>Home</span>
               </Link>
-              
+
               <div className="space-y-2">
-                <div className="flex items-center gap-3 px-4 py-2 bg-white/30 rounded-xl backdrop-blur-sm">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center shadow-sm">
+                <div className="flex items-center gap-3 rounded-xl bg-white/30 px-4 py-2 backdrop-blur-sm">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-purple-400 to-purple-600 shadow-sm">
                     <i className="ri-stack-line text-lg text-white"></i>
                   </div>
                   <span className="font-semibold text-gray-800">Resources</span>
@@ -342,7 +373,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                 <div className="ml-14 space-y-1">
                   <Link
                     to={routes.assetTracker()}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-white/60 hover:text-purple-600 transition-all duration-200 hover:shadow-sm"
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-gray-600 transition-all duration-200 hover:bg-white/60 hover:text-purple-600 hover:shadow-sm"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <i className="ri-computer-line text-lg"></i>
@@ -350,7 +381,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                   </Link>
                   <Link
                     to={routes.officeSupplies()}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-white/60 hover:text-purple-600 transition-all duration-200 hover:shadow-sm"
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-gray-600 transition-all duration-200 hover:bg-white/60 hover:text-purple-600 hover:shadow-sm"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <i className="ri-archive-line text-lg"></i>
@@ -358,7 +389,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                   </Link>
                   <Link
                     to={routes.supplyRequests()}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-white/60 hover:text-purple-600 transition-all duration-200 hover:shadow-sm"
+                    className="flex items-center gap-3 rounded-xl px-4 py-3 text-gray-600 transition-all duration-200 hover:bg-white/60 hover:text-purple-600 hover:shadow-sm"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <i className="ri-shopping-cart-line text-lg"></i>
@@ -366,45 +397,53 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                   </Link>
                 </div>
               </div>
-              
+
               <Link
                 to={routes.projectTracker()}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-white/70 hover:text-orange-600 font-medium transition-all duration-200 group shadow-sm hover:shadow-md"
+                className="group flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-gray-700 shadow-sm transition-all duration-200 hover:bg-white/70 hover:text-orange-600 hover:shadow-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-center group-hover:from-orange-500 group-hover:to-orange-700 transition-all shadow-sm">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-orange-400 to-orange-600 shadow-sm transition-all group-hover:from-orange-500 group-hover:to-orange-700">
                   <i className="ri-project-line text-lg text-white"></i>
                 </div>
                 <span>Projects</span>
               </Link>
-              
+
               {hasRole && hasRole('ADMIN') && (
                 <Link
                   to={routes.adminPanel()}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-white/70 hover:text-red-600 font-medium transition-all duration-200 group shadow-sm hover:shadow-md"
+                  className="group flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-gray-700 shadow-sm transition-all duration-200 hover:bg-white/70 hover:text-red-600 hover:shadow-md"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-red-400 to-red-600 flex items-center justify-center group-hover:from-red-500 group-hover:to-red-700 transition-all shadow-sm">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-red-400 to-red-600 shadow-sm transition-all group-hover:from-red-500 group-hover:to-red-700">
                     <i className="ri-admin-line text-lg text-white"></i>
                   </div>
                   <span>Admin Panel</span>
                 </Link>
               )}
-              
+
               {/* Mobile User Profile Section */}
               {isAuthenticated ? (
-                <div className="border-t border-white/30 mt-4 pt-4">
-                  <div className="px-4 py-3 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl mb-3 backdrop-blur-sm border border-white/40 shadow-sm">
+                <div className="mt-4 border-t border-white/30 pt-4">
+                  <div className="mb-3 rounded-xl border border-white/40 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-3 shadow-sm backdrop-blur-sm">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-                        <span className="text-white text-lg font-bold">
-                          {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-md">
+                        <span className="text-lg font-bold text-white">
+                          {currentUser?.name
+                            ? currentUser.name.charAt(0).toUpperCase()
+                            : 'U'}
                         </span>
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-gray-800">{currentUser?.name || 'User'}</div>
-                        <div className="text-xs text-gray-600">{hasRole && hasRole('ADMIN') ? 'Admin' : 'Employee'}</div>
-                        <div className="text-xs text-gray-500 mt-1">{currentUser?.email}</div>
+                        <div className="text-sm font-semibold text-gray-800">
+                          {currentUser?.name || 'User'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {hasRole && hasRole('ADMIN') ? 'Admin' : 'Employee'}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {currentUser?.email}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -419,9 +458,9 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                           email: currentUser?.email || '',
                         })
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-white/60 transition-all duration-200 rounded-xl hover:shadow-sm"
+                      className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-white/60 hover:shadow-sm"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-gray-400 to-gray-600 flex items-center justify-center shadow-sm">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-gray-400 to-gray-600 shadow-sm">
                         <i className="ri-user-settings-line text-lg text-white"></i>
                       </div>
                       <span>Update Profile</span>
@@ -432,9 +471,9 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                         setMobileMenuOpen(false)
                         logOut()
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-white/60 transition-all duration-200 rounded-xl hover:shadow-sm"
+                      className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-700 transition-all duration-200 hover:bg-white/60 hover:shadow-sm"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-red-400 to-red-600 flex items-center justify-center shadow-sm">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-red-400 to-red-600 shadow-sm">
                         <i className="ri-logout-circle-line text-lg text-white"></i>
                       </div>
                       <span>Sign Out</span>
@@ -442,10 +481,10 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                   </div>
                 </div>
               ) : (
-                <div className="border-t border-white/30 mt-4 pt-4">
+                <div className="mt-4 border-t border-white/30 pt-4">
                   <Link
                     to={routes.login()}
-                    className="flex items-center justify-center gap-3 mx-4 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+                    className="mx-4 flex transform items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 font-medium text-white shadow-md transition-all duration-200 hover:scale-105 hover:from-blue-600 hover:to-purple-700 hover:shadow-lg"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <i className="ri-login-circle-line text-lg"></i>
@@ -464,7 +503,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
               <a
                 href="#bookings-section"
                 onClick={handleScroll('bookings-section')}
-                className="flex-shrink-0 px-6 py-3 text-center text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-white transition-all duration-200 border-b-2 border-transparent hover:border-blue-600"
+                className="flex-shrink-0 border-b-2 border-transparent px-6 py-3 text-center text-sm font-medium text-gray-600 transition-all duration-200 hover:border-blue-600 hover:bg-white hover:text-blue-600"
               >
                 <div className="flex items-center gap-2">
                   <i className="ri-calendar-line"></i>
@@ -474,7 +513,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
               <a
                 href="#attendance-section"
                 onClick={handleScroll('attendance-section')}
-                className="flex-shrink-0 px-6 py-3 text-center text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-white transition-all duration-200 border-b-2 border-transparent hover:border-green-600"
+                className="flex-shrink-0 border-b-2 border-transparent px-6 py-3 text-center text-sm font-medium text-gray-600 transition-all duration-200 hover:border-green-600 hover:bg-white hover:text-green-600"
               >
                 <div className="flex items-center gap-2">
                   <i className="ri-time-line"></i>
@@ -484,7 +523,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
               <a
                 href="#vacation-section"
                 onClick={handleScroll('vacation-section')}
-                className="flex-shrink-0 px-6 py-3 text-center text-sm font-medium text-gray-600 hover:text-purple-600 hover:bg-white transition-all duration-200 border-b-2 border-transparent hover:border-purple-600"
+                className="flex-shrink-0 border-b-2 border-transparent px-6 py-3 text-center text-sm font-medium text-gray-600 transition-all duration-200 hover:border-purple-600 hover:bg-white hover:text-purple-600"
               >
                 <div className="flex items-center gap-2">
                   <i className="ri-calendar-event-line"></i>

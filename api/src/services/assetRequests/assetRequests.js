@@ -1,8 +1,8 @@
 import { db } from 'src/lib/db'
-import { 
-  sendAssetRequestApprovalEmail, 
+import {
+  sendAssetRequestApprovalEmail,
   sendAssetRequestRejectionEmail,
-  sendAssetRequestNotificationToAdmins
+  sendAssetRequestNotificationToAdmins,
 } from 'src/lib/emailService'
 
 export const assetRequests = () => {
@@ -97,10 +97,16 @@ export const createAssetRequest = ({ input }, { context }) => {
     })
 
     // Send notification to admins (run async without blocking the response)
-    sendAssetRequestNotificationToAdmins(newRequest.user, newRequest, newRequest.assetCategory)
-      .catch(error => {
-        console.error('Failed to send admin notification for asset request:', error)
-      })
+    sendAssetRequestNotificationToAdmins(
+      newRequest.user,
+      newRequest,
+      newRequest.assetCategory
+    ).catch((error) => {
+      console.error(
+        'Failed to send admin notification for asset request:',
+        error
+      )
+    })
 
     return newRequest
   })
@@ -225,9 +231,9 @@ export const approveAssetRequest = async ({ id, input }, { context }) => {
     // Send approval email notification
     try {
       await sendAssetRequestApprovalEmail(
-        updatedRequest.user, 
-        updatedRequest, 
-        assignedAsset, 
+        updatedRequest.user,
+        updatedRequest,
+        assignedAsset,
         input.fulfillmentNotes
       )
       console.log('✅ Approval email sent for asset request:', id)
@@ -265,8 +271,8 @@ export const rejectAssetRequest = async ({ id, input }, { context }) => {
   // Send rejection email notification
   try {
     await sendAssetRequestRejectionEmail(
-      updatedRequest.user, 
-      updatedRequest, 
+      updatedRequest.user,
+      updatedRequest,
       input.rejectionReason
     )
     console.log('✅ Rejection email sent for asset request:', id)
@@ -283,9 +289,13 @@ export const AssetRequest = {
     return db.assetRequest.findUnique({ where: { id: root?.id } }).user()
   },
   assetCategory: (_obj, { root }) => {
-    return db.assetRequest.findUnique({ where: { id: root?.id } }).assetCategory()
+    return db.assetRequest
+      .findUnique({ where: { id: root?.id } })
+      .assetCategory()
   },
   specificAsset: (_obj, { root }) => {
-    return db.assetRequest.findUnique({ where: { id: root?.id } }).specificAsset()
+    return db.assetRequest
+      .findUnique({ where: { id: root?.id } })
+      .specificAsset()
   },
 }

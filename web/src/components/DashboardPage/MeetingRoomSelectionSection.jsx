@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+
 import { useQuery, useMutation } from '@redwoodjs/web'
 
 const GET_MEETING_ROOMS_WITH_DESCRIPTION = gql`
@@ -37,21 +38,33 @@ const UPDATE_USER_MEETING_ROOM = gql`
 `
 
 const MeetingRoomSelectionSection = ({ userId }) => {
-  const { data: roomsData, loading: roomsLoading, error: roomsError } = useQuery(GET_MEETING_ROOMS_WITH_DESCRIPTION)
-  const { data: userData, loading: userLoading, error: userError, refetch: refetchUser } = useQuery(GET_USER_MEETING_ROOM, {
+  const {
+    data: roomsData,
+    loading: roomsLoading,
+    error: roomsError,
+  } = useQuery(GET_MEETING_ROOMS_WITH_DESCRIPTION)
+  const {
+    data: userData,
+    loading: userLoading,
+    error: userError,
+    refetch: refetchUser,
+  } = useQuery(GET_USER_MEETING_ROOM, {
     variables: { userId },
   })
 
   const [selectedRoomId, setSelectedRoomId] = useState(null)
-  const [updateUserMeetingRoom, { loading: updateLoading }] = useMutation(UPDATE_USER_MEETING_ROOM, {
-    onCompleted: () => {
-      refetchUser()
-      alert('Meeting room selection updated successfully.')
-    },
-    onError: (error) => {
-      alert('Error updating meeting room selection: ' + error.message)
-    },
-  })
+  const [updateUserMeetingRoom, { loading: updateLoading }] = useMutation(
+    UPDATE_USER_MEETING_ROOM,
+    {
+      onCompleted: () => {
+        refetchUser()
+        alert('Meeting room selection updated successfully.')
+      },
+      onError: (error) => {
+        alert('Error updating meeting room selection: ' + error.message)
+      },
+    }
+  )
 
   useEffect(() => {
     if (userData?.user?.selectedMeetingRoom?.id) {
@@ -65,23 +78,28 @@ const MeetingRoomSelectionSection = ({ userId }) => {
 
   const handleSave = () => {
     if (selectedRoomId) {
-      updateUserMeetingRoom({ variables: { userId, meetingRoomId: selectedRoomId } })
+      updateUserMeetingRoom({
+        variables: { userId, meetingRoomId: selectedRoomId },
+      })
     } else {
       alert('Please select a meeting room before saving.')
     }
   }
 
   if (roomsLoading || userLoading) return <div>Loading meeting rooms...</div>
-  if (roomsError) return <div>Error loading meeting rooms: {roomsError.message}</div>
+  if (roomsError)
+    return <div>Error loading meeting rooms: {roomsError.message}</div>
   if (userError) return <div>Error loading user data: {userError.message}</div>
 
   return (
-    <div className="bg-white border border-blue-300 rounded-xl shadow p-6 max-w-md mx-auto">
-      <h2 className="text-xl font-semibold mb-4 text-blue-700">Select a Meeting Room</h2>
+    <div className="mx-auto max-w-md rounded-xl border border-blue-300 bg-white p-6 shadow">
+      <h2 className="mb-4 text-xl font-semibold text-blue-700">
+        Select a Meeting Room
+      </h2>
       <select
         value={selectedRoomId || ''}
         onChange={handleChange}
-        className="w-full p-2 border border-gray-300 rounded mb-4"
+        className="mb-4 w-full rounded border border-gray-300 p-2"
       >
         <option value="" disabled>
           -- Select a meeting room --
@@ -95,7 +113,7 @@ const MeetingRoomSelectionSection = ({ userId }) => {
       <button
         onClick={handleSave}
         disabled={updateLoading}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        className="rounded bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
       >
         {updateLoading ? 'Saving...' : 'Save Selection'}
       </button>

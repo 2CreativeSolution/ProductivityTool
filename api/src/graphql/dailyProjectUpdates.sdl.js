@@ -20,14 +20,21 @@ export const schema = gql`
   }
 
   type Query {
-    dailyProjectUpdates(startDate: DateTime, endDate: DateTime): [DailyProjectUpdate!]! @requireAuth
+    dailyProjectUpdates(
+      startDate: DateTime
+      endDate: DateTime
+    ): [DailyProjectUpdate!]! @requireAuth
     dailyProjectUpdate(id: Int!): DailyProjectUpdate @requireAuth
     updatesByAllocation(allocationId: Int!): [DailyProjectUpdate!]! @requireAuth
     updatesByProject(projectId: Int!): [DailyProjectUpdate!]! @requireAuth
     updatesByUser(userId: Int!): [DailyProjectUpdate!]! @requireAuth
     updatesByDate(date: DateTime!): [DailyProjectUpdate!]! @requireAuth
-    userUpdatesForDate(userId: Int!, date: DateTime!): [DailyProjectUpdate!]! @requireAuth
-    projectUpdatesForDate(projectId: Int!, date: DateTime!): [DailyProjectUpdate!]! @requireAuth
+    userUpdatesForDate(userId: Int!, date: DateTime!): [DailyProjectUpdate!]!
+      @requireAuth
+    projectUpdatesForDate(
+      projectId: Int!
+      date: DateTime!
+    ): [DailyProjectUpdate!]! @requireAuth
   }
 
   input CreateDailyProjectUpdateInput {
@@ -54,11 +61,13 @@ export const schema = gql`
   }
 
   type Mutation {
-    createDailyProjectUpdate(input: CreateDailyProjectUpdateInput!): DailyProjectUpdate!
-      @requireAuth
-    updateDailyProjectUpdate(id: Int!, input: UpdateDailyProjectUpdateInput!): DailyProjectUpdate!
-      @requireAuth
-    deleteDailyProjectUpdate(id: Int!): DailyProjectUpdate!
-      @requireAuth
+    createDailyProjectUpdate(
+      input: CreateDailyProjectUpdateInput!
+    ): DailyProjectUpdate! @requireAuth
+    updateDailyProjectUpdate(
+      id: Int!
+      input: UpdateDailyProjectUpdateInput!
+    ): DailyProjectUpdate! @requireAuth
+    deleteDailyProjectUpdate(id: Int!): DailyProjectUpdate! @requireAuth
   }
 `

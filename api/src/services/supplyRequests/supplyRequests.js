@@ -1,22 +1,23 @@
-import { db } from 'src/lib/db'
-import { requireAuth } from 'src/lib/auth'
 import { ForbiddenError, ValidationError } from '@redwoodjs/graphql-server'
 import { context } from '@redwoodjs/graphql-server'
-import { 
-  sendSupplyRequestApprovalEmail, 
+
+import { requireAuth } from 'src/lib/auth'
+import { db } from 'src/lib/db'
+import {
+  sendSupplyRequestApprovalEmail,
   sendSupplyRequestRejectionEmail,
-  sendSupplyRequestNotificationToAdmins
+  sendSupplyRequestNotificationToAdmins,
 } from 'src/lib/emailService'
 
 export const supplyRequests = () => {
   requireAuth()
-  
+
   // Check if user is admin
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
   if (!isAdmin) {
     throw new ForbiddenError('Only administrators can view all supply requests')
   }
-  
+
   return db.supplyRequest.findMany({
     include: {
       user: true,
@@ -65,16 +66,18 @@ export const mySupplyRequests = () => {
 // Get pending supply requests (for admins)
 export const pendingSupplyRequests = () => {
   requireAuth()
-  
+
   // Check if user is admin
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
   if (!isAdmin) {
-    throw new ForbiddenError('Only administrators can view pending supply requests')
+    throw new ForbiddenError(
+      'Only administrators can view pending supply requests'
+    )
   }
-  
+
   return db.supplyRequest.findMany({
-    where: { 
-      status: 'PENDING' 
+    where: {
+      status: 'PENDING',
     },
     include: {
       user: true,
@@ -123,10 +126,16 @@ export const createSupplyRequest = ({ input }) => {
     })
 
     // Send notification to admins (run async without blocking the response)
-    sendSupplyRequestNotificationToAdmins(newRequest.user, newRequest, supply)
-      .catch(error => {
-        console.error('Failed to send admin notification for supply request:', error)
-      })
+    sendSupplyRequestNotificationToAdmins(
+      newRequest.user,
+      newRequest,
+      supply
+    ).catch((error) => {
+      console.error(
+        'Failed to send admin notification for supply request:',
+        error
+      )
+    })
 
     return newRequest
   })
@@ -137,9 +146,9 @@ export const updateSupplyRequest = ({ id, input }) => {
   const userId = context.currentUser.id
 
   return db.$transaction(async (tx) => {
-    const existingRequest = await tx.supplyRequest.findUnique({ 
+    const existingRequest = await tx.supplyRequest.findUnique({
       where: { id },
-      include: { user: true }
+      include: { user: true },
     })
 
     if (!existingRequest) {
@@ -147,7 +156,10 @@ export const updateSupplyRequest = ({ id, input }) => {
     }
 
     // Only allow the requester to update their own pending requests
-    if (existingRequest.userId !== userId && existingRequest.status !== 'PENDING') {
+    if (
+      existingRequest.userId !== userId &&
+      existingRequest.status !== 'PENDING'
+    ) {
       throw new ForbiddenError('You can only update your own pending requests')
     }
 
@@ -176,9 +188,9 @@ export const deleteSupplyRequest = ({ id }) => {
   const userId = context.currentUser.id
 
   return db.$transaction(async (tx) => {
-    const existingRequest = await tx.supplyRequest.findUnique({ 
+    const existingRequest = await tx.supplyRequest.findUnique({
       where: { id },
-      include: { user: true }
+      include: { user: true },
     })
 
     if (!existingRequest) {
@@ -204,24 +216,24 @@ export const deleteSupplyRequest = ({ id }) => {
 // Approve supply request (admin function)
 export const approveSupplyRequest = async ({ id, approverNotes }) => {
   requireAuth()
-  
+
   // Check if user is admin
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
   if (!isAdmin) {
     throw new ForbiddenError('Only administrators can approve supply requests')
   }
-  
+
   return db.$transaction(async (tx) => {
     const request = await tx.supplyRequest.findUnique({
       where: { id },
-      include: { 
+      include: {
         supply: {
           include: {
             category: true,
           },
         },
-        user: true
-      }
+        user: true,
+      },
     })
 
     if (!request) {
@@ -265,7 +277,11 @@ export const approveSupplyRequest = async ({ id, approverNotes }) => {
 
     // Send approval email notification
     try {
-      await sendSupplyRequestApprovalEmail(updatedRequest.user, updatedRequest, approverNotes)
+      await sendSupplyRequestApprovalEmail(
+        updatedRequest.user,
+        updatedRequest,
+        approverNotes
+      )
       console.log('✅ Approval email sent for supply request:', id)
     } catch (emailError) {
       console.error('⚠️ Failed to send approval email:', emailError)
@@ -279,13 +295,13 @@ export const approveSupplyRequest = async ({ id, approverNotes }) => {
 // Reject supply request (admin function)
 export const rejectSupplyRequest = async ({ id, approverNotes }) => {
   requireAuth()
-  
+
   // Check if user is admin
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
   if (!isAdmin) {
     throw new ForbiddenError('Only administrators can reject supply requests')
   }
-  
+
   const updatedRequest = await db.supplyRequest.update({
     where: { id },
     data: {
@@ -305,7 +321,11 @@ export const rejectSupplyRequest = async ({ id, approverNotes }) => {
 
   // Send rejection email notification
   try {
-    await sendSupplyRequestRejectionEmail(updatedRequest.user, updatedRequest, approverNotes)
+    await sendSupplyRequestRejectionEmail(
+      updatedRequest.user,
+      updatedRequest,
+      approverNotes
+    )
     console.log('✅ Rejection email sent for supply request:', id)
   } catch (emailError) {
     console.error('⚠️ Failed to send rejection email:', emailError)
@@ -317,17 +337,13 @@ export const rejectSupplyRequest = async ({ id, approverNotes }) => {
 
 export const SupplyRequest = {
   user: (_obj, { root }) => {
-    return db.supplyRequest
-      .findUnique({ where: { id: root?.id } })
-      .user()
+    return db.supplyRequest.findUnique({ where: { id: root?.id } }).user()
   },
-  
+
   supply: (_obj, { root }) => {
-    return db.supplyRequest
-      .findUnique({ where: { id: root?.id } })
-      .supply()
+    return db.supplyRequest.findUnique({ where: { id: root?.id } }).supply()
   },
-  
+
   // Calculate total cost
   totalCost: (obj) => {
     if (obj.supply && obj.supply.unitPrice) {
@@ -335,12 +351,14 @@ export const SupplyRequest = {
     }
     return null
   },
-  
+
   // Check if request is overdue (pending for more than 7 days)
   isOverdue: (obj) => {
     if (obj.status !== 'PENDING') return false
-    
-    const daysDiff = Math.floor((new Date() - new Date(obj.createdAt)) / (1000 * 60 * 60 * 24))
+
+    const daysDiff = Math.floor(
+      (new Date() - new Date(obj.createdAt)) / (1000 * 60 * 60 * 24)
+    )
     return daysDiff > 7
   },
 }
