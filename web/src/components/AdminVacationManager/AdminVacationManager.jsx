@@ -1,8 +1,11 @@
 import { useState, useMemo, useEffect } from 'react'
+
+import moment from 'moment'
+import { Calendar, momentLocalizer } from 'react-big-calendar'
+
 import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
-import { Calendar, momentLocalizer } from 'react-big-calendar'
-import moment from 'moment'
+
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import FormModal from 'src/components/FormModal/FormModal'
 
@@ -47,7 +50,10 @@ const APPROVE_VACATION_REQUEST = gql`
 `
 
 const REJECT_VACATION_REQUEST = gql`
-  mutation RejectVacationRequest($id: Int!, $input: RejectVacationRequestInput!) {
+  mutation RejectVacationRequest(
+    $id: Int!
+    $input: RejectVacationRequestInput!
+  ) {
     rejectVacationRequest(id: $id, input: $input) {
       id
       status
@@ -129,7 +135,11 @@ const AdminVacationManager = () => {
             data: {
               vacationRequests: vacationRequests.map((req) =>
                 req.id === rejectVacationRequest.id
-                  ? { ...req, status: 'Rejected', rejectionReason: rejectVacationRequest.rejectionReason }
+                  ? {
+                      ...req,
+                      status: 'Rejected',
+                      rejectionReason: rejectVacationRequest.rejectionReason,
+                    }
                   : req
               ),
             },
@@ -156,16 +166,16 @@ const AdminVacationManager = () => {
       toast.error('Please provide a rejection reason')
       return
     }
-    
-    rejectVacationRequest({ 
-      variables: { 
+
+    rejectVacationRequest({
+      variables: {
         id: rejectRequestId,
         input: {
-          rejectionReason: rejectionReason.trim()
-        }
-      } 
+          rejectionReason: rejectionReason.trim(),
+        },
+      },
     })
-    
+
     setShowRejectModal(false)
     setRejectRequestId(null)
     setRejectionReason('')
@@ -177,11 +187,12 @@ const AdminVacationManager = () => {
   const calendarEvents = useMemo(() => {
     return allRequests.map((req) => ({
       id: req.id,
-      title: `${req.user.name}: ${
-        req.reason.substring(0, 15)
-      }${req.reason.length > 15 ? '...' : ''}`,
+      title: `${req.user.name}: ${req.reason.substring(
+        0,
+        15
+      )}${req.reason.length > 15 ? '...' : ''}`,
       start: new Date(new Date(req.startDate).toISOString().split('T')[0]), // Ensures UTC date
-      end: new Date(new Date(req.endDate).toISOString().split('T')[0]),     // Ensures UTC date
+      end: new Date(new Date(req.endDate).toISOString().split('T')[0]), // Ensures UTC date
       allDay: true,
       status: req.status,
       resource: req.user.name,
@@ -240,7 +251,9 @@ const AdminVacationManager = () => {
 
   useEffect(() => {
     const handleVacationUpdated = async () => {
-      console.log('Admin: vacationRequestsUpdated event received, refetching...')
+      console.log(
+        'Admin: vacationRequestsUpdated event received, refetching...'
+      )
       await refetch()
     }
 
@@ -250,14 +263,19 @@ const AdminVacationManager = () => {
     // Listen for localStorage changes (cross-tab communication)
     const handleStorageChange = (e) => {
       if (e.key === 'vacationRequestsUpdated') {
-        console.log('Admin: vacationRequestsUpdated storage event, refetching...')
+        console.log(
+          'Admin: vacationRequestsUpdated storage event, refetching...'
+        )
         refetch()
       }
     }
     window.addEventListener('storage', handleStorageChange)
 
     return () => {
-      window.removeEventListener('vacationRequestsUpdated', handleVacationUpdated)
+      window.removeEventListener(
+        'vacationRequestsUpdated',
+        handleVacationUpdated
+      )
       window.removeEventListener('storage', handleStorageChange)
     }
   }, [refetch])
@@ -275,19 +293,19 @@ const AdminVacationManager = () => {
   }
 
   return (
-    <div className="admin-vacation-manager bg-white rounded-lg shadow p-6">
+    <div className="admin-vacation-manager rounded-lg bg-white p-6 shadow">
       <Toaster toastOptions={{ duration: 3000 }} />
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-xl font-bold">Vacation Request Management</h2>
 
         <div className="flex items-center space-x-3">
-          <div className="bg-gray-100 rounded-lg p-1 flex">
+          <div className="flex rounded-lg bg-gray-100 p-1">
             <button
               onClick={() => setViewMode('list')}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
+              className={`rounded-md px-3 py-1 text-sm font-medium ${
                 viewMode === 'list'
-                  ? 'bg-white shadow text-indigo-600'
+                  ? 'bg-white text-indigo-600 shadow'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -295,9 +313,9 @@ const AdminVacationManager = () => {
             </button>
             <button
               onClick={() => setViewMode('calendar')}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
+              className={`rounded-md px-3 py-1 text-sm font-medium ${
                 viewMode === 'calendar'
-                  ? 'bg-white shadow text-indigo-600'
+                  ? 'bg-white text-indigo-600 shadow'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -307,17 +325,17 @@ const AdminVacationManager = () => {
         </div>
       </div>
 
-      <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
-        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+      <div className="mb-4 flex flex-col items-start justify-between space-y-3 sm:flex-row sm:items-center sm:space-y-0">
+        <div className="flex w-full flex-col space-y-3 sm:w-auto sm:flex-row sm:space-x-4 sm:space-y-0">
           <div className="relative">
             <input
               type="text"
               placeholder="Search employee or reason..."
               value={searchTerm}
               onChange={handleSearch}
-              className="rounded border px-3 py-2 pl-10 w-full sm:w-64"
+              className="w-full rounded border px-3 py-2 pl-10 sm:w-64"
             />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5 text-gray-400"
@@ -337,7 +355,9 @@ const AdminVacationManager = () => {
 
           <div className="flex items-center">
             <label className="flex items-center">
-              <span className="mr-2 text-sm font-medium text-gray-700">Status:</span>
+              <span className="mr-2 text-sm font-medium text-gray-700">
+                Status:
+              </span>
               <select
                 value={statusFilter}
                 onChange={(e) => {
@@ -356,16 +376,16 @@ const AdminVacationManager = () => {
           </div>
         </div>
 
-        <div className="bg-indigo-50 px-3 py-1 rounded-lg text-sm text-indigo-800 w-full sm:w-auto text-center sm:text-left">
-          <span className="font-medium">{filteredRequests.length}</span> vacation
-          requests found
+        <div className="w-full rounded-lg bg-indigo-50 px-3 py-1 text-center text-sm text-indigo-800 sm:w-auto sm:text-left">
+          <span className="font-medium">{filteredRequests.length}</span>{' '}
+          vacation requests found
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <svg
-            className="animate-spin h-10 w-10 text-indigo-600 mx-auto"
+            className="mx-auto h-10 w-10 animate-spin text-indigo-600"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -387,10 +407,10 @@ const AdminVacationManager = () => {
           <p className="mt-3 text-gray-500">Loading vacation requests...</p>
         </div>
       ) : error ? (
-        <div className="text-red-500 py-4 bg-red-50 rounded-lg p-4 text-center">
+        <div className="rounded-lg bg-red-50 p-4 py-4 text-center text-red-500">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-10 w-10 text-red-500 mx-auto mb-2"
+            className="mx-auto mb-2 h-10 w-10 text-red-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -403,10 +423,10 @@ const AdminVacationManager = () => {
             />
           </svg>
           <p>Error loading vacation requests</p>
-          <p className="text-sm mt-1">{error.message}</p>
+          <p className="mt-1 text-sm">{error.message}</p>
         </div>
       ) : viewMode === 'calendar' ? (
-        <div className="h-[600px] mb-6 border rounded-lg p-2">
+        <div className="mb-6 h-[600px] rounded-lg border p-2">
           <Calendar
             localizer={localizer}
             events={calendarEvents}
@@ -419,10 +439,10 @@ const AdminVacationManager = () => {
           />
         </div>
       ) : paginatedRequests.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <div className="rounded-lg bg-gray-50 py-12 text-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-12 w-12 mx-auto text-gray-400"
+            className="mx-auto h-12 w-12 text-gray-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -443,7 +463,7 @@ const AdminVacationManager = () => {
                 setStatusFilter('All')
                 setSearchTerm('')
               }}
-              className="mt-3 text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+              className="mt-3 text-sm font-medium text-indigo-600 hover:text-indigo-800"
             >
               Clear filters
             </button>
@@ -485,7 +505,7 @@ const AdminVacationManager = () => {
                     key={request.id}
                     className={isActive ? 'bg-green-50' : undefined}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-6 py-4">
                       <div className="text-sm font-medium text-gray-900">
                         {request.user.name}
                       </div>
@@ -493,9 +513,10 @@ const AdminVacationManager = () => {
                         {request.user.email}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-6 py-4">
                       <div className="text-sm text-gray-900">
-                        {formatDate(request.startDate)} - {formatDate(request.endDate)}
+                        {formatDate(request.startDate)} -{' '}
+                        {formatDate(request.endDate)}
                       </div>
                       <div className="text-xs text-gray-500">
                         {Math.ceil(
@@ -505,43 +526,43 @@ const AdminVacationManager = () => {
                         ) + 1}{' '}
                         days
                         {isActive && (
-                          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          <span className="ml-2 inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
                             Active now
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 break-words max-w-xs max-h-20 overflow-y-auto">
+                      <div className="max-h-20 max-w-xs overflow-y-auto break-words text-sm text-gray-900">
                         {request.reason}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="whitespace-nowrap px-6 py-4">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                           request.status === 'Pending'
                             ? 'bg-yellow-100 text-yellow-800'
                             : request.status === 'Approved'
-                            ? 'bg-green-100 text-green-800'
-                            : request.status === 'Cancelled'
-                            ? 'bg-gray-100 text-gray-800'
-                            : 'bg-red-100 text-red-800'
+                              ? 'bg-green-100 text-green-800'
+                              : request.status === 'Cancelled'
+                                ? 'bg-gray-100 text-gray-800'
+                                : 'bg-red-100 text-red-800'
                         }`}
                       >
                         {request.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {request.status === 'Pending' && (
                         <div className="flex space-x-3">
                           <button
                             onClick={() => handleApprove(request.id)}
                             disabled={approveLoading}
-                            className="text-green-600 hover:text-green-900 flex items-center"
+                            className="flex items-center text-green-600 hover:text-green-900"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 mr-1"
+                              className="mr-1 h-4 w-4"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -558,11 +579,11 @@ const AdminVacationManager = () => {
                           <button
                             onClick={() => handleReject(request.id)}
                             disabled={rejectLoading}
-                            className="text-red-600 hover:text-red-900 flex items-center"
+                            className="flex items-center text-red-600 hover:text-red-900"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
-                              className="h-4 w-4 mr-1"
+                              className="mr-1 h-4 w-4"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -590,11 +611,11 @@ const AdminVacationManager = () => {
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-center">
           <nav
-            className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+            className="relative z-0 inline-flex -space-x-px rounded-md shadow-sm"
             aria-label="Pagination"
           >
             <button
-              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(1)}
             >
@@ -613,7 +634,7 @@ const AdminVacationManager = () => {
               </svg>
             </button>
             <button
-              className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => p - 1)}
             >
@@ -650,11 +671,11 @@ const AdminVacationManager = () => {
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium
+                  className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium
                     ${
                       currentPage === pageNum
-                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                        ? 'z-10 border-indigo-500 bg-indigo-50 text-indigo-600'
+                        : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                     }`}
                 >
                   {pageNum}
@@ -663,7 +684,7 @@ const AdminVacationManager = () => {
             })}
 
             <button
-              className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => p + 1)}
             >
@@ -683,7 +704,7 @@ const AdminVacationManager = () => {
               </svg>
             </button>
             <button
-              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(totalPages)}
             >
@@ -709,46 +730,49 @@ const AdminVacationManager = () => {
           </nav>
         </div>
       )}
-      
+
       {/* Rejection Modal */}
       {showRejectModal && (
-        <FormModal isOpen={showRejectModal} onClose={() => setShowRejectModal(false)}>
+        <FormModal
+          isOpen={showRejectModal}
+          onClose={() => setShowRejectModal(false)}
+        >
           <div className="space-y-4">
             <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">
                 Reject Vacation Request
               </h3>
               <p className="text-sm text-gray-600">
                 Please provide a reason for rejecting this vacation request.
               </p>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Rejection Reason *
               </label>
               <textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-red-500 focus:border-red-500"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-red-500 focus:ring-red-500"
                 rows={4}
                 placeholder="Please provide a detailed reason for the rejection..."
                 required
               />
             </div>
-            
+
             <div className="flex justify-end space-x-3 pt-4">
               <button
                 type="button"
                 onClick={() => setShowRejectModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmReject}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 Reject Request
               </button>

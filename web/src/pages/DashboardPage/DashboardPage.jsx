@@ -1,24 +1,31 @@
-import { Link, routes } from '@redwoodjs/router'
-import Header from 'src/components/Header/Header'
-import { useAuth } from 'src/auth'
-import { Metadata } from '@redwoodjs/web'
-import WelcomeSection from 'src/components/WelcomeSection/WelcomeSection'
-import UpcomingBookings from 'src/components/UpcomingBookings/UpcomingBookings'
-import AttendanceCard from 'src/components/AttendanceCard/AttendanceCard'
-import Attendance from 'src/components/Attendance/Attendance'
 import React, { useState } from 'react'
-import Booking, { BookingForm, BookingDetail } from 'src/components/Booking/Booking'
+
+import { Link, routes } from '@redwoodjs/router'
+import { Metadata } from '@redwoodjs/web'
 import { useQuery, useMutation } from '@redwoodjs/web'
+
+import { useAuth } from 'src/auth'
+import Attendance from 'src/components/Attendance/Attendance'
+import AttendanceCard from 'src/components/AttendanceCard/AttendanceCard'
+import Booking, {
+  BookingForm,
+  BookingDetail,
+} from 'src/components/Booking/Booking'
+import Header from 'src/components/Header/Header'
+import UpcomingBookings from 'src/components/UpcomingBookings/UpcomingBookings'
 import VacationPlanner from 'src/components/VacationPlanner/VacationPlanner'
+import WelcomeSection from 'src/components/WelcomeSection/WelcomeSection'
 
 const CLOCK_IN_MUTATION = gql`
   mutation ClockIn($userId: Int!, $date: DateTime!, $clockIn: DateTime!) {
-    createAttendance(input: {
-      userId: $userId,
-      date: $date,
-      clockIn: $clockIn,
-      status: "Present"
-    }) {
+    createAttendance(
+      input: {
+        userId: $userId
+        date: $date
+        clockIn: $clockIn
+        status: "Present"
+      }
+    ) {
       id
       clockIn
       status
@@ -78,7 +85,9 @@ const WEEKLY_BREAKS_QUERY = gql`
 
 // Helper for UTC midnight ISO string
 function getUTCMidnightISOString(date = new Date()) {
-  const utc = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  const utc = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+  )
   return utc.toISOString().slice(0, 10)
 }
 
@@ -91,7 +100,9 @@ function getLocalMidnightISOString(date = new Date()) {
 }
 
 function getStartOfWeekUTC(date) {
-  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  const d = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+  )
   const day = d.getUTCDay() || 7
   d.setUTCDate(d.getUTCDate() - day + 1)
   d.setUTCHours(0, 0, 0, 0)
@@ -113,13 +124,22 @@ const DashboardPage = () => {
   const [userName, setUserName] = useState('')
 
   // For bookings and other attendance data
-  const { data, loading: bookingsLoading, error, refetch } = useQuery(BOOKINGS_QUERY, {
+  const {
+    data,
+    loading: bookingsLoading,
+    error,
+    refetch,
+  } = useQuery(BOOKINGS_QUERY, {
     variables: { userId },
     fetchPolicy: 'network-only',
   })
 
   // For weekly attendances (used in AttendanceCard)
-  const { data: weeklyData, loading: weeklyLoading, refetch: refetchWeekly } = useQuery(WEEKLY_ATTENDANCES_QUERY, {
+  const {
+    data: weeklyData,
+    loading: weeklyLoading,
+    refetch: refetchWeekly,
+  } = useQuery(WEEKLY_ATTENDANCES_QUERY, {
     variables: {
       userId,
       start: weekStart.toISOString(),
@@ -128,18 +148,24 @@ const DashboardPage = () => {
     fetchPolicy: 'network-only',
   })
 
-  const [clockInMutation, { loading: clockInLoading }] = useMutation(CLOCK_IN_MUTATION, {
-    onCompleted: () => {
-      refetch()
-      refetchWeekly()
-    },
-  })
-  const [clockOutMutation, { loading: clockOutLoading }] = useMutation(CLOCK_OUT_MUTATION, {
-    onCompleted: () => {
-      refetch()
-      refetchWeekly()
-    },
-  })
+  const [clockInMutation, { loading: clockInLoading }] = useMutation(
+    CLOCK_IN_MUTATION,
+    {
+      onCompleted: () => {
+        refetch()
+        refetchWeekly()
+      },
+    }
+  )
+  const [clockOutMutation, { loading: clockOutLoading }] = useMutation(
+    CLOCK_OUT_MUTATION,
+    {
+      onCompleted: () => {
+        refetch()
+        refetchWeekly()
+      },
+    }
+  )
 
   // New mutations for break and overtime
   const CREATE_BREAK_MUTATION = gql`
@@ -154,7 +180,10 @@ const DashboardPage = () => {
   `
 
   const UPDATE_BREAK_MUTATION = gql`
-    mutation UpdateAttendanceBreak($id: Int!, $input: UpdateAttendanceBreakInput!) {
+    mutation UpdateAttendanceBreak(
+      $id: Int!
+      $input: UpdateAttendanceBreakInput!
+    ) {
       updateAttendanceBreak(id: $id, input: $input) {
         id
         breakIn
@@ -175,7 +204,10 @@ const DashboardPage = () => {
   `
 
   const UPDATE_OVERTIME_MUTATION = gql`
-    mutation UpdateOvertimeAttendance($id: Int!, $input: UpdateOvertimeAttendanceInput!) {
+    mutation UpdateOvertimeAttendance(
+      $id: Int!
+      $input: UpdateOvertimeAttendanceInput!
+    ) {
       updateOvertimeAttendance(id: $id, input: $input) {
         id
         clockIn
@@ -184,23 +216,29 @@ const DashboardPage = () => {
     }
   `
 
-  const [createBreakMutation, { loading: createBreakLoading }] = useMutation(CREATE_BREAK_MUTATION, {
-    onCompleted: () => {
-      refetch()
-      refetchWeekly()
-    },
-  })
+  const [createBreakMutation, { loading: createBreakLoading }] = useMutation(
+    CREATE_BREAK_MUTATION,
+    {
+      onCompleted: () => {
+        refetch()
+        refetchWeekly()
+      },
+    }
+  )
 
-  const [updateBreakMutation, { loading: updateBreakLoading }] = useMutation(UPDATE_BREAK_MUTATION, {
-    onCompleted: () => {
-      refetch()
-      refetchWeekly()
-      refetchBreaks()
-    },
-    // Add event loader to ensure UI updates after mutation
-    awaitRefetchQueries: true,
-    refetchQueries: ['GetAttendanceBreaks'],
-  })
+  const [updateBreakMutation, { loading: updateBreakLoading }] = useMutation(
+    UPDATE_BREAK_MUTATION,
+    {
+      onCompleted: () => {
+        refetch()
+        refetchWeekly()
+        refetchBreaks()
+      },
+      // Add event loader to ensure UI updates after mutation
+      awaitRefetchQueries: true,
+      refetchQueries: ['GetAttendanceBreaks'],
+    }
+  )
 
   const [createOvertimeMutation] = useMutation(CREATE_OVERTIME_MUTATION, {
     onCompleted: () => {
@@ -222,9 +260,8 @@ const DashboardPage = () => {
 
   const weeklyAttendances = weeklyData?.attendancesInRange || []
   const utcDateString = getUTCMidnightISOString()
-  const todayAttendance = weeklyAttendances.find(a =>
-    a.date.startsWith(utcDateString)
-  ) || null
+  const todayAttendance =
+    weeklyAttendances.find((a) => a.date.startsWith(utcDateString)) || null
 
   // Breaks and overtime state
   const [breaks, setBreaks] = React.useState([])
@@ -232,7 +269,6 @@ const DashboardPage = () => {
   const [officeHours, setOfficeHours] = React.useState(null)
 
   const GET_BREAKS_QUERY = gql`
- 
     query GetAttendanceBreaks($attendanceId: Int!) {
       attendanceBreaks(attendanceId: $attendanceId) {
         id
@@ -256,27 +292,35 @@ const DashboardPage = () => {
     }
   `
 
-const GET_OFFICE_HOURS_QUERY = gql`
-  query GetOfficeHours {
-    officeHourses {
-      id
-      startTime
-      endTime
+  const GET_OFFICE_HOURS_QUERY = gql`
+    query GetOfficeHours {
+      officeHourses {
+        id
+        startTime
+        endTime
+      }
     }
-  }
-`
+  `
 
-  const { data: breaksData, refetch: refetchBreaks } = useQuery(GET_BREAKS_QUERY, {
-    variables: { attendanceId: todayAttendance?.id },
-    skip: !todayAttendance,
-  })
+  const { data: breaksData, refetch: refetchBreaks } = useQuery(
+    GET_BREAKS_QUERY,
+    {
+      variables: { attendanceId: todayAttendance?.id },
+      skip: !todayAttendance,
+    }
+  )
 
-  const { data: overtimeData, refetch: refetchOvertime } = useQuery(GET_OVERTIME_QUERY, {
-    variables: { userId, date: localDateISO },
-    skip: !userId || !localDateISO,
-  })
+  const { data: overtimeData, refetch: refetchOvertime } = useQuery(
+    GET_OVERTIME_QUERY,
+    {
+      variables: { userId, date: localDateISO },
+      skip: !userId || !localDateISO,
+    }
+  )
 
-  const { data: officeHoursData, refetch: refetchOfficeHours } = useQuery(GET_OFFICE_HOURS_QUERY)
+  const { data: officeHoursData, refetch: refetchOfficeHours } = useQuery(
+    GET_OFFICE_HOURS_QUERY
+  )
 
   React.useEffect(() => {
     const handler = () => {
@@ -305,7 +349,9 @@ const GET_OFFICE_HOURS_QUERY = gql`
     // Listen for localStorage changes (cross-tab communication)
     const handleStorageChange = (e) => {
       if (e.key === 'bookingsUpdated') {
-        console.log('📅 Dashboard: bookingsUpdated storage event, refetching...')
+        console.log(
+          '📅 Dashboard: bookingsUpdated storage event, refetching...'
+        )
         refetch()
       }
     }
@@ -318,7 +364,10 @@ const GET_OFFICE_HOURS_QUERY = gql`
   }, [refetch])
 
   React.useEffect(() => {
-    if (overtimeData?.overtimeAttendances && overtimeData.overtimeAttendances.length > 0) {
+    if (
+      overtimeData?.overtimeAttendances &&
+      overtimeData.overtimeAttendances.length > 0
+    ) {
       setOvertimeToday(overtimeData.overtimeAttendances[0])
     } else {
       setOvertimeToday(null)
@@ -326,7 +375,10 @@ const GET_OFFICE_HOURS_QUERY = gql`
   }, [overtimeData])
 
   React.useEffect(() => {
-    if (officeHoursData?.officeHourses && officeHoursData.officeHourses.length > 0) {
+    if (
+      officeHoursData?.officeHourses &&
+      officeHoursData.officeHourses.length > 0
+    ) {
       setOfficeHours(officeHoursData.officeHourses[0])
     }
   }, [officeHoursData])
@@ -373,7 +425,7 @@ const GET_OFFICE_HOURS_QUERY = gql`
   const handleBreakOut = async () => {
     if (!todayAttendance) return
     // Find latest break without breakOut
-    const latestBreak = breaks.find(b => b.breakIn && !b.breakOut)
+    const latestBreak = breaks.find((b) => b.breakIn && !b.breakOut)
     if (!latestBreak) return
     try {
       await updateBreakMutation({
@@ -381,7 +433,10 @@ const GET_OFFICE_HOURS_QUERY = gql`
           id: latestBreak.id,
           input: {
             breakOut: new Date().toISOString(),
-            duration: calculateDuration(latestBreak.breakIn, new Date().toISOString()),
+            duration: calculateDuration(
+              latestBreak.breakIn,
+              new Date().toISOString()
+            ),
           },
         },
       })
@@ -427,37 +482,36 @@ const GET_OFFICE_HOURS_QUERY = gql`
     return `${hours}h ${minutes}m`
   }
 
-  const { data: weeklyBreaksData, refetch: refetchWeeklyBreaks } = useQuery(WEEKLY_BREAKS_QUERY, {
-    variables: {
-      userId,
-      start: weekStart.toISOString(),
-      end: weekEnd.toISOString(),
-    },
-    fetchPolicy: 'network-only',
-  })
+  const { data: weeklyBreaksData, refetch: refetchWeeklyBreaks } = useQuery(
+    WEEKLY_BREAKS_QUERY,
+    {
+      variables: {
+        userId,
+        start: weekStart.toISOString(),
+        end: weekEnd.toISOString(),
+      },
+      fetchPolicy: 'network-only',
+    }
+  )
 
   const weeklyBreaks = weeklyBreaksData?.attendanceBreaksForUserInRange || []
 
   // Add this for debugging
-  console.log('Dashboard auth state:', { 
-    isAuthenticated, 
-    loading, 
-    hasCurrentUser: !!currentUser 
+  console.log('Dashboard auth state:', {
+    isAuthenticated,
+    loading,
+    hasCurrentUser: !!currentUser,
   })
 
   return (
     <>
-   
       <Metadata title="Dashboard" description="Dashboard page" />
       <Header showQuickAccess={true} />
-  
-      <main className="relative pt-32 px-4 md:px-8 lg:px-12 h-screen">
-     
-            
-         
+
+      <main className="relative h-screen px-4 pt-32 md:px-8 lg:px-12">
         <WelcomeSection />
-       
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left: Upcoming Bookings (2/3 width on large screens) */}
           <div className="lg:col-span-2">
             <UpcomingBookings userId={userId} refetchBookings={refetch} />
@@ -469,10 +523,15 @@ const GET_OFFICE_HOURS_QUERY = gql`
               weeklyAttendances={weeklyAttendances}
               onClockIn={handleClockIn}
               onClockOut={handleClockOut}
-              loading={bookingsLoading || clockInLoading || clockOutLoading || weeklyLoading}
+              loading={
+                bookingsLoading ||
+                clockInLoading ||
+                clockOutLoading ||
+                weeklyLoading
+              }
               refetch={refetch}
               officeHours={officeHours}
-              breaks={weeklyBreaks} 
+              breaks={weeklyBreaks}
               overtimeToday={overtimeToday}
               onBreakIn={handleBreakIn}
               onBreakOut={handleBreakOut}
@@ -483,7 +542,12 @@ const GET_OFFICE_HOURS_QUERY = gql`
         </div>
         {/* Attendance Section with ID for scroll */}
         <div>
-          <Attendance userId={userId} todayAttendance={todayAttendance} userName={userName} refetch={refetch} />
+          <Attendance
+            userId={userId}
+            todayAttendance={todayAttendance}
+            userName={userName}
+            refetch={refetch}
+          />
         </div>
         <div id="bookings-section" className="mt-8">
           <BookingForm userName={userName} refetchBookings={refetch} />

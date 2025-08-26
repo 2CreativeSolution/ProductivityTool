@@ -2,7 +2,7 @@ import { db } from 'src/lib/db'
 
 export const dailyProjectUpdates = ({ startDate, endDate }) => {
   const where = {}
-  
+
   if (startDate || endDate) {
     where.date = {}
     if (startDate) {
@@ -108,7 +108,7 @@ export const updatesByUser = ({ userId }) => {
 export const updatesByDate = ({ date }) => {
   const startOfDay = new Date(date)
   startOfDay.setHours(0, 0, 0, 0)
-  
+
   const endOfDay = new Date(date)
   endOfDay.setHours(23, 59, 59, 999)
 
@@ -135,7 +135,7 @@ export const updatesByDate = ({ date }) => {
 export const userUpdatesForDate = ({ userId, date }) => {
   const startOfDay = new Date(date)
   startOfDay.setHours(0, 0, 0, 0)
-  
+
   const endOfDay = new Date(date)
   endOfDay.setHours(23, 59, 59, 999)
 
@@ -168,7 +168,7 @@ export const userUpdatesForDate = ({ userId, date }) => {
 export const projectUpdatesForDate = ({ projectId, date }) => {
   const startOfDay = new Date(date)
   startOfDay.setHours(0, 0, 0, 0)
-  
+
   const endOfDay = new Date(date)
   endOfDay.setHours(23, 59, 59, 999)
 
@@ -235,15 +235,21 @@ export const deleteDailyProjectUpdate = ({ id }, { context }) => {
 
 export const DailyProjectUpdate = {
   allocation: (_obj, { root }) => {
-    return db.dailyProjectUpdate.findUnique({ where: { id: root?.id } }).allocation()
+    return db.dailyProjectUpdate
+      .findUnique({ where: { id: root?.id } })
+      .allocation()
   },
   project: (_obj, { root }) => {
-    return db.dailyProjectUpdate.findUnique({ where: { id: root?.id } }).project()
+    return db.dailyProjectUpdate
+      .findUnique({ where: { id: root?.id } })
+      .project()
   },
   user: (_obj, { root }) => {
-    return db.dailyProjectUpdate.findUnique({ 
-      where: { id: root?.id },
-      include: { allocation: { include: { user: true } } }
-    }).then(update => update.allocation.user)
+    return db.dailyProjectUpdate
+      .findUnique({
+        where: { id: root?.id },
+        include: { allocation: { include: { user: true } } },
+      })
+      .then((update) => update.allocation.user)
   },
 }

@@ -8,7 +8,7 @@ export const testEmail = async ({ email }) => {
     console.error('Email test service error:', error)
     return {
       success: false,
-      error: error.message
+      error: error.message,
     }
   }
 }

@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
+
 import { useQuery, gql } from '@redwoodjs/web'
+
 import { useAuth } from 'src/auth'
-import ProjectManagement from './ProjectManagement'
+
 import DailyAllocation from './DailyAllocation'
-import ProjectReports from './ProjectReports'
 import EmployeeManagement from './EmployeeManagement'
+import ProjectManagement from './ProjectManagement'
+import ProjectReports from './ProjectReports'
 
 const DAILY_ALLOCATIONS_QUERY = gql`
   query DailyAllocationsQuery($userId: Int!, $date: DateTime!) {
@@ -76,29 +79,33 @@ const PROJECTS_OVERVIEW_QUERY = gql`
 const ProjectTracker = () => {
   const { currentUser } = useAuth()
   const [activeTab, setActiveTab] = useState('daily')
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split('T')[0]
+  )
   const [indicatorStyle, setIndicatorStyle] = useState({ width: 0, left: 0 })
   const tabsRef = useRef({})
 
   const isAdmin = currentUser?.roles?.includes('ADMIN')
 
-  const { data: allocationsData, loading: allocationsLoading, refetch: refetchAllocations } = useQuery(
-    DAILY_ALLOCATIONS_QUERY,
-    {
-      variables: {
-        userId: currentUser?.id,
-        date: new Date(selectedDate + 'T12:00:00').toISOString(),
-      },
-      skip: !currentUser?.id,
-    }
-  )
+  const {
+    data: allocationsData,
+    loading: allocationsLoading,
+    refetch: refetchAllocations,
+  } = useQuery(DAILY_ALLOCATIONS_QUERY, {
+    variables: {
+      userId: currentUser?.id,
+      date: new Date(selectedDate + 'T12:00:00').toISOString(),
+    },
+    skip: !currentUser?.id,
+  })
 
-  const { data: projectsData, loading: projectsLoading, refetch: refetchProjects } = useQuery(
-    PROJECTS_OVERVIEW_QUERY,
-    {
-      skip: !isAdmin,
-    }
-  )
+  const {
+    data: projectsData,
+    loading: projectsLoading,
+    refetch: refetchProjects,
+  } = useQuery(PROJECTS_OVERVIEW_QUERY, {
+    skip: !isAdmin,
+  })
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -142,10 +149,12 @@ const ProjectTracker = () => {
 
   const tabs = [
     { id: 'daily', name: 'Daily Tracker', icon: '📅' },
-    ...(isAdmin ? [
-      { id: 'management', name: 'Project Management', icon: '⚙️' },
-      { id: 'employees', name: 'Employee Management', icon: '👥' },
-    ] : []),
+    ...(isAdmin
+      ? [
+          { id: 'management', name: 'Project Management', icon: '⚙️' },
+          { id: 'employees', name: 'Employee Management', icon: '👥' },
+        ]
+      : []),
     { id: 'reports', name: 'Reports', icon: '📊' },
   ]
 
@@ -156,33 +165,37 @@ const ProjectTracker = () => {
       const { offsetLeft, offsetWidth } = activeTabElement
       setIndicatorStyle({
         left: offsetLeft,
-        width: offsetWidth
+        width: offsetWidth,
       })
     }
   }, [activeTab, isAdmin])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-32 p-4 md:p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 pt-32 md:p-6">
+      <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl p-4 md:p-8 mb-8">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-6">
+        <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-lg md:p-8">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent md:text-4xl">
                 Project Management
               </h1>
-              <p className="text-gray-600 mt-2 text-sm md:text-base">Track daily allocations, project progress, and meeting schedules</p>
+              <p className="mt-2 text-sm text-gray-600 md:text-base">
+                Track daily allocations, project progress, and meeting schedules
+              </p>
             </div>
-            
+
             {/* Date Selector for Daily View */}
             {activeTab === 'daily' && (
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 bg-white/50 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20 w-full sm:w-auto">
-                <label className="text-sm font-semibold text-gray-700">Date:</label>
+              <div className="flex w-full flex-col gap-2 rounded-xl border border-white/20 bg-white/50 px-4 py-3 backdrop-blur-sm sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+                <label className="text-sm font-semibold text-gray-700">
+                  Date:
+                </label>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="bg-white/80 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
+                  className="w-full rounded-lg border border-gray-200 bg-white/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-auto"
                 />
               </div>
             )}
@@ -190,13 +203,13 @@ const ProjectTracker = () => {
 
           {/* Tab Navigation */}
           <div className="relative">
-            <div className="flex flex-wrap gap-2 sm:gap-6 border-b border-white/20 pb-4 mb-6 overflow-x-auto">
+            <div className="mb-6 flex flex-wrap gap-2 overflow-x-auto border-b border-white/20 pb-4 sm:gap-6">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   ref={(el) => (tabsRef.current[tab.id] = el)}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`font-medium pb-2 transition-colors duration-200 flex items-center gap-2 whitespace-nowrap px-2 sm:px-0 text-sm md:text-base relative ${
+                  className={`relative flex items-center gap-2 whitespace-nowrap px-2 pb-2 text-sm font-medium transition-colors duration-200 sm:px-0 md:text-base ${
                     activeTab === tab.id
                       ? 'text-blue-600'
                       : 'text-gray-600 hover:text-blue-600'
@@ -204,13 +217,15 @@ const ProjectTracker = () => {
                 >
                   <span className="text-base md:text-lg">{tab.icon}</span>
                   <span className="hidden sm:inline">{tab.name}</span>
-                  <span className="sm:hidden text-xs">{tab.name.split(' ')[0]}</span>
+                  <span className="text-xs sm:hidden">
+                    {tab.name.split(' ')[0]}
+                  </span>
                 </button>
               ))}
             </div>
             {/* Animated sliding indicator */}
-            <div 
-              className="absolute bottom-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 transition-all duration-300 ease-out rounded-full shadow-sm"
+            <div
+              className="absolute bottom-0 h-0.5 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 shadow-sm transition-all duration-300 ease-out"
               style={{
                 left: `${indicatorStyle.left}px`,
                 width: `${indicatorStyle.width}px`,
@@ -244,15 +259,10 @@ const ProjectTracker = () => {
             />
           )}
 
-          {activeTab === 'employees' && isAdmin && (
-            <EmployeeManagement />
-          )}
+          {activeTab === 'employees' && isAdmin && <EmployeeManagement />}
 
           {activeTab === 'reports' && (
-            <ProjectReports
-              currentUser={currentUser}
-              isAdmin={isAdmin}
-            />
+            <ProjectReports currentUser={currentUser} isAdmin={isAdmin} />
           )}
         </div>
       </div>

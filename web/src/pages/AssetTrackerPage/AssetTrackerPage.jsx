@@ -1,11 +1,13 @@
-import { Metadata } from '@redwoodjs/web'
-import { useAuth } from 'src/auth'
 import { useState } from 'react'
+
+import { Metadata } from '@redwoodjs/web'
 import { useQuery } from '@redwoodjs/web'
-import Header from 'src/components/Header/Header'
-import AssetTracker from 'src/components/AssetTracker/AssetTracker'
+
+import { useAuth } from 'src/auth'
 import AssetManagement from 'src/components/AssetTracker/AssetManagement'
 import AssetReports from 'src/components/AssetTracker/AssetReports'
+import AssetTracker from 'src/components/AssetTracker/AssetTracker'
+import Header from 'src/components/Header/Header'
 
 const ASSET_STATS_QUERY = gql`
   query AssetStatsQuery {
@@ -44,34 +46,37 @@ const AssetTrackerPage = () => {
   const { data: statsData, loading: statsLoading } = useQuery(ASSET_STATS_QUERY)
 
   const handleAssetUpdated = () => {
-    setRefreshKey(prev => prev + 1)
+    setRefreshKey((prev) => prev + 1)
   }
 
   // Calculate dynamic stats
   const totalAssets = statsData?.assets?.length || 0
-  const availableAssets = statsData?.assets?.filter(asset => asset.status === 'Available').length || 0
+  const availableAssets =
+    statsData?.assets?.filter((asset) => asset.status === 'Available').length ||
+    0
   const assignedAssets = statsData?.activeAssetAssignments?.length || 0
-  const warrantyExpiringSoon = statsData?.assets?.filter(asset => {
-    if (!asset.warrantyExpiry) return false
-    const expiryDate = new Date(asset.warrantyExpiry)
-    const threeMonthsFromNow = new Date()
-    threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3)
-    return expiryDate <= threeMonthsFromNow && expiryDate >= new Date()
-  }).length || 0
+  const warrantyExpiringSoon =
+    statsData?.assets?.filter((asset) => {
+      if (!asset.warrantyExpiry) return false
+      const expiryDate = new Date(asset.warrantyExpiry)
+      const threeMonthsFromNow = new Date()
+      threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3)
+      return expiryDate <= threeMonthsFromNow && expiryDate >= new Date()
+    }).length || 0
 
   // Category icon mapping
   const getCategoryIcon = (categoryName) => {
     const iconMap = {
-      'Laptop': '💻',
-      'Monitor': '🖥️',
-      'Phone': '📱',
-      'Tablet': '📱',
-      'Accessories': '⌨️',
+      Laptop: '💻',
+      Monitor: '🖥️',
+      Phone: '📱',
+      Tablet: '📱',
+      Accessories: '⌨️',
       'Network Equipment': '🌐',
-      'Printer': '🖨️',
-      'Camera': '📷',
-      'Speaker': '🔊',
-      'Headset': '🎧',
+      Printer: '🖨️',
+      Camera: '📷',
+      Speaker: '🔊',
+      Headset: '🎧',
     }
     return iconMap[categoryName] || '📦'
   }
@@ -93,10 +98,14 @@ const AssetTrackerPage = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Please log in</h1>
-          <p className="text-gray-600">You need to be logged in to access the Asset Tracker.</p>
+          <h1 className="mb-4 text-2xl font-bold text-gray-900">
+            Please log in
+          </h1>
+          <p className="text-gray-600">
+            You need to be logged in to access the Asset Tracker.
+          </p>
         </div>
       </div>
     )
@@ -104,15 +113,15 @@ const AssetTrackerPage = () => {
 
   return (
     <>
-      <Metadata 
-        title="Asset Tracker" 
-        description="Track and manage company assets and assignments" 
+      <Metadata
+        title="Asset Tracker"
+        description="Track and manage company assets and assignments"
       />
-      
+
       <Header />
-      
-      <main className="min-h-screen bg-gray-50 pt-32 px-4 md:px-8 lg:px-12">
-        <div className="max-w-7xl mx-auto py-6">
+
+      <main className="min-h-screen bg-gray-50 px-4 pt-32 md:px-8 lg:px-12">
+        <div className="mx-auto max-w-7xl py-6">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Asset Tracker</h1>
             <p className="mt-2 text-gray-600">
@@ -121,14 +130,14 @@ const AssetTrackerPage = () => {
           </div>
 
           {/* Tab Navigation */}
-          <div className="border-b border-gray-200 mb-8">
+          <div className="mb-8 border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => setActiveTab('tracker')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`border-b-2 px-1 py-2 text-sm font-medium ${
                   activeTab === 'tracker'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                 }`}
               >
                 Asset Inventory
@@ -136,10 +145,10 @@ const AssetTrackerPage = () => {
               {isAdmin && (
                 <button
                   onClick={() => setActiveTab('management')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  className={`border-b-2 px-1 py-2 text-sm font-medium ${
                     activeTab === 'management'
                       ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                   }`}
                 >
                   Asset Management
@@ -147,10 +156,10 @@ const AssetTrackerPage = () => {
               )}
               <button
                 onClick={() => setActiveTab('reports')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`border-b-2 px-1 py-2 text-sm font-medium ${
                   activeTab === 'reports'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                 }`}
               >
                 Reports
@@ -168,10 +177,15 @@ const AssetTrackerPage = () => {
 
             {/* Admin Management Tab */}
             {activeTab === 'management' && isAdmin && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">Asset Management</h2>
-                  <p className="text-gray-600">Create new assets, categories, and assign assets to employees</p>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Asset Management
+                  </h2>
+                  <p className="text-gray-600">
+                    Create new assets, categories, and assign assets to
+                    employees
+                  </p>
                 </div>
                 <AssetManagement onAssetCreated={handleAssetUpdated} />
               </div>
@@ -186,89 +200,120 @@ const AssetTrackerPage = () => {
           </div>
 
           {/* Quick Stats Section - Now Dynamic */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+          <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">
                   {statsLoading ? '...' : totalAssets}
                 </div>
-                <div className="text-sm font-medium text-gray-900 mt-1">Total Assets</div>
+                <div className="mt-1 text-sm font-medium text-gray-900">
+                  Total Assets
+                </div>
                 <div className="text-xs text-gray-500">In inventory</div>
               </div>
             </div>
-            
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
                   {statsLoading ? '...' : availableAssets}
                 </div>
-                <div className="text-sm font-medium text-gray-900 mt-1">Available</div>
+                <div className="mt-1 text-sm font-medium text-gray-900">
+                  Available
+                </div>
                 <div className="text-xs text-gray-500">Ready to assign</div>
               </div>
             </div>
-            
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-600">
                   {statsLoading ? '...' : assignedAssets}
                 </div>
-                <div className="text-sm font-medium text-gray-900 mt-1">Assigned</div>
+                <div className="mt-1 text-sm font-medium text-gray-900">
+                  Assigned
+                </div>
                 <div className="text-xs text-gray-500">To employees</div>
               </div>
             </div>
-            
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+
+            <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">
                   {statsLoading ? '...' : warrantyExpiringSoon}
                 </div>
-                <div className="text-sm font-medium text-gray-900 mt-1">Warranty</div>
+                <div className="mt-1 text-sm font-medium text-gray-900">
+                  Warranty
+                </div>
                 <div className="text-xs text-gray-500">Expiring soon</div>
               </div>
             </div>
           </div>
 
           {/* Asset Categories Overview - Now Dynamic */}
-          <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Asset Categories</h3>
+          <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+              Asset Categories
+            </h3>
             {statsLoading ? (
               <div className="flex items-center justify-center p-8">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <span className="ml-2 text-gray-600">Loading categories...</span>
+                <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                <span className="ml-2 text-gray-600">
+                  Loading categories...
+                </span>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
                 {statsData?.assetCategories?.map((category, index) => {
                   const assetCount = category.assets?.length || 0
-                  const availableCount = category.assets?.filter(asset => asset.status === 'Available').length || 0
-                  const assignedCount = category.assets?.filter(asset => asset.status === 'Assigned').length || 0
-                  
+                  const availableCount =
+                    category.assets?.filter(
+                      (asset) => asset.status === 'Available'
+                    ).length || 0
+                  const assignedCount =
+                    category.assets?.filter(
+                      (asset) => asset.status === 'Assigned'
+                    ).length || 0
+
                   return (
-                    <div 
-                      key={category.id} 
-                      className={`text-center p-3 rounded-lg border ${getCategoryColor(index)} hover:shadow-md transition-shadow cursor-pointer`}
+                    <div
+                      key={category.id}
+                      className={`rounded-lg border p-3 text-center ${getCategoryColor(index)} cursor-pointer transition-shadow hover:shadow-md`}
                       title={`${category.description || category.name} - ${assetCount} total assets`}
                     >
-                      <div className="text-2xl mb-2">{getCategoryIcon(category.name)}</div>
-                      <div className="text-sm font-medium text-gray-900">{category.name}</div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="mb-2 text-2xl">
+                        {getCategoryIcon(category.name)}
+                      </div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {category.name}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
                         {assetCount} total
                       </div>
-                      <div className="text-xs text-gray-400 flex justify-center gap-2 mt-1">
-                        <span className="text-green-600">{availableCount} free</span>
-                        <span className="text-blue-600">{assignedCount} used</span>
+                      <div className="mt-1 flex justify-center gap-2 text-xs text-gray-400">
+                        <span className="text-green-600">
+                          {availableCount} free
+                        </span>
+                        <span className="text-blue-600">
+                          {assignedCount} used
+                        </span>
                       </div>
                     </div>
                   )
                 })}
               </div>
             )}
-            
-            {!statsLoading && (!statsData?.assetCategories || statsData.assetCategories.length === 0) && (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No asset categories found. Create some categories to get started!</p>
-              </div>
-            )}
+
+            {!statsLoading &&
+              (!statsData?.assetCategories ||
+                statsData.assetCategories.length === 0) && (
+                <div className="py-8 text-center">
+                  <p className="text-gray-500">
+                    No asset categories found. Create some categories to get
+                    started!
+                  </p>
+                </div>
+              )}
           </div>
         </div>
       </main>

@@ -1,12 +1,14 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useAuth } from  'src/auth'
+
+import moment from 'moment'
+import { Calendar, momentLocalizer } from 'react-big-calendar'
 
 import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
-import FormModal from 'src/components/FormModal/FormModal'
+
+import { useAuth } from 'src/auth'
 import ConfirmDialog from 'src/components/ConfirmDialog/ConfirmDialog'
-import { Calendar, momentLocalizer } from 'react-big-calendar'
-import moment from 'moment'
+import FormModal from 'src/components/FormModal/FormModal'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 // Initialize the calendar localizer
@@ -44,7 +46,10 @@ const CREATE_VACATION_REQUEST = gql`
 `
 
 const RESUBMIT_VACATION_REQUEST = gql`
-  mutation ResubmitVacationRequest($originalId: Int!, $input: CreateVacationRequestInput!) {
+  mutation ResubmitVacationRequest(
+    $originalId: Int!
+    $input: CreateVacationRequestInput!
+  ) {
     resubmitVacationRequest(originalId: $originalId, input: $input) {
       id
     }
@@ -94,7 +99,7 @@ const VacationForm = ({ onSuccess, onCancel }) => {
           const { userVacationRequests } = cache.readQuery({
             query: USER_VACATION_REQUESTS,
           })
-          
+
           // Write the updated data back to cache
           cache.writeQuery({
             query: USER_VACATION_REQUESTS,
@@ -138,7 +143,7 @@ const VacationForm = ({ onSuccess, onCancel }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="mb-1 block text-sm font-medium text-gray-700">
           Start Date
         </label>
         <input
@@ -151,7 +156,7 @@ const VacationForm = ({ onSuccess, onCancel }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="mb-1 block text-sm font-medium text-gray-700">
           End Date
         </label>
         <input
@@ -164,7 +169,7 @@ const VacationForm = ({ onSuccess, onCancel }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="mb-1 block text-sm font-medium text-gray-700">
           Reason
         </label>
         <textarea
@@ -176,20 +181,20 @@ const VacationForm = ({ onSuccess, onCancel }) => {
         ></textarea>
       </div>
 
-      {formError && <p className="text-red-600 text-sm">{formError}</p>}
+      {formError && <p className="text-sm text-red-600">{formError}</p>}
 
       <div className="flex justify-end space-x-2">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+          className="rounded bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
           disabled={loading}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded hover:bg-indigo-700"
+          className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           disabled={loading}
         >
           {loading ? 'Submitting...' : 'Submit Request'}
@@ -234,7 +239,7 @@ const VacationPlanner = () => {
         const { userVacationRequests } = cache.readQuery({
           query: USER_VACATION_REQUESTS,
         })
-        
+
         cache.writeQuery({
           query: USER_VACATION_REQUESTS,
           data: {
@@ -264,13 +269,13 @@ const VacationPlanner = () => {
         const { userVacationRequests } = cache.readQuery({
           query: USER_VACATION_REQUESTS,
         })
-        
+
         cache.writeQuery({
           query: USER_VACATION_REQUESTS,
           data: {
             userVacationRequests: userVacationRequests.map((req) =>
-              req.id === updateVacationRequest.id 
-                ? { ...req, status: 'Cancelled' } 
+              req.id === updateVacationRequest.id
+                ? { ...req, status: 'Cancelled' }
                 : req
             ),
           },
@@ -303,7 +308,7 @@ const VacationPlanner = () => {
 
   // Check if user is currently on vacation
   const activeVacation = useMemo(() => {
-    return vacationRequests.find(req => {
+    return vacationRequests.find((req) => {
       if (req.status !== 'Approved') return false
       const start = new Date(req.startDate)
       const end = new Date(req.endDate)
@@ -313,7 +318,7 @@ const VacationPlanner = () => {
 
   // Format data for calendar view
   const calendarEvents = useMemo(() => {
-    return vacationRequests.map(req => ({
+    return vacationRequests.map((req) => ({
       id: req.id,
       title: `${req.status}: ${req.reason.substring(0, 20)}${req.reason.length > 20 ? '...' : ''}`,
       start: new Date(req.startDate),
@@ -340,18 +345,18 @@ const VacationPlanner = () => {
 
   const openCancelDialog = (id) => {
     setCancelRequestId(id)
-    setCancelDialogType('cancel') 
+    setCancelDialogType('cancel')
     setShowCancelDialog(true)
   }
 
   const handleConfirmCancel = () => {
     if (cancelDialogType === 'delete') {
-      deleteVacationRequest({ 
-        variables: { id: cancelRequestId } 
+      deleteVacationRequest({
+        variables: { id: cancelRequestId },
       })
     } else {
-      cancelVacationRequest({ 
-        variables: { id: cancelRequestId } 
+      cancelVacationRequest({
+        variables: { id: cancelRequestId },
       })
     }
     setShowCancelDialog(false)
@@ -366,8 +371,8 @@ const VacationPlanner = () => {
     resubmitVacationRequest({
       variables: {
         originalId: resubmitRequest.id,
-        input: formData
-      }
+        input: formData,
+      },
     })
   }
 
@@ -378,7 +383,7 @@ const VacationPlanner = () => {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-      timeZone: 'UTC' // Important! This ensures consistent date display
+      timeZone: 'UTC', // Important! This ensures consistent date display
     })
   }
 
@@ -402,9 +407,9 @@ const VacationPlanner = () => {
       opacity: 0.8,
       color: '#92400E',
       border: '1px solid #F59E0B',
-      display: 'block'
+      display: 'block',
     }
-    
+
     if (event.status === 'Approved') {
       style.backgroundColor = '#D1FAE5' // green
       style.color = '#065F46'
@@ -414,12 +419,16 @@ const VacationPlanner = () => {
       style.color = '#991B1B'
       style.border = '1px solid #EF4444'
     }
-    
+
     return { style }
   }
 
   useEffect(() => {
-    console.log('🏖️ VacationPlanner state:', { loading, error: error?.message, dataLength: data?.userVacationRequests?.length })
+    console.log('🏖️ VacationPlanner state:', {
+      loading,
+      error: error?.message,
+      dataLength: data?.userVacationRequests?.length,
+    })
   }, [loading, error, data])
 
   // Add this useEffect to listen for changes from admin
@@ -428,21 +437,26 @@ const VacationPlanner = () => {
       console.log('User: vacationRequestsUpdated event received, refetching...')
       await refetch()
     }
-    
+
     // Listen for custom event from admin component
     window.addEventListener('vacationRequestsUpdated', handleVacationUpdated)
-    
+
     // Listen for localStorage changes (cross-tab communication)
     const handleStorageChange = (e) => {
       if (e.key === 'vacationRequestsUpdated') {
-        console.log('User: vacationRequestsUpdated storage event, refetching...')
+        console.log(
+          'User: vacationRequestsUpdated storage event, refetching...'
+        )
         refetch()
       }
     }
     window.addEventListener('storage', handleStorageChange)
-    
+
     return () => {
-      window.removeEventListener('vacationRequestsUpdated', handleVacationUpdated)
+      window.removeEventListener(
+        'vacationRequestsUpdated',
+        handleVacationUpdated
+      )
       window.removeEventListener('storage', handleStorageChange)
     }
   }, [refetch])
@@ -451,23 +465,23 @@ const VacationPlanner = () => {
     <div className="vacation-planner rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
       <Toaster toastOptions={{ duration: 3000 }} />
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Vacation Planner</h2>
           {activeVacation && (
-            <div className="mt-1 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <div className="mt-1 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
               <span className="mr-1 h-2 w-2 rounded-full bg-green-500"></span>
               Currently on vacation
             </div>
           )}
         </div>
         <div className="flex items-center space-x-3">
-          <div className="bg-gray-100 rounded-lg p-1 flex">
+          <div className="flex rounded-lg bg-gray-100 p-1">
             <button
               onClick={() => setViewMode('list')}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
-                viewMode === 'list' 
-                  ? 'bg-white shadow text-indigo-600' 
+              className={`rounded-md px-3 py-1 text-sm font-medium ${
+                viewMode === 'list'
+                  ? 'bg-white text-indigo-600 shadow'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -475,9 +489,9 @@ const VacationPlanner = () => {
             </button>
             <button
               onClick={() => setViewMode('calendar')}
-              className={`px-3 py-1 rounded-md text-sm font-medium ${
-                viewMode === 'calendar' 
-                  ? 'bg-white shadow text-indigo-600' 
+              className={`rounded-md px-3 py-1 text-sm font-medium ${
+                viewMode === 'calendar'
+                  ? 'bg-white text-indigo-600 shadow'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -486,10 +500,21 @@ const VacationPlanner = () => {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition flex items-center"
+            className="flex items-center rounded bg-indigo-600 px-4 py-2 text-white transition hover:bg-indigo-700"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="mr-1 h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
             </svg>
             Request Time Off
           </button>
@@ -497,11 +522,11 @@ const VacationPlanner = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="py-8 text-center">Loading...</div>
       ) : error ? (
         <div className="text-red-500">Error loading vacation requests</div>
       ) : viewMode === 'calendar' ? (
-        <div className="h-[600px] mb-6">
+        <div className="mb-6 h-[600px]">
           <Calendar
             localizer={localizer}
             events={calendarEvents}
@@ -514,16 +539,27 @@ const VacationPlanner = () => {
           />
         </div>
       ) : paginatedRequests.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <div className="rounded-lg bg-gray-50 py-12 text-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1}
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
           </svg>
           <p className="mt-2 text-gray-500">
             You haven't requested any time off yet.
           </p>
           <button
             onClick={() => setShowModal(true)}
-            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition text-sm"
+            className="mt-4 rounded bg-indigo-600 px-4 py-2 text-sm text-white transition hover:bg-indigo-700"
           >
             Request your first vacation
           </button>
@@ -552,13 +588,20 @@ const VacationPlanner = () => {
                 {paginatedRequests.map((request) => {
                   const start = new Date(request.startDate)
                   const end = new Date(request.endDate)
-                  const isActive = today >= start && today <= end && request.status === 'Approved'
-                  
+                  const isActive =
+                    today >= start &&
+                    today <= end &&
+                    request.status === 'Approved'
+
                   return (
-                    <tr key={request.id} className={isActive ? 'bg-green-50' : undefined}>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr
+                      key={request.id}
+                      className={isActive ? 'bg-green-50' : undefined}
+                    >
+                      <td className="whitespace-nowrap px-6 py-4">
                         <div className="text-sm text-gray-900">
-                          {formatDate(request.startDate)} - {formatDate(request.endDate)}
+                          {formatDate(request.startDate)} -{' '}
+                          {formatDate(request.endDate)}
                         </div>
                         <div className="text-xs text-gray-500">
                           {Math.ceil(
@@ -568,44 +611,46 @@ const VacationPlanner = () => {
                           ) + 1}{' '}
                           days
                           {isActive && (
-                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            <span className="ml-2 inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
                               Active now
                             </span>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 break-words max-w-xs max-h-24 overflow-y-auto">
+                        <div className="max-h-24 max-w-xs overflow-y-auto break-words text-sm text-gray-900">
                           <div>{request.reason}</div>
-                          {request.status === 'Rejected' && request.rejectionReason && (
-                            <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded border-l-2 border-red-200">
-                              <strong>Rejection Reason:</strong> {request.rejectionReason}
-                            </div>
-                          )}
+                          {request.status === 'Rejected' &&
+                            request.rejectionReason && (
+                              <div className="mt-2 rounded border-l-2 border-red-200 bg-red-50 p-2 text-xs text-red-600">
+                                <strong>Rejection Reason:</strong>{' '}
+                                {request.rejectionReason}
+                              </div>
+                            )}
                           {request.originalRequestId && (
                             <div className="mt-1 text-xs">
-                              <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded">
+                              <span className="rounded bg-orange-100 px-2 py-1 text-orange-700">
                                 📝 Resubmission
                               </span>
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="whitespace-nowrap px-6 py-4">
                         <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold border ${getStatusClass(
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClass(
                             request.status
                           )}`}
                         >
                           {request.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                         <div className="flex space-x-2">
                           {request.status === 'Pending' && (
                             <button
                               onClick={() => openDeleteDialog(request.id)}
-                              className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-2 py-1 rounded text-xs"
+                              className="rounded bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100 hover:text-red-900"
                             >
                               Cancel
                             </button>
@@ -613,7 +658,7 @@ const VacationPlanner = () => {
                           {request.status === 'Approved' && (
                             <button
                               onClick={() => openCancelDialog(request.id)}
-                              className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-2 py-1 rounded text-xs"
+                              className="rounded bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100 hover:text-red-900"
                             >
                               Cancel
                             </button>
@@ -621,7 +666,7 @@ const VacationPlanner = () => {
                           {request.status === 'Rejected' && (
                             <button
                               onClick={() => handleResubmit(request)}
-                              className="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-xs font-medium"
+                              className="rounded bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100 hover:text-blue-900"
                             >
                               🔄 Resubmit
                             </button>
@@ -637,73 +682,123 @@ const VacationPlanner = () => {
 
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-center">
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <nav
+                className="relative z-0 inline-flex -space-x-px rounded-md shadow-sm"
+                aria-label="Pagination"
+              >
                 <button
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(1)}
                 >
                   <span className="sr-only">First</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
                 <button
-                  className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => p - 1)}
                 >
                   <span className="sr-only">Previous</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                  <svg
+                    className="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </button>
-                
+
                 {/* Page numbers */}
-                {Array.from({ length: Math.min(5, totalPages) }).map((_, idx) => {
-                  let pageNum
-                  if (totalPages <= 5) {
-                    pageNum = idx + 1
-                  } else if (currentPage <= 3) {
-                    pageNum = idx + 1
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + idx
-                  } else {
-                    pageNum = currentPage - 2 + idx
-                  }
-                  
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium
-                        ${currentPage === pageNum
-                          ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
-                          : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                {Array.from({ length: Math.min(5, totalPages) }).map(
+                  (_, idx) => {
+                    let pageNum
+                    if (totalPages <= 5) {
+                      pageNum = idx + 1
+                    } else if (currentPage <= 3) {
+                      pageNum = idx + 1
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + idx
+                    } else {
+                      pageNum = currentPage - 2 + idx
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium
+                        ${
+                          currentPage === pageNum
+                            ? 'z-10 border-indigo-500 bg-indigo-50 text-indigo-600'
+                            : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                         }`}
-                    >
-                      {pageNum}
-                    </button>
-                  )
-                })}
-                
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  }
+                )}
+
                 <button
-                  className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((p) => p + 1)}
                 >
                   <span className="sr-only">Next</span>
-                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" /></svg>
+                  <svg
+                    className="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </button>
                 <button
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(totalPages)}
                 >
                   <span className="sr-only">Last</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               </nav>
@@ -714,7 +809,7 @@ const VacationPlanner = () => {
 
       {showModal && (
         <FormModal onClose={() => setShowModal(false)}>
-          <h2 className="text-xl font-bold mb-4">Request Time Off</h2>
+          <h2 className="mb-4 text-xl font-bold">Request Time Off</h2>
           <VacationForm
             onSuccess={() => {
               setShowModal(false)
@@ -730,10 +825,16 @@ const VacationPlanner = () => {
           isOpen={showCancelDialog}
           onClose={() => setShowCancelDialog(false)}
           onConfirm={handleConfirmCancel}
-          title={cancelDialogType === 'delete' ? "Cancel Request" : "Cancel Approved Vacation"}
-          message={cancelDialogType === 'delete' 
-            ? "Are you sure you want to cancel this vacation request? This action cannot be undone."
-            : "Are you sure you want to cancel your approved vacation? Your manager will be notified of this cancellation."}
+          title={
+            cancelDialogType === 'delete'
+              ? 'Cancel Request'
+              : 'Cancel Approved Vacation'
+          }
+          message={
+            cancelDialogType === 'delete'
+              ? 'Are you sure you want to cancel this vacation request? This action cannot be undone.'
+              : 'Are you sure you want to cancel your approved vacation? Your manager will be notified of this cancellation.'
+          }
           confirmText="Yes, Cancel"
           cancelText="No, Keep It"
           type="danger"
@@ -742,7 +843,10 @@ const VacationPlanner = () => {
 
       {/* Resubmission Modal */}
       {showResubmitModal && resubmitRequest && (
-        <FormModal isOpen={showResubmitModal} onClose={() => setShowResubmitModal(false)}>
+        <FormModal
+          isOpen={showResubmitModal}
+          onClose={() => setShowResubmitModal(false)}
+        >
           <ResubmissionForm
             originalRequest={resubmitRequest}
             onSuccess={() => {
@@ -802,7 +906,7 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
     // Convert dates to ISO DateTime strings to avoid GraphQL DateTime error
     const startDateTime = new Date(startDate)
     startDateTime.setHours(0, 0, 0, 0)
-    
+
     const endDateTime = new Date(endDate)
     endDateTime.setHours(23, 59, 59, 999)
 
@@ -821,23 +925,31 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="mb-2 text-lg font-semibold text-gray-900">
           Resubmit Vacation Request
         </h3>
         <p className="text-sm text-gray-600">
-          Your previous request was rejected. Please modify your request and resubmit.
+          Your previous request was rejected. Please modify your request and
+          resubmit.
         </p>
       </div>
 
       {/* Show original request details */}
-      <div className="bg-gray-50 p-4 rounded-lg border">
-        <h4 className="font-medium text-gray-900 mb-2">Previous Request:</h4>
-        <div className="text-sm space-y-1">
-          <p><strong>Dates:</strong> {new Date(originalRequest.startDate).toLocaleDateString()} - {new Date(originalRequest.endDate).toLocaleDateString()}</p>
-          <p><strong>Reason:</strong> {originalRequest.reason}</p>
+      <div className="rounded-lg border bg-gray-50 p-4">
+        <h4 className="mb-2 font-medium text-gray-900">Previous Request:</h4>
+        <div className="space-y-1 text-sm">
+          <p>
+            <strong>Dates:</strong>{' '}
+            {new Date(originalRequest.startDate).toLocaleDateString()} -{' '}
+            {new Date(originalRequest.endDate).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Reason:</strong> {originalRequest.reason}
+          </p>
           {originalRequest.rejectionReason && (
-            <div className="mt-2 p-2 bg-red-50 border-l-2 border-red-200 text-red-700">
-              <strong>Rejection Reason:</strong> {originalRequest.rejectionReason}
+            <div className="mt-2 border-l-2 border-red-200 bg-red-50 p-2 text-red-700">
+              <strong>Rejection Reason:</strong>{' '}
+              {originalRequest.rejectionReason}
             </div>
           )}
         </div>
@@ -845,35 +957,35 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {formError && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-md text-sm">
+          <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {formError}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               Start Date
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
               min={new Date().toISOString().split('T')[0]}
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="mb-1 block text-sm font-medium text-gray-700">
               End Date
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
               min={startDate || new Date().toISOString().split('T')[0]}
               required
             />
@@ -881,13 +993,13 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
             Reason for Vacation
           </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-blue-500"
             rows={3}
             placeholder="Please provide the reason for your vacation request..."
             required
@@ -898,14 +1010,14 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
             disabled={loading}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Resubmitting...' : 'Resubmit Request'}

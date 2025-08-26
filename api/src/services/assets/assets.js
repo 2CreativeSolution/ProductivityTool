@@ -13,10 +13,7 @@ export const assets = () => {
         },
       },
     },
-    orderBy: [
-      { status: 'asc' },
-      { assetId: 'asc' },
-    ],
+    orderBy: [{ status: 'asc' }, { assetId: 'asc' }],
   })
 }
 

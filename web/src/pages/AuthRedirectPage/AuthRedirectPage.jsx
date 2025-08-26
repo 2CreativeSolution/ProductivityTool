@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
-import { useAuth } from 'src/auth'
+
 import { navigate, routes } from '@redwoodjs/router'
+
+import { useAuth } from 'src/auth'
 
 const AuthRedirectPage = () => {
   const { loading, isAuthenticated } = useAuth()

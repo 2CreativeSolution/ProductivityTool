@@ -48,8 +48,14 @@ export const schema = gql`
     assetAssignment(id: Int!): AssetAssignment @requireAuth
     activeAssetAssignments: [AssetAssignment!]! @requireAuth
     myAssetAssignments: [AssetAssignment!]! @requireAuth
-    myAssetAssignmentReport(startDate: DateTime, endDate: DateTime): AssetAssignmentReport! @requireAuth
-    allUsersAssetReport(startDate: DateTime, endDate: DateTime): AssetAssignmentReport! @requireAuth(roles: ["ADMIN"])
+    myAssetAssignmentReport(
+      startDate: DateTime
+      endDate: DateTime
+    ): AssetAssignmentReport! @requireAuth
+    allUsersAssetReport(
+      startDate: DateTime
+      endDate: DateTime
+    ): AssetAssignmentReport! @requireAuth(roles: ["ADMIN"])
     assetAssignmentsByUser(userId: Int!): [AssetAssignment!]! @requireAuth
     assetAssignmentsByAsset(assetId: Int!): [AssetAssignment!]! @requireAuth
     assetHistory(assetId: Int!): [AssetAssignment!]! @requireAuth
@@ -87,10 +93,8 @@ export const schema = gql`
       id: Int!
       input: UpdateAssetAssignmentInput!
     ): AssetAssignment! @requireAuth(roles: ["ADMIN"])
-    returnAsset(
-      assignmentId: Int!
-      input: ReturnAssetInput!
-    ): AssetAssignment! @requireAuth
+    returnAsset(assignmentId: Int!, input: ReturnAssetInput!): AssetAssignment!
+      @requireAuth
     deleteAssetAssignment(id: Int!): AssetAssignment!
       @requireAuth(roles: ["ADMIN"])
   }

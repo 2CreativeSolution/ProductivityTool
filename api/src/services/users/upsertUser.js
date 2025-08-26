@@ -4,7 +4,7 @@ import { db } from 'src/lib/db'
 export const upsertUser = async ({ input }) => {
   // No auth check here - we'll handle it separately
   console.log('Upserting user with email:', input.email)
-  
+
   const existingUser = await db.user.findUnique({
     where: { email: input.email },
   })

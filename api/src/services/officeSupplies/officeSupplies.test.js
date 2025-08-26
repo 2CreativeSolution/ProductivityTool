@@ -1,4 +1,12 @@
-import { officeSupplies, officeSupply, createOfficeSupply, updateOfficeSupply, deleteOfficeSupply, updateStockLevel, lowStockSupplies } from './officeSupplies'
+import {
+  officeSupplies,
+  officeSupply,
+  createOfficeSupply,
+  updateOfficeSupply,
+  deleteOfficeSupply,
+  updateStockLevel,
+  lowStockSupplies,
+} from './officeSupplies'
 
 describe('officeSupplies', () => {
   scenario('returns all officeSupplies', async (scenario) => {
@@ -13,14 +21,14 @@ describe('officeSupplies', () => {
 
   scenario('creates a officeSupply', async (scenario) => {
     const result = await createOfficeSupply({
-      input: { 
+      input: {
         name: 'Test Supply',
         description: 'Test Description',
         categoryId: scenario.officeSupplyCategory.one.id,
         currentStock: 100,
         minimumStock: 10,
         unit: 'pieces',
-        costPerUnit: 5.99
+        costPerUnit: 5.99,
       },
     })
 
@@ -40,7 +48,9 @@ describe('officeSupplies', () => {
   })
 
   scenario('deletes a officeSupply', async (scenario) => {
-    const original = await deleteOfficeSupply({ id: scenario.officeSupply.one.id })
+    const original = await deleteOfficeSupply({
+      id: scenario.officeSupply.one.id,
+    })
     const result = await officeSupply({ id: original.id })
 
     expect(result).toEqual(null)
@@ -50,7 +60,7 @@ describe('officeSupplies', () => {
     const result = await updateStockLevel({
       id: scenario.officeSupply.one.id,
       quantity: 20,
-      operation: 'ADD'
+      operation: 'ADD',
     })
 
     expect(result.currentStock).toEqual(120) // original 100 + 20
@@ -60,7 +70,7 @@ describe('officeSupplies', () => {
     const result = await updateStockLevel({
       id: scenario.officeSupply.one.id,
       quantity: 30,
-      operation: 'SUBTRACT'
+      operation: 'SUBTRACT',
     })
 
     expect(result.currentStock).toEqual(70) // original 100 - 30
@@ -74,8 +84,8 @@ describe('officeSupplies', () => {
         categoryId: scenario.officeSupplyCategory.one.id,
         currentStock: 5,
         minimumStock: 10,
-        unit: 'pieces'
-      }
+        unit: 'pieces',
+      },
     })
 
     const result = await lowStockSupplies()

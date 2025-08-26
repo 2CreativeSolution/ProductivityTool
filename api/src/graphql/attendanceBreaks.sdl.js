@@ -34,8 +34,12 @@ export const schema = gql`
   }
 
   type Mutation {
-    createAttendanceBreak(input: CreateAttendanceBreakInput!): AttendanceBreak! @requireAuth
-    updateAttendanceBreak(id: Int!, input: UpdateAttendanceBreakInput!): AttendanceBreak! @requireAuth
+    createAttendanceBreak(input: CreateAttendanceBreakInput!): AttendanceBreak!
+      @requireAuth
+    updateAttendanceBreak(
+      id: Int!
+      input: UpdateAttendanceBreakInput!
+    ): AttendanceBreak! @requireAuth
     deleteAttendanceBreak(id: Int!): AttendanceBreak! @requireAuth
   }
 `

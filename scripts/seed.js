@@ -11,22 +11,25 @@ export default async () => {
   try {
     // Seed Asset Categories
     console.info('🏷️  Seeding Asset Categories...')
-    
+
     const categories = [
       { name: 'Laptop', description: 'Portable computers for employees' },
       { name: 'Monitor', description: 'External displays and monitors' },
       { name: 'Phone', description: 'Mobile phones and smartphones' },
       { name: 'Tablet', description: 'Tablets and iPads' },
       { name: 'Accessories', description: 'Keyboards, mice, chargers, etc.' },
-      { name: 'Network Equipment', description: 'Routers, switches, access points' },
+      {
+        name: 'Network Equipment',
+        description: 'Routers, switches, access points',
+      },
     ]
 
     const createdCategories = []
     for (const category of categories) {
       const existing = await db.assetCategory.findUnique({
-        where: { name: category.name }
+        where: { name: category.name },
       })
-      
+
       if (!existing) {
         const created = await db.assetCategory.create({ data: category })
         createdCategories.push(created)
@@ -39,10 +42,10 @@ export default async () => {
 
     // Seed Sample Assets
     console.info('💻 Seeding Sample Assets...')
-    
-    const laptopCategory = createdCategories.find(c => c.name === 'Laptop')
-    const monitorCategory = createdCategories.find(c => c.name === 'Monitor')
-    const phoneCategory = createdCategories.find(c => c.name === 'Phone')
+
+    const laptopCategory = createdCategories.find((c) => c.name === 'Laptop')
+    const monitorCategory = createdCategories.find((c) => c.name === 'Monitor')
+    const phoneCategory = createdCategories.find((c) => c.name === 'Phone')
 
     const assets = [
       // Laptops
@@ -53,7 +56,7 @@ export default async () => {
         serialNumber: 'C02Z91234567',
         purchaseDate: new Date('2024-01-15'),
         warrantyExpiry: new Date('2027-01-15'),
-        purchasePrice: 2499.00,
+        purchasePrice: 2499.0,
         vendor: 'Apple Inc.',
         categoryId: laptopCategory.id,
         location: 'IT Storage Room',
@@ -65,7 +68,7 @@ export default async () => {
         serialNumber: 'DL789123456',
         purchaseDate: new Date('2024-02-20'),
         warrantyExpiry: new Date('2027-02-20'),
-        purchasePrice: 1899.00,
+        purchasePrice: 1899.0,
         vendor: 'Dell Technologies',
         categoryId: laptopCategory.id,
         location: 'IT Storage Room',
@@ -77,7 +80,7 @@ export default async () => {
         serialNumber: 'LN456789123',
         purchaseDate: new Date('2024-03-10'),
         warrantyExpiry: new Date('2027-03-10'),
-        purchasePrice: 1699.00,
+        purchasePrice: 1699.0,
         vendor: 'Lenovo',
         categoryId: laptopCategory.id,
         location: 'IT Storage Room',
@@ -90,7 +93,7 @@ export default async () => {
         serialNumber: 'DM123456789',
         purchaseDate: new Date('2024-01-20'),
         warrantyExpiry: new Date('2027-01-20'),
-        purchasePrice: 599.00,
+        purchasePrice: 599.0,
         vendor: 'Dell Technologies',
         categoryId: monitorCategory.id,
         location: 'IT Storage Room',
@@ -102,7 +105,7 @@ export default async () => {
         serialNumber: 'LG987654321',
         purchaseDate: new Date('2024-02-15'),
         warrantyExpiry: new Date('2027-02-15'),
-        purchasePrice: 449.00,
+        purchasePrice: 449.0,
         vendor: 'LG Electronics',
         categoryId: monitorCategory.id,
         location: 'IT Storage Room',
@@ -115,7 +118,7 @@ export default async () => {
         serialNumber: 'IP123456789',
         purchaseDate: new Date('2024-04-01'),
         warrantyExpiry: new Date('2025-04-01'),
-        purchasePrice: 999.00,
+        purchasePrice: 999.0,
         vendor: 'Apple Inc.',
         categoryId: phoneCategory.id,
         location: 'IT Storage Room',
@@ -127,7 +130,7 @@ export default async () => {
         serialNumber: 'SG987654321',
         purchaseDate: new Date('2024-04-15'),
         warrantyExpiry: new Date('2025-04-15'),
-        purchasePrice: 849.00,
+        purchasePrice: 849.0,
         vendor: 'Samsung',
         categoryId: phoneCategory.id,
         location: 'IT Storage Room',
@@ -136,14 +139,16 @@ export default async () => {
 
     for (const asset of assets) {
       const existing = await db.asset.findUnique({
-        where: { assetId: asset.assetId }
+        where: { assetId: asset.assetId },
       })
-      
+
       if (!existing) {
         const created = await db.asset.create({ data: asset })
         console.info(`Created asset: ${created.assetId} - ${created.name}`)
       } else {
-        console.info(`Asset already exists: ${existing.assetId} - ${existing.name}`)
+        console.info(
+          `Asset already exists: ${existing.assetId} - ${existing.name}`
+        )
       }
     }
 

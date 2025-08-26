@@ -41,7 +41,7 @@ export const standard = defineScenario({
         minimumStock: 20,
         reorderLevel: 25,
         unit: 'pieces',
-        costPerUnit: 1.50,
+        costPerUnit: 1.5,
         supplier: 'Office Depot',
       },
     },

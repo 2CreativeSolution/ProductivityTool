@@ -25,7 +25,8 @@ export const schema = gql`
 
   type Mutation {
     createMeetingRoom(input: CreateMeetingRoomInput!): MeetingRoom! @requireAuth
-    updateMeetingRoom(id: Int!, input: UpdateMeetingRoomInput!): MeetingRoom! @requireAuth
+    updateMeetingRoom(id: Int!, input: UpdateMeetingRoomInput!): MeetingRoom!
+      @requireAuth
     deleteMeetingRoom(id: Int!): MeetingRoom! @requireAuth
   }
 `

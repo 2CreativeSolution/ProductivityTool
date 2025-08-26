@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
+
 import { useQuery, gql } from '@apollo/client'
-import Papa from 'papaparse'
-import { navigate, routes } from '@redwoodjs/router'
-import { useAuth } from 'src/auth'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import Papa from 'papaparse'
+
+import { navigate, routes } from '@redwoodjs/router'
 import { toast, Toaster } from '@redwoodjs/web/toast'
+
+import { useAuth } from 'src/auth'
 import ExceptionForm from 'src/components/ExceptionForm'
 import FormModal from 'src/components/FormModal'
 
@@ -56,14 +59,16 @@ const Attendance = ({ userId }) => {
     skip: !userId,
   })
 
-  const { data: exceptionData, loading: exceptionLoading, error: exceptionError, refetch: refetchExceptions } = useQuery(
-    EXCEPTION_REQUESTS_QUERY,
-    {
-      variables: { id: userId },
-      skip: !userId,
-      fetchPolicy: 'network-only',
-    }
-  )
+  const {
+    data: exceptionData,
+    loading: exceptionLoading,
+    error: exceptionError,
+    refetch: refetchExceptions,
+  } = useQuery(EXCEPTION_REQUESTS_QUERY, {
+    variables: { id: userId },
+    skip: !userId,
+    fetchPolicy: 'network-only',
+  })
 
   const [exceptionRequests, setExceptionRequests] = useState([])
   const [attendances, setAttendances] = useState([])
@@ -93,7 +98,10 @@ const Attendance = ({ userId }) => {
 
   // Update state when attendance data changes
   useEffect(() => {
-    if (data?.attendances && JSON.stringify(data.attendances) !== JSON.stringify(attendances)) {
+    if (
+      data?.attendances &&
+      JSON.stringify(data.attendances) !== JSON.stringify(attendances)
+    ) {
       setAttendances(data.attendances)
     }
   }, [data])
@@ -107,8 +115,6 @@ const Attendance = ({ userId }) => {
       setExceptionRequests(sorted)
     }
   }, [exceptionData])
-
-
 
   // PDF export option
   const exportAttendancePDF = () => {
@@ -189,7 +195,12 @@ const Attendance = ({ userId }) => {
         .map(
           (b, idx) =>
             `#${idx + 1}: ${b.breakIn ? new Date(b.breakIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''} - ${
-              b.breakOut ? new Date(b.breakOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+              b.breakOut
+                ? new Date(b.breakOut).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                : ''
             }`
         )
         .join('; '),
@@ -235,7 +246,7 @@ const Attendance = ({ userId }) => {
   // Listen for attendance updates (from AttendanceCard)
   useEffect(() => {
     const handler = () => {
-      refetch().then(result => {
+      refetch().then((result) => {
         // Optionally handle after refetch
       })
     }
@@ -255,13 +266,17 @@ const Attendance = ({ userId }) => {
   useEffect(() => {
     // Listen for admin updates (cross-tab and same tab)
     const handler = () => {
-      console.log('User: exceptionRequestsUpdated event received, refetching...')
+      console.log(
+        'User: exceptionRequestsUpdated event received, refetching...'
+      )
       refetchExceptions()
     }
     window.addEventListener('exceptionRequestsUpdated', handler)
     const storageHandler = (e) => {
       if (e.key === 'exceptionRequestsUpdated') {
-        console.log('User: exceptionRequestsUpdated storage event, refetching...')
+        console.log(
+          'User: exceptionRequestsUpdated storage event, refetching...'
+        )
         refetchExceptions()
       }
     }
@@ -319,7 +334,13 @@ const Attendance = ({ userId }) => {
                 <table className="min-w-full divide-y divide-gray-200 overflow-hidden rounded-xl">
                   <thead className="bg-gray-50">
                     <tr>
-                      {['Date', 'Clock In', 'Clock Out', 'Duration', 'Status'].map((header) => (
+                      {[
+                        'Date',
+                        'Clock In',
+                        'Clock Out',
+                        'Duration',
+                        'Status',
+                      ].map((header) => (
                         <th
                           key={header}
                           className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600"
@@ -350,22 +371,30 @@ const Attendance = ({ userId }) => {
                           }
                         >
                           <td className="whitespace-nowrap rounded-l-lg px-6 py-4 text-sm text-gray-900">
-                            {new Date(record.date).toLocaleDateString('en-GB', { timeZone: 'UTC' })}
+                            {new Date(record.date).toLocaleDateString('en-GB', {
+                              timeZone: 'UTC',
+                            })}
                           </td>
                           <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                             {record.clockIn
-                              ? new Date(record.clockIn).toLocaleTimeString([], {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })
+                              ? new Date(record.clockIn).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  }
+                                )
                               : '-'}
                           </td>
                           <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
                             {record.clockOut
-                              ? new Date(record.clockOut).toLocaleTimeString([], {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })
+                              ? new Date(record.clockOut).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  }
+                                )
                               : '-'}
                           </td>
                           <td className="whitespace-nowrap px-6 py-4 font-mono text-sm text-gray-900">
@@ -374,13 +403,22 @@ const Attendance = ({ userId }) => {
                               const breaks = record.breaks || []
                               const totalBreakMs = breaks.reduce((sum, b) => {
                                 if (b.breakIn && b.breakOut) {
-                                  return sum + (new Date(b.breakOut) - new Date(b.breakIn))
+                                  return (
+                                    sum +
+                                    (new Date(b.breakOut) - new Date(b.breakIn))
+                                  )
                                 }
                                 return sum
                               }, 0)
-                              const officeMs = record.clockIn && record.clockOut
-                                ? Math.max(new Date(record.clockOut) - new Date(record.clockIn) - totalBreakMs, 0)
-                                : 0
+                              const officeMs =
+                                record.clockIn && record.clockOut
+                                  ? Math.max(
+                                      new Date(record.clockOut) -
+                                        new Date(record.clockIn) -
+                                        totalBreakMs,
+                                      0
+                                    )
+                                  : 0
                               const h = Math.floor(officeMs / 1000 / 60 / 60)
                               const m = Math.floor((officeMs / 1000 / 60) % 60)
                               return record.clockIn && record.clockOut
@@ -449,15 +487,17 @@ const Attendance = ({ userId }) => {
           >
             Submit New Exception
           </button>
-         
+
           <div className="mb-6 space-y-3">
             {exceptionLoading ? (
               <div>Loading...</div>
             ) : exceptionError ? (
-              <div className="text-red-500">Error: {exceptionError.message}</div>
+              <div className="text-red-500">
+                Error: {exceptionError.message}
+              </div>
             ) : !exceptionData?.user ? (
               <div className="text-red-500">User not found or not loaded.</div>
-            ) : paginatedExceptions.length === 0? (
+            ) : paginatedExceptions.length === 0 ? (
               <div className="text-gray-500">
                 You have not submitted any requests.
               </div>
@@ -468,7 +508,9 @@ const Attendance = ({ userId }) => {
                   className="flex flex-col rounded-lg border bg-gray-50 px-4 py-3"
                 >
                   <div className="mb-1 flex items-center justify-between">
-                    <span className="font-semibold text-gray-800">{ex.type}</span>
+                    <span className="font-semibold text-gray-800">
+                      {ex.type}
+                    </span>
                     <span
                       className={`rounded-full px-2 py-1 text-xs font-semibold
                       ${ex.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : ''}
@@ -482,9 +524,8 @@ const Attendance = ({ userId }) => {
                     {new Date(ex.date).toLocaleDateString('en-GB', {
                       timeZone: 'UTC',
                     })}{' '}
-    
                   </div>
-                  <p className="text-sm text-gray-700 break-words max-w-xs max-h-24 overflow-y-auto">
+                  <p className="max-h-24 max-w-xs overflow-y-auto break-words text-sm text-gray-700">
                     {ex.reason}
                   </p>
                 </div>
@@ -516,20 +557,27 @@ const Attendance = ({ userId }) => {
           </div>
           {showModal && (
             <FormModal onClose={() => setShowModal(false)}>
-              <h2 className="mb-4 text-xl font-bold">Submit Exception Request</h2>
+              <h2 className="mb-4 text-xl font-bold">
+                Submit Exception Request
+              </h2>
               <ExceptionForm
                 onSuccess={async () => {
                   setShowModal(false)
                   const result = await refetchExceptions()
                   if (result.data?.user?.exceptionRequests) {
-                    const sorted = [...result.data.user.exceptionRequests].sort(
-                      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-                    ).reverse()
+                    const sorted = [...result.data.user.exceptionRequests]
+                      .sort(
+                        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+                      )
+                      .reverse()
                     setExceptionRequests(sorted)
                   }
                   // Notify admin panel
                   window.dispatchEvent(new Event('exceptionRequestsUpdated'))
-                  window.localStorage.setItem('exceptionRequestsUpdated', Date.now())
+                  window.localStorage.setItem(
+                    'exceptionRequestsUpdated',
+                    Date.now()
+                  )
                 }}
               />
             </FormModal>

@@ -1,8 +1,8 @@
 import { db } from 'src/lib/db'
-import { 
-  sendVacationRequestApprovalEmail, 
+import {
+  sendVacationRequestApprovalEmail,
   sendVacationRequestRejectionEmail,
-  sendVacationRequestNotificationToAdmins
+  sendVacationRequestNotificationToAdmins,
 } from 'src/lib/emailService'
 
 export const vacationRequests = () => {
@@ -24,29 +24,29 @@ export const userVacationRequests = (_args, { context }) => {
   console.log('🔍 context exists:', !!context)
   console.log('🔍 context.currentUser exists:', !!context?.currentUser)
   console.log('🔍 context.currentUser.id:', context?.currentUser?.id)
-  
+
   if (!context?.currentUser?.id) {
     console.log('❌ No currentUser.id found in context')
     throw new Error('User not authenticated or missing user ID')
   }
-  
+
   const userId = context.currentUser.id
   console.log('✅ Using userId:', userId)
-  
+
   return db.vacationRequest.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },
     include: {
       originalRequest: true,
       resubmissions: true,
-    }
+    },
   })
 }
 
 export const createVacationRequest = ({ input }, { context }) => {
   return db.$transaction(async (tx) => {
     const userId = context.currentUser.id
-    
+
     // Create the vacation request
     const newRequest = await tx.vacationRequest.create({
       data: {
@@ -59,10 +59,14 @@ export const createVacationRequest = ({ input }, { context }) => {
     })
 
     // Send notification to admins (run async without blocking the response)
-    sendVacationRequestNotificationToAdmins(newRequest.user, newRequest)
-      .catch(error => {
-        console.error('Failed to send admin notification for vacation request:', error)
-      })
+    sendVacationRequestNotificationToAdmins(newRequest.user, newRequest).catch(
+      (error) => {
+        console.error(
+          'Failed to send admin notification for vacation request:',
+          error
+        )
+      }
+    )
 
     return newRequest
   })
@@ -111,9 +115,9 @@ export const approveVacationRequest = async ({ id }) => {
 
 export const rejectVacationRequest = async ({ id, input }) => {
   const updatedRequest = await db.vacationRequest.update({
-    data: { 
+    data: {
       status: 'Rejected',
-      rejectionReason: input.rejectionReason
+      rejectionReason: input.rejectionReason,
     },
     where: { id },
     include: { user: true },
@@ -131,47 +135,54 @@ export const rejectVacationRequest = async ({ id, input }) => {
   return updatedRequest
 }
 
-export const resubmitVacationRequest = async ({ originalId, input }, { context }) => {
+export const resubmitVacationRequest = async (
+  { originalId, input },
+  { context }
+) => {
   return db.$transaction(async (tx) => {
     const userId = context.currentUser.id
-    
+
     // Verify the original request belongs to the current user and was rejected
     const originalRequest = await tx.vacationRequest.findUnique({
       where: { id: originalId },
-      include: { user: true }
+      include: { user: true },
     })
-    
+
     if (!originalRequest) {
       throw new Error('Original vacation request not found')
     }
-    
+
     if (originalRequest.userId !== userId) {
       throw new Error('You can only resubmit your own vacation requests')
     }
-    
+
     if (originalRequest.status !== 'Rejected') {
       throw new Error('You can only resubmit rejected vacation requests')
     }
-    
+
     // Create the new resubmission request
     const newRequest = await tx.vacationRequest.create({
       data: {
         ...input,
         userId,
         originalRequestId: originalId,
-        status: 'Pending'
+        status: 'Pending',
       },
       include: {
         user: true,
-        originalRequest: true
-      }
+        originalRequest: true,
+      },
     })
 
     // Send notification to admins about the resubmission
-    sendVacationRequestNotificationToAdmins(newRequest.user, newRequest)
-      .catch(error => {
-        console.error('Failed to send admin notification for vacation resubmission:', error)
-      })
+    sendVacationRequestNotificationToAdmins(newRequest.user, newRequest).catch(
+      (error) => {
+        console.error(
+          'Failed to send admin notification for vacation resubmission:',
+          error
+        )
+      }
+    )
 
     return newRequest
   })

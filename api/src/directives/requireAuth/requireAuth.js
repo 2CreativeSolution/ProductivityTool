@@ -1,8 +1,9 @@
 import gql from 'graphql-tag'
+
 import { createValidatorDirective } from '@redwoodjs/graphql-server'
 
-import { logger } from 'src/lib/logger'
 import { requireAuth as requireAuthHelper } from 'src/lib/auth'
+import { logger } from 'src/lib/logger'
 
 export const schema = gql`
   """
@@ -13,7 +14,10 @@ export const schema = gql`
 
 const validate = ({ context, directiveArgs }) => {
   console.log('🔒 DIRECTIVE: requireAuth called')
-  console.log('🔒 DIRECTIVE: context.currentUser present:', !!context?.currentUser)
+  console.log(
+    '🔒 DIRECTIVE: context.currentUser present:',
+    !!context?.currentUser
+  )
   console.log('🔒 DIRECTIVE: context.currentUser value:', context?.currentUser)
   console.log('🔒 DIRECTIVE: context keys:', Object.keys(context || {}))
   console.log('🔒 DIRECTIVE: directiveArgs:', directiveArgs)

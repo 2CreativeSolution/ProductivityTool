@@ -17,12 +17,12 @@ const authDecoder = createAuthDecoder(cookieName)
 export const handler = createGraphQLHandler({
   authDecoder,
   getCurrentUser,
-  loggerConfig: { 
-    logger, 
-    options: { 
+  loggerConfig: {
+    logger,
+    options: {
       data: false,
-      level: 'info'
-    } 
+      level: 'info',
+    },
   },
   directives,
   sdls,

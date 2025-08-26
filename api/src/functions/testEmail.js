@@ -1,5 +1,5 @@
-import { sendTestEmail } from 'src/lib/emailService'
 import { requireAuth } from 'src/lib/auth'
+import { sendTestEmail } from 'src/lib/emailService'
 
 export const handler = async (event, context) => {
   // Only allow authenticated admins to test email
@@ -16,7 +16,7 @@ export const handler = async (event, context) => {
   }
 
   const { email } = JSON.parse(event.body || '{}')
-  
+
   if (!email) {
     return {
       statusCode: 400,
@@ -43,9 +43,9 @@ export const handler = async (event, context) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
-        error: 'Failed to send test email', 
-        details: error.message 
+      body: JSON.stringify({
+        error: 'Failed to send test email',
+        details: error.message,
       }),
     }
   }

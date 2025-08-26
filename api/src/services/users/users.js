@@ -1,6 +1,7 @@
+import { context } from '@redwoodjs/graphql-server'
+
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
-import { context } from '@redwoodjs/graphql-server'
 
 export const users = () => {
   return db.user.findMany({
@@ -104,7 +105,7 @@ export const deleteUser = ({ id }) => {
 
 export const upsertUser = ({ input }) => {
   console.log('Upserting user with email:', input.email)
-  
+
   return db.user.upsert({
     where: { email: input.email },
     update: {
@@ -191,15 +192,17 @@ export const User = {
       },
     })
   },
-  
+
   // Employee Management Resolvers
   reportingManagerUser: (_obj, { root }) => {
-    return db.user.findUnique({ where: { id: root?.id } }).reportingManagerUser()
+    return db.user
+      .findUnique({ where: { id: root?.id } })
+      .reportingManagerUser()
   },
   directReports: (_obj, { root }) => {
     return db.user.findUnique({ where: { id: root?.id } }).directReports()
   },
-  
+
   // Project Allocation Resolvers
   projectAllocations: (_obj, { root }) => {
     return db.user.findUnique({ where: { id: root?.id } }).projectAllocations({
@@ -212,4 +215,3 @@ export const User = {
     return db.user.findUnique({ where: { id: root?.id } }).managedProjects()
   },
 }
-

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+
 import { useQuery, useMutation, gql } from '@apollo/client'
 
 const MEETING_ROOMS_QUERY = gql`
@@ -95,8 +96,10 @@ const MeetingRoomsSection = () => {
   if (error) return <div className="text-red-500">Error: {error.message}</div>
 
   return (
-    <div className="mt-12 rounded-2xl border border-gray-200 bg-gray-50 shadow-lg p-8">
-      <h2 className="mb-8 text-2xl font-semibold text-gray-900">Meeting Rooms</h2>
+    <div className="mt-12 rounded-2xl border border-gray-200 bg-gray-50 p-8 shadow-lg">
+      <h2 className="mb-8 text-2xl font-semibold text-gray-900">
+        Meeting Rooms
+      </h2>
 
       <form onSubmit={handleSubmit} className="mb-8 space-y-6">
         <input
@@ -118,14 +121,14 @@ const MeetingRoomsSection = () => {
         <div className="flex justify-end gap-4">
           <button
             type="submit"
-            className="rounded-md bg-orange-500 px-5 py-2 text-white font-semibold transition hover:bg-orange-600"
+            className="rounded-md bg-orange-500 px-5 py-2 font-semibold text-white transition hover:bg-orange-600"
           >
             {editingRoom ? 'Update Room' : 'Add Room'}
           </button>
           {editingRoom && (
             <button
               type="button"
-              className="rounded-md bg-gray-300 px-5 py-2 text-gray-800 font-semibold transition hover:bg-gray-400"
+              className="rounded-md bg-gray-300 px-5 py-2 font-semibold text-gray-800 transition hover:bg-gray-400"
               onClick={handleCancelEdit}
             >
               Cancel
@@ -137,8 +140,12 @@ const MeetingRoomsSection = () => {
       <table className="w-full rounded-md border border-gray-300">
         <thead>
           <tr className="bg-orange-100">
-            <th className="px-4 py-3 text-left text-gray-900 font-semibold">Name</th>
-            <th className="px-4 py-3 text-left text-gray-900 font-semibold">Description</th>
+            <th className="px-4 py-3 text-left font-semibold text-gray-900">
+              Name
+            </th>
+            <th className="px-4 py-3 text-left font-semibold text-gray-900">
+              Description
+            </th>
             <th className="px-4 py-3"></th>
           </tr>
         </thead>
@@ -146,19 +153,19 @@ const MeetingRoomsSection = () => {
           {data.meetingRooms.map((room) => (
             <tr
               key={room.id}
-              className="border-t border-gray-300 hover:bg-orange-50 transition"
+              className="border-t border-gray-300 transition hover:bg-orange-50"
             >
               <td className="px-4 py-3 text-gray-800">{room.name}</td>
               <td className="px-4 py-3 text-gray-800">{room.description}</td>
               <td className="flex justify-end gap-4 px-4 py-3">
                 <button
-                  className="rounded-md border border-orange-600 px-4 py-2 text-orange-600 font-semibold transition hover:bg-orange-600 hover:text-white"
+                  className="rounded-md border border-orange-600 px-4 py-2 font-semibold text-orange-600 transition hover:bg-orange-600 hover:text-white"
                   onClick={() => handleEdit(room)}
                 >
                   Edit
                 </button>
                 <button
-                  className="rounded-md border border-red-600 px-4 py-2 text-red-600 font-semibold transition hover:bg-red-600 hover:text-white"
+                  className="rounded-md border border-red-600 px-4 py-2 font-semibold text-red-600 transition hover:bg-red-600 hover:text-white"
                   onClick={() =>
                     deleteMeetingRoom({ variables: { id: room.id } })
                   }

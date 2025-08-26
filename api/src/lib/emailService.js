@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+
 import { db } from 'src/lib/db'
 
 // Helper function to create enhanced email headers for better Outlook compatibility
@@ -6,27 +7,27 @@ const createEmailHeaders = () => {
   return {
     'X-Priority': '3',
     'X-MSMail-Priority': 'Normal',
-    'Importance': 'Normal',
+    Importance: 'Normal',
     'X-Mailer': '2Creative Productivity Tool',
     'Reply-To': process.env.SMTP_USER,
     'Return-Path': process.env.SMTP_USER,
     'Content-Type': 'text/html; charset=UTF-8',
-    'MIME-Version': '1.0'
+    'MIME-Version': '1.0',
   }
 }
 
 // Helper function to format dates correctly using UTC
 const formatDateForEmail = (dateString) => {
   if (!dateString) return 'N/A'
-  
+
   // Create date object and use UTC methods to avoid timezone issues
   const date = new Date(dateString)
-  
+
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    timeZone: 'UTC'
+    timeZone: 'UTC',
   })
 }
 
@@ -34,14 +35,16 @@ const formatDateForEmail = (dateString) => {
 const createTransporter = () => {
   // Validate environment variables
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    throw new Error('SMTP_USER and SMTP_PASS environment variables are required')
+    throw new Error(
+      'SMTP_USER and SMTP_PASS environment variables are required'
+    )
   }
 
   console.log('📧 Creating email transporter with config:', {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: Number(process.env.SMTP_PORT) || 587,
     user: process.env.SMTP_USER ? '***configured***' : 'NOT_SET',
-    pass: process.env.SMTP_PASS ? '***configured***' : 'NOT_SET'
+    pass: process.env.SMTP_PASS ? '***configured***' : 'NOT_SET',
   })
 
   return nodemailer.createTransport({
@@ -55,10 +58,10 @@ const createTransporter = () => {
     // Enhanced settings for better Outlook compatibility
     tls: {
       ciphers: 'SSLv3',
-      rejectUnauthorized: false
+      rejectUnauthorized: false,
     },
     debug: true, // Enable debug logs
-    logger: true // Enable logging
+    logger: true, // Enable logging
   })
 }
 
@@ -120,9 +123,13 @@ const createEmailTemplate = (title, content, backgroundColor = '#f3f4f6') => {
 }
 
 // Supply Request Email Templates
-export const sendSupplyRequestApprovalEmail = async (user, request, approverNotes) => {
+export const sendSupplyRequestApprovalEmail = async (
+  user,
+  request,
+  approverNotes
+) => {
   const transporter = createTransporter()
-  
+
   const content = `
     <div style="text-align: center; margin-bottom: 30px;">
       <div style="background-color: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -160,12 +167,16 @@ export const sendSupplyRequestApprovalEmail = async (user, request, approverNote
       </table>
     </div>
     
-    ${approverNotes ? `
+    ${
+      approverNotes
+        ? `
       <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">Admin Notes:</h3>
         <p style="margin: 0; color: #1e40af; font-style: italic;">"${approverNotes}"</p>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Your approved items will be made available for pickup. You'll receive further instructions about collection details soon.
@@ -180,7 +191,7 @@ export const sendSupplyRequestApprovalEmail = async (user, request, approverNote
       <strong>2Creative Admin Team</strong>
     </p>
   `
-  
+
   const mailOptions = {
     from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
     to: user.email,
@@ -190,15 +201,15 @@ export const sendSupplyRequestApprovalEmail = async (user, request, approverNote
     headers: {
       'X-Priority': '3',
       'X-MSMail-Priority': 'Normal',
-      'Importance': 'Normal',
+      Importance: 'Normal',
       'X-Mailer': '2Creative Productivity Tool',
       'Reply-To': process.env.SMTP_USER,
-      'Return-Path': process.env.SMTP_USER
+      'Return-Path': process.env.SMTP_USER,
     },
     // Add text version for better compatibility
-    text: `Hi ${user.name},\n\nGreat news! Your supply request has been approved.\n\nRequest Details:\nItem: ${request.supply.name}\nQuantity: ${request.quantityRequested}\nCategory: ${request.supply.category?.name || 'N/A'}\nRequest Date: ${formatDateForEmail(request.createdAt)}\n\n${approverNotes ? `Admin Notes: "${approverNotes}"\n\n` : ''}Your approved items will be made available for pickup. You'll receive further instructions about collection details soon.\n\nIf you have any questions, please don't hesitate to reach out to the admin team.\n\nBest regards,\n2Creative Admin Team`
+    text: `Hi ${user.name},\n\nGreat news! Your supply request has been approved.\n\nRequest Details:\nItem: ${request.supply.name}\nQuantity: ${request.quantityRequested}\nCategory: ${request.supply.category?.name || 'N/A'}\nRequest Date: ${formatDateForEmail(request.createdAt)}\n\n${approverNotes ? `Admin Notes: "${approverNotes}"\n\n` : ''}Your approved items will be made available for pickup. You'll receive further instructions about collection details soon.\n\nIf you have any questions, please don't hesitate to reach out to the admin team.\n\nBest regards,\n2Creative Admin Team`,
   }
-  
+
   try {
     await transporter.sendMail(mailOptions)
     console.log('Supply request approval email sent to:', user.email)
@@ -208,9 +219,13 @@ export const sendSupplyRequestApprovalEmail = async (user, request, approverNote
   }
 }
 
-export const sendSupplyRequestRejectionEmail = async (user, request, rejectionReason) => {
+export const sendSupplyRequestRejectionEmail = async (
+  user,
+  request,
+  rejectionReason
+) => {
   const transporter = createTransporter()
-  
+
   const content = `
     <div style="text-align: center; margin-bottom: 30px;">
       <div style="background-color: #fef2f2; color: #dc2626; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -262,14 +277,14 @@ export const sendSupplyRequestRejectionEmail = async (user, request, rejectionRe
       <strong>2Creative Admin Team</strong>
     </p>
   `
-  
+
   const mailOptions = {
     from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
     to: user.email,
     subject: `❌ Supply Request Update - ${request.supply.name}`,
-    html: createEmailTemplate('Supply Request Status', content, '#fef2f2')
+    html: createEmailTemplate('Supply Request Status', content, '#fef2f2'),
   }
-  
+
   try {
     await transporter.sendMail(mailOptions)
     console.log('Supply request rejection email sent to:', user.email)
@@ -280,9 +295,14 @@ export const sendSupplyRequestRejectionEmail = async (user, request, rejectionRe
 }
 
 // Asset Request Email Templates
-export const sendAssetRequestApprovalEmail = async (user, request, asset, approverNotes) => {
+export const sendAssetRequestApprovalEmail = async (
+  user,
+  request,
+  asset,
+  approverNotes
+) => {
   const transporter = createTransporter()
-  
+
   const content = `
     <div style="text-align: center; margin-bottom: 30px;">
       <div style="background-color: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -320,12 +340,16 @@ export const sendAssetRequestApprovalEmail = async (user, request, asset, approv
       </table>
     </div>
     
-    ${approverNotes ? `
+    ${
+      approverNotes
+        ? `
       <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">Admin Notes:</h3>
         <p style="margin: 0; color: #1e40af; font-style: italic;">"${approverNotes}"</p>
       </div>
-    ` : ''}
+    `
+        : ''
+    }
     
     <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 10px 0; color: #92400e; font-size: 16px;">📋 Important Reminders:</h3>
@@ -346,14 +370,14 @@ export const sendAssetRequestApprovalEmail = async (user, request, asset, approv
       <strong>2Creative Admin Team</strong>
     </p>
   `
-  
+
   const mailOptions = {
     from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
     to: user.email,
     subject: `✅ Asset Request Approved - ${asset?.name || request.assetCategory?.name}`,
-    html: createEmailTemplate('Asset Request Approved', content, '#dcfce7')
+    html: createEmailTemplate('Asset Request Approved', content, '#dcfce7'),
   }
-  
+
   try {
     await transporter.sendMail(mailOptions)
     console.log('Asset request approval email sent to:', user.email)
@@ -363,9 +387,13 @@ export const sendAssetRequestApprovalEmail = async (user, request, asset, approv
   }
 }
 
-export const sendAssetRequestRejectionEmail = async (user, request, rejectionReason) => {
+export const sendAssetRequestRejectionEmail = async (
+  user,
+  request,
+  rejectionReason
+) => {
   const transporter = createTransporter()
-  
+
   const content = `
     <div style="text-align: center; margin-bottom: 30px;">
       <div style="background-color: #fef2f2; color: #dc2626; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -417,14 +445,14 @@ export const sendAssetRequestRejectionEmail = async (user, request, rejectionRea
       <strong>2Creative Admin Team</strong>
     </p>
   `
-  
+
   const mailOptions = {
     from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
     to: user.email,
     subject: `❌ Asset Request Update - ${request.assetCategory?.name}`,
-    html: createEmailTemplate('Asset Request Status', content, '#fef2f2')
+    html: createEmailTemplate('Asset Request Status', content, '#fef2f2'),
   }
-  
+
   try {
     await transporter.sendMail(mailOptions)
     console.log('Asset request rejection email sent to:', user.email)
@@ -437,9 +465,13 @@ export const sendAssetRequestRejectionEmail = async (user, request, rejectionRea
 // Vacation Request Email Templates
 export const sendVacationRequestApprovalEmail = async (user, request) => {
   const transporter = createTransporter()
-  
-  const totalDays = Math.ceil((new Date(request.endDate) - new Date(request.startDate)) / (1000 * 60 * 60 * 24)) + 1
-  
+
+  const totalDays =
+    Math.ceil(
+      (new Date(request.endDate) - new Date(request.startDate)) /
+        (1000 * 60 * 60 * 24)
+    ) + 1
+
   const content = `
     <div style="text-align: center; margin-bottom: 30px;">
       <div style="background-color: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -496,14 +528,14 @@ export const sendVacationRequestApprovalEmail = async (user, request) => {
       <strong>2Creative Admin Team</strong>
     </p>
   `
-  
+
   const mailOptions = {
     from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
     to: user.email,
     subject: `🌴 Vacation Request Approved - ${formatDateForEmail(request.startDate)} to ${formatDateForEmail(request.endDate)}`,
-    html: createEmailTemplate('Vacation Request Approved', content, '#dcfce7')
+    html: createEmailTemplate('Vacation Request Approved', content, '#dcfce7'),
   }
-  
+
   try {
     await transporter.sendMail(mailOptions)
     console.log('Vacation request approval email sent to:', user.email)
@@ -513,11 +545,19 @@ export const sendVacationRequestApprovalEmail = async (user, request) => {
   }
 }
 
-export const sendVacationRequestRejectionEmail = async (user, request, rejectionReason = 'Request could not be approved at this time') => {
+export const sendVacationRequestRejectionEmail = async (
+  user,
+  request,
+  rejectionReason = 'Request could not be approved at this time'
+) => {
   const transporter = createTransporter()
-  
-  const totalDays = Math.ceil((new Date(request.endDate) - new Date(request.startDate)) / (1000 * 60 * 60 * 24)) + 1
-  
+
+  const totalDays =
+    Math.ceil(
+      (new Date(request.endDate) - new Date(request.startDate)) /
+        (1000 * 60 * 60 * 24)
+    ) + 1
+
   const content = `
     <div style="text-align: center; margin-bottom: 30px;">
       <div style="background-color: #fef2f2; color: #dc2626; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -573,14 +613,14 @@ export const sendVacationRequestRejectionEmail = async (user, request, rejection
       <strong>2Creative Admin Team</strong>
     </p>
   `
-  
+
   const mailOptions = {
     from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
     to: user.email,
     subject: `❌ Vacation Request Update - ${formatDateForEmail(request.startDate)} to ${formatDateForEmail(request.endDate)}`,
-    html: createEmailTemplate('Vacation Request Status', content, '#fef2f2')
+    html: createEmailTemplate('Vacation Request Status', content, '#fef2f2'),
   }
-  
+
   try {
     await transporter.sendMail(mailOptions)
     console.log('Vacation request rejection email sent to:', user.email)
@@ -591,15 +631,19 @@ export const sendVacationRequestRejectionEmail = async (user, request, rejection
 }
 
 // Admin notification functions for new requests
-export const sendSupplyRequestNotificationToAdmins = async (user, request, supply) => {
+export const sendSupplyRequestNotificationToAdmins = async (
+  user,
+  request,
+  supply
+) => {
   try {
     // Get all admin users
     const adminUsers = await db.user.findMany({
       where: {
         roles: {
-          has: 'ADMIN'
-        }
-      }
+          has: 'ADMIN',
+        },
+      },
     })
 
     if (adminUsers.length === 0) {
@@ -608,7 +652,7 @@ export const sendSupplyRequestNotificationToAdmins = async (user, request, suppl
     }
 
     const transporter = createTransporter()
-    
+
     const content = `
       <div style="text-align: center; margin-bottom: 30px;">
         <div style="background-color: #fef3c7; color: #92400e; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -654,12 +698,16 @@ export const sendSupplyRequestNotificationToAdmins = async (user, request, suppl
         </table>
       </div>
       
-      ${request.reason ? `
+      ${
+        request.reason
+          ? `
         <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 20px 0;">
           <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">Request Reason:</h3>
           <p style="margin: 0; color: #1e40af; font-style: italic;">"${request.reason}"</p>
         </div>
-      ` : ''}
+      `
+          : ''
+      }
       
       <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #92400e; font-size: 16px;">⏰ Action Required:</h3>
@@ -673,21 +721,32 @@ export const sendSupplyRequestNotificationToAdmins = async (user, request, suppl
         <strong>2Creative Productivity Tool</strong>
       </p>
     `
-    
+
     // Send to all admins
     for (const admin of adminUsers) {
       const mailOptions = {
         from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
         to: admin.email,
         subject: `📦 New Supply Request - ${supply.name} (${user.name})`,
-        html: createEmailTemplate('New Supply Request - Admin Notification', content, '#fef3c7')
+        html: createEmailTemplate(
+          'New Supply Request - Admin Notification',
+          content,
+          '#fef3c7'
+        ),
       }
-      
+
       try {
         await transporter.sendMail(mailOptions)
-        console.log('Supply request notification email sent to admin:', admin.email)
+        console.log(
+          'Supply request notification email sent to admin:',
+          admin.email
+        )
       } catch (error) {
-        console.error('Error sending supply request notification to admin:', admin.email, error)
+        console.error(
+          'Error sending supply request notification to admin:',
+          admin.email,
+          error
+        )
       }
     }
   } catch (error) {
@@ -695,15 +754,19 @@ export const sendSupplyRequestNotificationToAdmins = async (user, request, suppl
   }
 }
 
-export const sendAssetRequestNotificationToAdmins = async (user, request, assetCategory) => {
+export const sendAssetRequestNotificationToAdmins = async (
+  user,
+  request,
+  assetCategory
+) => {
   try {
     // Get all admin users
     const adminUsers = await db.user.findMany({
       where: {
         roles: {
-          has: 'ADMIN'
-        }
-      }
+          has: 'ADMIN',
+        },
+      },
     })
 
     if (adminUsers.length === 0) {
@@ -712,7 +775,7 @@ export const sendAssetRequestNotificationToAdmins = async (user, request, assetC
     }
 
     const transporter = createTransporter()
-    
+
     const content = `
       <div style="text-align: center; margin-bottom: 30px;">
         <div style="background-color: #ddd6fe; color: #7c3aed; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -771,21 +834,32 @@ export const sendAssetRequestNotificationToAdmins = async (user, request, assetC
         <strong>2Creative Productivity Tool</strong>
       </p>
     `
-    
+
     // Send to all admins
     for (const admin of adminUsers) {
       const mailOptions = {
         from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
         to: admin.email,
         subject: `💻 New Asset Request - ${assetCategory.name} (${user.name})`,
-        html: createEmailTemplate('New Asset Request - Admin Notification', content, '#ddd6fe')
+        html: createEmailTemplate(
+          'New Asset Request - Admin Notification',
+          content,
+          '#ddd6fe'
+        ),
       }
-      
+
       try {
         await transporter.sendMail(mailOptions)
-        console.log('Asset request notification email sent to admin:', admin.email)
+        console.log(
+          'Asset request notification email sent to admin:',
+          admin.email
+        )
       } catch (error) {
-        console.error('Error sending asset request notification to admin:', admin.email, error)
+        console.error(
+          'Error sending asset request notification to admin:',
+          admin.email,
+          error
+        )
       }
     }
   } catch (error) {
@@ -793,15 +867,18 @@ export const sendAssetRequestNotificationToAdmins = async (user, request, assetC
   }
 }
 
-export const sendVacationRequestNotificationToAdmins = async (user, request) => {
+export const sendVacationRequestNotificationToAdmins = async (
+  user,
+  request
+) => {
   try {
     // Get all admin users
     const adminUsers = await db.user.findMany({
       where: {
         roles: {
-          has: 'ADMIN'
-        }
-      }
+          has: 'ADMIN',
+        },
+      },
     })
 
     if (adminUsers.length === 0) {
@@ -810,8 +887,12 @@ export const sendVacationRequestNotificationToAdmins = async (user, request) => 
     }
 
     const transporter = createTransporter()
-    const totalDays = Math.ceil((new Date(request.endDate) - new Date(request.startDate)) / (1000 * 60 * 60 * 24)) + 1
-    
+    const totalDays =
+      Math.ceil(
+        (new Date(request.endDate) - new Date(request.startDate)) /
+          (1000 * 60 * 60 * 24)
+      ) + 1
+
     const content = `
       <div style="text-align: center; margin-bottom: 30px;">
         <div style="background-color: #fce7f3; color: #be185d; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -874,21 +955,32 @@ export const sendVacationRequestNotificationToAdmins = async (user, request) => 
         <strong>2Creative Productivity Tool</strong>
       </p>
     `
-    
+
     // Send to all admins
     for (const admin of adminUsers) {
       const mailOptions = {
         from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
         to: admin.email,
         subject: `🌴 New Vacation Request - ${user.name} (${formatDateForEmail(request.startDate)} to ${formatDateForEmail(request.endDate)})`,
-        html: createEmailTemplate('New Vacation Request - Admin Notification', content, '#fce7f3')
+        html: createEmailTemplate(
+          'New Vacation Request - Admin Notification',
+          content,
+          '#fce7f3'
+        ),
       }
-      
+
       try {
         await transporter.sendMail(mailOptions)
-        console.log('Vacation request notification email sent to admin:', admin.email)
+        console.log(
+          'Vacation request notification email sent to admin:',
+          admin.email
+        )
       } catch (error) {
-        console.error('Error sending vacation request notification to admin:', admin.email, error)
+        console.error(
+          'Error sending vacation request notification to admin:',
+          admin.email,
+          error
+        )
       }
     }
   } catch (error) {
@@ -900,12 +992,12 @@ export const sendVacationRequestNotificationToAdmins = async (user, request) => 
 export const sendTestEmail = async (recipientEmail) => {
   try {
     console.log('📧 Attempting to send test email to:', recipientEmail)
-    
+
     const domain = recipientEmail.split('@')[1]?.toLowerCase()
     console.log('🌐 Detected email domain:', domain)
-    
+
     const transporter = createTransporter()
-    
+
     // Verify connection configuration
     try {
       await transporter.verify()
@@ -914,37 +1006,52 @@ export const sendTestEmail = async (recipientEmail) => {
       console.error('❌ SMTP connection verification failed:', verifyError)
       throw new Error(`SMTP connection failed: ${verifyError.message}`)
     }
-    
+
     // Domain-specific subject and content customization
     let subjectPrefix = '📧'
     let domainNote = ''
-    
+
     if (domain?.includes('2cretiv') || domain?.includes('2cretiv')) {
       subjectPrefix = '🏢'
       domainNote = 'This test is for your 2Creative company email system.'
-
     } else if (domain?.includes('edu') || domain?.includes('ac.')) {
       subjectPrefix = '📚'
       domainNote = 'This test is for your educational institution email system.'
     } else if (domain?.includes('gov') || domain?.includes('mil')) {
       subjectPrefix = '🏛️'
       domainNote = 'This test is for your government/military email system.'
-    } else if (domain?.includes('outlook') || domain?.includes('hotmail') || domain?.includes('live')) {
+    } else if (
+      domain?.includes('outlook') ||
+      domain?.includes('hotmail') ||
+      domain?.includes('live')
+    ) {
       subjectPrefix = '📧'
-      domainNote = 'This test is optimized for Microsoft Outlook/Hotmail email services.'
+      domainNote =
+        'This test is optimized for Microsoft Outlook/Hotmail email services.'
     } else if (domain?.includes('gmail')) {
       subjectPrefix = '📮'
       domainNote = 'This test is optimized for Google Gmail email services.'
     } else {
       // Check if it's a custom domain
-      const commonProviders = ['gmail', 'outlook', 'yahoo', 'hotmail', 'live', 'aol', 'protonmail', 'icloud']
-      const isCustomDomain = !commonProviders.some(provider => domain?.includes(provider))
+      const commonProviders = [
+        'gmail',
+        'outlook',
+        'yahoo',
+        'hotmail',
+        'live',
+        'aol',
+        'protonmail',
+        'icloud',
+      ]
+      const isCustomDomain = !commonProviders.some((provider) =>
+        domain?.includes(provider)
+      )
       if (isCustomDomain) {
         subjectPrefix = '🌐'
         domainNote = `This test is for your custom business domain: ${domain}`
       }
     }
-    
+
     const content = `
       <div style="text-align: center; margin-bottom: 30px;">
         <div style="background-color: #dbeafe; color: #1e40af; padding: 15px; border-radius: 8px; display: inline-block;">
@@ -960,13 +1067,17 @@ export const sendTestEmail = async (recipientEmail) => {
         This is a test email to verify that the email notification system for the 2Creative Productivity Tool is working correctly with your email provider.
       </p>
       
-      ${domainNote ? `
+      ${
+        domainNote
+          ? `
       <div style="background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; padding: 15px; margin: 20px 0;">
         <p style="margin: 0; color: #374151; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px;">
           <strong>Domain Information:</strong> ${domainNote}
         </p>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
       
       <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #166534; font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">✅ Email System Status: Working!</h3>
@@ -1002,7 +1113,7 @@ export const sendTestEmail = async (recipientEmail) => {
         <strong>2Creative Admin Team</strong>
       </p>
     `
-    
+
     const mailOptions = {
       from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
       to: recipientEmail,
@@ -1014,9 +1125,9 @@ export const sendTestEmail = async (recipientEmail) => {
       text: `Hi there!\n\nThis is a test email to verify that the email notification system for the 2Creative Productivity Tool is working correctly with your email provider.\n\n${domainNote ? `Domain Information: ${domainNote}\n\n` : ''}✅ Email System Status: Working!\n\nIf you're reading this in any email client, it means the email notification system has been successfully configured and is compatible with your email provider.\n\n📨 Email Provider Notes:\n- If using Outlook/Hotmail: Check spam folder if not received\n- If using Gmail: Check promotions tab\n- If using Custom/Business Domain: Check spam folder and contact domain admin if needed\n- If using Educational Domain: Contact IT support for sender whitelisting if needed\n- Add sender to safe/trusted contacts for future emails\n\nYou can now expect to receive email notifications when:\n- Supply requests are approved or rejected\n- Asset requests are approved or rejected\n- Vacation requests are approved or rejected\n- New requests need admin attention\n\nBest regards,\n2Creative Admin Team`,
       // Additional settings for better multi-domain deliverability
       priority: 'normal',
-      encoding: 'utf8'
+      encoding: 'utf8',
     }
-    
+
     console.log('📧 Sending multi-domain test email with options:', {
       from: mailOptions.from,
       to: mailOptions.to,
@@ -1024,9 +1135,9 @@ export const sendTestEmail = async (recipientEmail) => {
       hasHtml: !!mailOptions.html,
       hasText: !!mailOptions.text,
       headers: Object.keys(mailOptions.headers),
-      domain: domain
+      domain: domain,
     })
-    
+
     const info = await transporter.sendMail(mailOptions)
     console.log('✅ Test email sent successfully:', info.messageId)
     console.log('📩 Email details:', {
@@ -1034,19 +1145,19 @@ export const sendTestEmail = async (recipientEmail) => {
       accepted: info.accepted,
       rejected: info.rejected,
       response: info.response,
-      targetDomain: domain
+      targetDomain: domain,
     })
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       message: `Multi-domain test email sent successfully to ${recipientEmail}. Message ID: ${info.messageId}. Domain: ${domain}. Check spam folder if using business/educational domains.`,
-      messageId: info.messageId
+      messageId: info.messageId,
     }
   } catch (error) {
     console.error('❌ Error sending test email:', error)
-    return { 
-      success: false, 
-      error: `Failed to send email: ${error.message}` 
+    return {
+      success: false,
+      error: `Failed to send email: ${error.message}`,
     }
   }
 }
