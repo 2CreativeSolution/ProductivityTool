@@ -181,15 +181,11 @@ Frontend React App
 
 Before installing this project, ensure you have the following installed:
 
-- **Node.js**: Version 20.x (exactly, as specified in engines)
+- **Node.js**: Version 20.x (exactly, as specified in engines) Recommedned to use NVM in macos.
 - **Yarn**: Latest version (4.6.0+)
 - **PostgreSQL**: Version 12+ (for production)
 - **Git**: For version control
 
-### System Requirements
-- **OS**: Windows, macOS, or Linux
-- **Memory**: 4GB RAM minimum, 8GB recommended
-- **Storage**: 2GB free space for development dependencies
 
 ## 🚀 Installation
 
@@ -197,6 +193,7 @@ Before installing this project, ensure you have the following installed:
 ```bash
 git clone https://github.com/njaswal4/productivity-tool.git
 cd productivity-tool
+nvm use # -- sets right node version
 ```
 
 ### 2. Install Dependencies
