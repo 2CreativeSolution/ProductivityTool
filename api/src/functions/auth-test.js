@@ -31,16 +31,6 @@ export const handler = async (event) => {
       }
     }
 
-    // Try supabase cookie
-    if (!token) {
-      const supabaseCookie = cookies.find((c) =>
-        c.trim().startsWith('supabase-auth-token=')
-      )
-      if (supabaseCookie) {
-        token = supabaseCookie.split('=')[1].trim()
-        tokenSource = 'supabase-auth-token cookie'
-      }
-    }
   }
 
   return {

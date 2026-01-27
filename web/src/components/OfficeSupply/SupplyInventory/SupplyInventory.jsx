@@ -22,7 +22,7 @@ import Header from 'src/components/Header/Header'
 import OfficeSupplyForm from '../OfficeSupplyForm/OfficeSupplyForm'
 
 const GET_OFFICE_SUPPLIES = gql`
-  query GetOfficeSupplies {
+  query GetOfficeSuppliesForInventory {
     officeSupplies {
       id
       name
@@ -48,7 +48,7 @@ const DELETE_OFFICE_SUPPLY = gql`
 `
 
 const CREATE_OFFICE_SUPPLY = gql`
-  mutation CreateOfficeSupply($input: CreateOfficeSupplyInput!) {
+  mutation CreateOfficeSupplyFromInventory($input: CreateOfficeSupplyInput!) {
     createOfficeSupply(input: $input) {
       id
       name
@@ -61,7 +61,7 @@ const CREATE_OFFICE_SUPPLY = gql`
 `
 
 const UPDATE_OFFICE_SUPPLY = gql`
-  mutation UpdateOfficeSupply($id: Int!, $input: UpdateOfficeSupplyInput!) {
+  mutation UpdateOfficeSupplyFromInventory($id: Int!, $input: UpdateOfficeSupplyInput!) {
     updateOfficeSupply(id: $id, input: $input) {
       id
       name

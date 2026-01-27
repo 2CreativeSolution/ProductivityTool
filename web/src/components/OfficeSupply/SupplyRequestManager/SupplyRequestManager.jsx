@@ -56,7 +56,7 @@ const GET_MY_SUPPLY_REQUESTS = gql`
 `
 
 const GET_OFFICE_SUPPLIES = gql`
-  query GetOfficeSupplies {
+  query GetOfficeSuppliesForRequests {
     officeSupplies {
       id
       name

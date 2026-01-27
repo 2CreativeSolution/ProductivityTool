@@ -25,7 +25,7 @@ import { toast } from '@redwoodjs/web/toast'
 import { useAuth } from 'src/auth'
 
 const GET_CATEGORIES = gql`
-  query GetOfficeSupplyCategories {
+  query GetOfficeSupplyCategoriesForManager {
     officeSupplyCategories {
       id
       name

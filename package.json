@@ -8,11 +8,10 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.0",
-    "@redwoodjs/auth-dbauth-setup": "8.6.1",
-    "@redwoodjs/auth-supabase-setup": "8.6.1",
-    "@redwoodjs/cli-data-migrate": "8.6.1",
-    "@redwoodjs/core": "8.6.1",
-    "@redwoodjs/project-config": "8.6.1",
+    "@redwoodjs/auth-dbauth-setup": "8.9.0",
+    "@redwoodjs/cli-data-migrate": "8.9.0",
+    "@redwoodjs/core": "8.9.0",
+    "@redwoodjs/project-config": "8.9.0",
     "esbuild": "0.21.5",
     "prettier-plugin-tailwindcss": "^0.5.12"
   },
@@ -21,7 +20,7 @@
     "root": true
   },
   "engines": {
-    "node": "20.x"
+    "node": "25.x"
   },
   "prisma": {
     "seed": "yarn rw exec seed"
@@ -31,10 +30,7 @@
     "execa": "5.1.1"
   },
   "dependencies": {
-    "@azure/msal-browser": "^4.15.0",
-    "@azure/msal-node": "^3.6.3",
     "@capacitor/core": "^7.4.0",
-    "@supabase/supabase-js": "2.45.4",
     "framer-motion": "^12.6.0",
     "graphql-request": "^7.2.0",
     "gsap": "^3.13.0",

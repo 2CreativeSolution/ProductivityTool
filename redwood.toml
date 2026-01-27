@@ -9,13 +9,7 @@
   title = "2Creative Productivity Tool"
   port = 8910
   apiUrl = "/.netlify/functions"
-  includeEnvironmentVariables = [
-    "SUPABASE_URL",
-    "SUPABASE_KEY",
-    "SUPABASE_JWT_SECRET",
-    "MICROSOFT_CLIENT_ID",
-    "MICROSOFT_TENANT_ID"
-  ]
+  includeEnvironmentVariables = ["SMTP_USER"]
 
 [api]
   port = 8911
