@@ -24,3 +24,5 @@
 
 | Date | Work Item | Summary | Evidence |
 | --- | --- | --- | --- |
+| 2026-01-28 | PT-006 | Wired office supplies seed into standard seed flow; documented destructive warning; installed Yarn 4.6.0 via Corepack and `yarn rw build` now passes | scripts/seed.js; docs/GETTING_STARTED.md; docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-28 | PT-008 | Audited DbAuth flows; fixed signup username field and forgot-password email submission; re-verified `yarn rw build` | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |

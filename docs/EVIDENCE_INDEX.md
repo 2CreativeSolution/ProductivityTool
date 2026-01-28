@@ -36,3 +36,7 @@
 | E-032 | docs/GETTING_STARTED.md | New hire setup guide | docs/GETTING_STARTED.md |
 | E-033 | docs/CONTRIBUTING.md | Contributing guide | docs/CONTRIBUTING.md |
 | E-034 | .gitignore | Ignore local HOME cache folder | .gitignore |
+| E-035 | scripts/seed.js | Standard seed now invokes office supplies seed | scripts/seed.js |
+| E-036 | docs/GETTING_STARTED.md | Added warning that office supplies seed is destructive | docs/GETTING_STARTED.md |
+| E-037 | web/src/pages/SignupPage/SignupPage.jsx | DbAuth signup uses correct username field | web/src/pages/SignupPage/SignupPage.jsx |
+| E-038 | web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx | DbAuth forgot-password submits email correctly | web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |

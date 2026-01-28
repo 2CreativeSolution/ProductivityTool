@@ -24,15 +24,15 @@ const SignupPage = () => {
     }
   }, [isAuthenticated])
 
-  // focus on usename box on page load
-  const usenameRef = useRef(null)
+  // focus on username box on page load
+  const usernameRef = useRef(null)
   useEffect(() => {
-    usenameRef.current?.focus()
+    usernameRef.current?.focus()
   }, [])
 
   const onSubmit = async (data) => {
     const response = await signUp({
-      username: data.usename,
+      username: data.username,
       password: data.password,
       name: data.name, // <-- add this line
     })
@@ -70,10 +70,10 @@ const SignupPage = () => {
                     Email
                   </Label>
                   <TextField
-                    name="usename"
+                    name="username"
                     className="rw-input"
                     errorClassName="rw-input rw-input-error"
-                    ref={usenameRef}
+                    ref={usernameRef}
                     validation={{
                       required: {
                         value: true,

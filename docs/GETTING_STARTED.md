@@ -53,8 +53,10 @@ See `docs/ENVIRONMENT.md` for the full list.
 ```bash
 yarn rw prisma migrate dev
 yarn rw prisma generate
-yarn rw prisma db seed   # only if seed data is desired
+yarn rw prisma db seed   # seeds assets and office supplies
 ```
+
+> Warning: the office supplies seed clears existing supply tables before reloading sample data. Do not run against shared/production databases.
 
 ## 6) Run the app
 

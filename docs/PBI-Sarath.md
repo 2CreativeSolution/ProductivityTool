@@ -1,23 +1,23 @@
 # PBI-Sarath
 
-## PT-006 ⬜ Add office supplies seed to standard seed flow
+## PT-006 ✅ Add office supplies seed to standard seed flow
 - Owner: Sarath
 - Scope: DB
 - Problem: Office supplies seed is not part of `yarn rw prisma db seed`.
 - Acceptance Criteria:
-  - [ ] Standard seed invokes office supplies seed logic.
-  - [ ] Clear note on destructive behavior in docs.
+  - [x] Standard seed invokes office supplies seed logic.
+  - [x] Clear note on destructive behavior in docs.
 - Dependencies: PT-002
 - Evidence: package.json, scripts/seedOfficeSupplies.js
 - Size: S
 
-## PT-008 ⬜ Audit auth flow consistency (DbAuth)
+## PT-008 ✅ Audit auth flow consistency (DbAuth)
 - Owner: Sarath
 - Scope: Web/API
 - Problem: Ensure DbAuth is consistently used end-to-end.
 - Acceptance Criteria:
-  - [ ] Confirm web uses DbAuth provider and login/signup/reset.
-  - [ ] Confirm API auth handler and getCurrentUser are aligned.
+  - [x] Confirm web uses DbAuth provider and login/signup/reset.
+  - [x] Confirm API auth handler and getCurrentUser are aligned.
 - Dependencies: PT-005
 - Evidence: web/src/auth.js, web/src/pages/LoginPage/LoginPage.jsx, api/src/functions/auth.js
 - Size: S

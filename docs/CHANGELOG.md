@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-01-28
+- Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)
+- Documented warning that office supplies seeding clears existing data. (evidence: docs/GETTING_STARTED.md)
+- Installed Yarn 4.6.0 via Corepack and `yarn rw build` now passes. (evidence: docs/TECHNICAL_CHALLENGES.md)
+- DbAuth audit: fixed signup username field + forgot-password email handling; verified DbAuth provider usage. (evidence: web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/auth.js)
+
 ## 2026-01-27
 - Split mixed notes into `docs/PROJECT_NOTES.md` and `docs/REDWOOD_TUTORIAL_NOTES.md`; removed old `REDWOOD_NOTES.md`. (evidence: docs/PROJECT_NOTES.md, docs/REDWOOD_TUTORIAL_NOTES.md)
 - Added plan in `docs/PLAN.md` and moved planning stub to `docs/Planning Guide.md`. (evidence: docs/PLAN.md, docs/Planning Guide.md)

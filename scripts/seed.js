@@ -1,4 +1,5 @@
 import { db } from 'api/src/lib/db'
+import seedOfficeSupplies from './seedOfficeSupplies.js'
 
 // Manually apply seeds via the `yarn rw prisma db seed` command.
 //
@@ -153,6 +154,10 @@ export default async () => {
     }
 
     console.info('\n✅ Asset tracker seeding completed successfully!\n')
+
+    // Also seed office supplies (destructive: clears existing supply data)
+    console.info('📦 Seeding office supplies...')
+    await seedOfficeSupplies()
   } catch (error) {
     console.error('❌ Error seeding asset data:', error)
   }
