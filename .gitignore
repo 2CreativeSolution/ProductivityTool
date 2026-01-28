@@ -9,7 +9,7 @@
 .home/
 .prisma/
 dev.db*
-.vscode/settings.json
+.vscode/*
 dist
 dist-babel
 node_modules
