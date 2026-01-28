@@ -22,12 +22,12 @@
 - Evidence: web/src/auth.js, web/src/pages/LoginPage/LoginPage.jsx, api/src/functions/auth.js
 - Size: S
 
-## PT-010 ⬜ Inventory key features from codebase
+## PT-010 ✅ Inventory key features from codebase
 - Owner: Sarath
 - Scope: Docs
 - Problem: Feature inventory not traceable to code evidence.
 - Acceptance Criteria:
-  - [ ] Project overview lists features with evidence links.
+  - [x] Project overview lists features with evidence links.
 - Dependencies: PT-002
 - Evidence: api/db/schema.prisma, web/src/pages
 - Size: M

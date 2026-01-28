@@ -40,3 +40,4 @@
 | E-036 | docs/GETTING_STARTED.md | Added warning that office supplies seed is destructive | docs/GETTING_STARTED.md |
 | E-037 | web/src/pages/SignupPage/SignupPage.jsx | DbAuth signup uses correct username field | web/src/pages/SignupPage/SignupPage.jsx |
 | E-038 | web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx | DbAuth forgot-password submits email correctly | web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
+| E-039 | docs/PLAN.md | Feature inventory with evidence links | docs/PLAN.md |

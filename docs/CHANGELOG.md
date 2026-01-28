@@ -5,6 +5,7 @@
 - Documented warning that office supplies seeding clears existing data. (evidence: docs/GETTING_STARTED.md)
 - Installed Yarn 4.6.0 via Corepack and `yarn rw build` now passes. (evidence: docs/TECHNICAL_CHALLENGES.md)
 - DbAuth audit: fixed signup username field + forgot-password email handling; verified DbAuth provider usage. (evidence: web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/auth.js)
+- Added feature inventory with evidence links to plan. (evidence: docs/PLAN.md)
 
 ## 2026-01-27
 - Split mixed notes into `docs/PROJECT_NOTES.md` and `docs/REDWOOD_TUTORIAL_NOTES.md`; removed old `REDWOOD_NOTES.md`. (evidence: docs/PROJECT_NOTES.md, docs/REDWOOD_TUTORIAL_NOTES.md)
