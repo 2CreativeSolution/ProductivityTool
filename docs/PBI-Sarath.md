@@ -49,37 +49,37 @@
 - Acceptance Criteria:
   - [x] Routes and services role checks documented or aligned.
 - Dependencies: PT-002
-- Evidence: web/src/Routes.jsx, api/src/lib/auth.js
+- Evidence: web/src/Routes.jsx, api/src/lib/auth3.js
 - Size: M
 
-## PT-014 ⬜ Verify office supplies workflows end-to-end
+## PT-014 ✅ Verify office supplies workflows end-to-end
 - Owner: Sarath
 - Scope: Web/API/DB
 - Problem: Office supplies module should align UI, services, and schema.
 - Acceptance Criteria:
-  - [ ] Routes, services, and schema validated.
+  - [x] Routes, services, and schema validated.
 - Dependencies: PT-002
-- Evidence: web/src/Routes.jsx, api/src/services/officeSupplies, api/db/schema.prisma
+- Evidence: web/src/Routes.jsx, api/src/services/officeSupplies/officeSupplies.js, api/src/services/officeSupplyCategories/officeSupplyCategories.js, api/src/services/supplyRequests/supplyRequests.js, api/db/schema.prisma
 - Size: M
 
-## PT-015 ⬜ Verify asset tracker workflows end-to-end
+## PT-015 ✅ Verify asset tracker workflows end-to-end
 - Owner: Sarath
 - Scope: Web/API/DB
 - Problem: Asset tracker module should align UI, services, and schema.
 - Acceptance Criteria:
-  - [ ] Routes/pages, services, and schema validated.
+  - [x] Routes/pages, services, and schema validated.
 - Dependencies: PT-002
-- Evidence: web/src/pages/AssetTrackerPage, api/src/services/assets, api/db/schema.prisma
+- Evidence: web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx, api/src/services/assets/assets.js, api/src/services/assetCategories/assetCategories.js, api/src/services/assetAssignments/assetAssignments.js, api/src/services/assetRequests/assetRequests.js, api/db/schema.prisma
 - Size: M
 
-## PT-016 ⬜ Verify project tracker workflows end-to-end
+## PT-016 ✅ Verify project tracker workflows end-to-end
 - Owner: Sarath
 - Scope: Web/API/DB
 - Problem: Project tracker module should align UI, services, and schema.
 - Acceptance Criteria:
-  - [ ] Routes/pages, services, and schema validated.
+  - [x] Routes/pages, services, and schema validated.
 - Dependencies: PT-002
-- Evidence: web/src/pages/ProjectTrackerPage, api/src/services/projects, api/db/schema.prisma
+- Evidence: web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/components/ProjectTracker/ProjectTracker.jsx, api/src/services/projects/projects.js, api/src/services/projectAllocations/projectAllocations.js, api/src/services/projectMeetings/projectMeetings.js, api/src/services/dailyProjectUpdates/dailyProjectUpdates.js, api/db/schema.prisma
 - Size: M
 
 ## PT-017 ⬜ Verify attendance and vacation workflows

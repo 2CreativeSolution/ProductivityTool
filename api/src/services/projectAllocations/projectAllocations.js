@@ -152,10 +152,29 @@ export const updateProjectAllocation = ({ id, input }, { context }) => {
   })
 }
 
-export const deleteProjectAllocation = ({ id }, { context }) => {
-  return db.projectAllocation.delete({
+export const deleteProjectAllocation = async ({ id }, { context }) => {
+  // Fetch the record (with relations) before deletion so resolvers can use parent data
+  const existing = await db.projectAllocation.findUnique({
     where: { id },
+    include: {
+      project: true,
+      user: true,
+      allocatedByUser: true,
+      dailyUpdates: true,
+    },
   })
+
+  if (!existing) {
+    throw new Error('Project allocation not found')
+  }
+
+  // Remove related daily updates to avoid orphans
+  await db.dailyProjectUpdate.deleteMany({ where: { allocationId: id } })
+
+  // Delete the allocation
+  await db.projectAllocation.delete({ where: { id } })
+
+  return existing
 }
 
 export const deactivateProjectAllocation = ({ id }, { context }) => {
@@ -171,22 +190,18 @@ export const deactivateProjectAllocation = ({ id }, { context }) => {
 }
 
 export const ProjectAllocation = {
-  project: (_obj, { root }) => {
-    return db.projectAllocation
+  project: (_obj, { root }) =>
+    root?.project ??
+    db.projectAllocation.findUnique({ where: { id: root?.id } }).project(),
+  user: (_obj, { root }) =>
+    root?.user ??
+    db.projectAllocation.findUnique({ where: { id: root?.id } }).user(),
+  allocatedByUser: (_obj, { root }) =>
+    root?.allocatedByUser ??
+    db.projectAllocation
       .findUnique({ where: { id: root?.id } })
-      .project()
-  },
-  user: (_obj, { root }) => {
-    return db.projectAllocation.findUnique({ where: { id: root?.id } }).user()
-  },
-  allocatedByUser: (_obj, { root }) => {
-    return db.projectAllocation
-      .findUnique({ where: { id: root?.id } })
-      .allocatedByUser()
-  },
-  dailyUpdates: (_obj, { root }) => {
-    return db.projectAllocation
-      .findUnique({ where: { id: root?.id } })
-      .dailyUpdates()
-  },
+      .allocatedByUser(),
+  dailyUpdates: (_obj, { root }) =>
+    root?.dailyUpdates ??
+    db.projectAllocation.findUnique({ where: { id: root?.id } }).dailyUpdates(),
 }
