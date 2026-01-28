@@ -7,6 +7,7 @@
 - DbAuth audit: fixed signup username field + forgot-password email handling; verified DbAuth provider usage. (evidence: web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/auth.js)
 - Added feature inventory with evidence links to plan. (evidence: docs/PLAN.md)
 - Validated Prisma migrations align with current schema; no drift noted. (evidence: api/db/schema.prisma, api/db/migrations)
+- Reviewed role gating: Private routes and admin routes wired to DbAuth roles; services enforce auth/ADMIN where needed. (evidence: web/src/Routes.jsx; api/src/services/officeSupplies/officeSupplies.js; api/src/services/officeSupplyCategories/officeSupplyCategories.js; api/src/services/assetAssignments/assetAssignments.js; api/src/lib/auth.js)
 
 ## 2026-01-27
 - Split mixed notes into `docs/PROJECT_NOTES.md` and `docs/REDWOOD_TUTORIAL_NOTES.md`; removed old `REDWOOD_NOTES.md`. (evidence: docs/PROJECT_NOTES.md, docs/REDWOOD_TUTORIAL_NOTES.md)

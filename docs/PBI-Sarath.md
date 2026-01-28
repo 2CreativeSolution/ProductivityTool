@@ -42,12 +42,12 @@
 - Evidence: api/db/migrations, api/db/schema.prisma
 - Size: M
 
-## PT-013 ⬜ Review admin/role gating coverage
+## PT-013 ✅ Review admin/role gating coverage
 - Owner: Sarath
 - Scope: Web/API
 - Problem: Role-based routes may not reflect actual role checks in services.
 - Acceptance Criteria:
-  - [ ] Routes and services role checks documented or aligned.
+  - [x] Routes and services role checks documented or aligned.
 - Dependencies: PT-002
 - Evidence: web/src/Routes.jsx, api/src/lib/auth.js
 - Size: M

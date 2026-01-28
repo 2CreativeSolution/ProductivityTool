@@ -42,3 +42,5 @@
 | E-038 | web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx | DbAuth forgot-password submits email correctly | web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
 | E-039 | docs/PLAN.md | Feature inventory with evidence links | docs/PLAN.md |
 | E-040 | api/db/schema.prisma; api/db/migrations | Verified schema aligns with migration history | api/db/schema.prisma; api/db/migrations |
+| E-041 | web/src/Routes.jsx | Private/admin route gating with DbAuth roles | web/src/Routes.jsx |
+| E-042 | api/src/services/officeSupplies/officeSupplies.js; api/src/services/officeSupplyCategories/officeSupplyCategories.js; api/src/services/assetAssignments/assetAssignments.js; api/src/lib/auth.js | Service-level role checks and auth helpers | api/src/services/officeSupplies/officeSupplies.js; api/src/services/officeSupplyCategories/officeSupplyCategories.js; api/src/services/assetAssignments/assetAssignments.js; api/src/lib/auth.js |

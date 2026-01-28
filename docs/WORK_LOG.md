@@ -28,3 +28,4 @@
 | 2026-01-28 | PT-008 | Audited DbAuth flows; fixed signup username field and forgot-password email submission; re-verified `yarn rw build` | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
 | 2026-01-28 | PT-010 | Added feature inventory with evidence links to PLAN | docs/PLAN.md |
 | 2026-01-28 | PT-011 | Reviewed Prisma schema vs migrations; no drift identified; migrations cover current models | api/db/schema.prisma; api/db/migrations |
+| 2026-01-28 | PT-013 | Reviewed role gating: private routes use DbAuth; admin routes require ADMIN; services enforce requireAuth with admin checks | web/src/Routes.jsx; api/src/services/officeSupplies/officeSupplies.js; api/src/services/officeSupplyCategories/officeSupplyCategories.js; api/src/services/assetAssignments/assetAssignments.js; api/src/lib/auth.js |
