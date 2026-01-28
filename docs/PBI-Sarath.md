@@ -82,12 +82,12 @@
 - Evidence: web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/components/ProjectTracker/ProjectTracker.jsx, api/src/services/projects/projects.js, api/src/services/projectAllocations/projectAllocations.js, api/src/services/projectMeetings/projectMeetings.js, api/src/services/dailyProjectUpdates/dailyProjectUpdates.js, api/db/schema.prisma
 - Size: M
 
-## PT-017 ⬜ Verify attendance and vacation workflows
+## PT-017 ✅ Verify attendance and vacation workflows
 - Owner: Sarath
 - Scope: Web/API/DB
 - Problem: Attendance/vacation modules should align UI, services, and schema.
 - Acceptance Criteria:
-  - [ ] Routes/pages, services, and schema validated.
+  - [x] Routes/pages, services, and schema validated.
 - Dependencies: PT-002
-- Evidence: api/src/services/attendances, api/src/services/vacationRequests, api/db/schema.prisma
+- Evidence: web/src/pages/DashboardPage/DashboardPage.jsx; web/src/components/Attendance/Attendance.jsx; web/src/components/VacationPlanner/VacationPlanner.jsx; api/src/services/attendances/attendances.js; api/src/services/attendanceBreaks/attendanceBreaks.js; api/src/services/overtimeAttendances/overtimeAttendances.js; api/src/services/vacationRequests/vacationRequests.js; api/src/services/exceptionRequests/exceptionRequests.js; api/db/schema.prisma
 - Size: M
