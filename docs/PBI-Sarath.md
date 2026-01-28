@@ -32,12 +32,12 @@
 - Evidence: api/db/schema.prisma, web/src/pages
 - Size: M
 
-## PT-011 ⬜ Validate Prisma migrations vs schema
+## PT-011 ✅ Validate Prisma migrations vs schema
 - Owner: Sarath
 - Scope: DB
 - Problem: Migrations history must align with schema.
 - Acceptance Criteria:
-  - [ ] Confirm migrations cover current schema models or document drift.
+  - [x] Confirm migrations cover current schema models or document drift.
 - Dependencies: PT-002
 - Evidence: api/db/migrations, api/db/schema.prisma
 - Size: M
