@@ -174,6 +174,9 @@ export const deleteProjectAllocation = async ({ id }, { context }) => {
   // Delete the allocation
   await db.projectAllocation.delete({ where: { id } })
 
+  // Avoid returning now-deleted child records (prevents nested resolver errors)
+  existing.dailyUpdates = []
+
   return existing
 }
 
