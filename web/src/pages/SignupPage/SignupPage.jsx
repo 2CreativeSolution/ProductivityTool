@@ -63,7 +63,7 @@ const SignupPage = () => {
               <div className="rw-form-wrapper">
                 <Form onSubmit={onSubmit} className="rw-form-wrapper">
                   <Label
-                    name="usename"
+                    name="username"
                     className="rw-label"
                     errorClassName="rw-label rw-label-error"
                   >
