@@ -94,7 +94,7 @@ const ProjectManagement = ({
   const [projectDialog, setProjectDialog] = useState({ isOpen: false })
   const [allocationDialog, setAllocationDialog] = useState({
     isOpen: false,
-    project: null,
+    projectId: null,
   })
   const [detailsDialog, setDetailsDialog] = useState({
     isOpen: false,
@@ -383,7 +383,7 @@ const ProjectManagement = ({
             <div className="flex gap-2">
               <button
                 onClick={() =>
-                  setAllocationDialog({ isOpen: true, project })
+                  setAllocationDialog({ isOpen: true, projectId: project.id })
                 }
                 className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-green-600 hover:to-emerald-700 hover:shadow-lg"
               >
@@ -446,9 +446,11 @@ const ProjectManagement = ({
       {/* Allocation Dialog */}
       <AllocationDialog
         isOpen={allocationDialog.isOpen}
-        onClose={() => setAllocationDialog({ isOpen: false, project: null })}
+        onClose={() =>setAllocationDialog({ isOpen: false, projectId: null })}
         onSubmit={handleCreateAllocation}
-        project={allocationDialog.project}
+        project={
+          projects.find((p) => p.id === allocationDialog.projectId) || null
+        }
         users={usersData?.users || []}
       />
 
@@ -457,9 +459,7 @@ const ProjectManagement = ({
         isOpen={detailsDialog.isOpen}
         key={detailsDialog.projectId || 'no-project'}
         onClose={() => setDetailsDialog({ isOpen: false, projectId: null })}
-        project={
-          projects.find((p) => p.id === detailsDialog.projectId) || null
-        }
+        project={projects.find((p) => p.id === detailsDialog.projectId) || null}
         onRefresh={onRefresh}
       />
 
