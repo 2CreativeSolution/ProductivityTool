@@ -49,7 +49,7 @@
 - Acceptance Criteria:
   - [x] Routes and services role checks documented or aligned.
 - Dependencies: PT-002
-- Evidence: web/src/Routes.jsx, api/src/lib/auth3.js
+- Evidence: web/src/Routes.jsx, api/src/lib/auth.js, api/src/services/officeSupplies/officeSupplies.js, api/src/services/officeSupplyCategories/officeSupplyCategories.js, api/src/services/assetAssignments/assetAssignments.js
 - Size: M
 
 ## PT-014 ✅ Verify office supplies workflows end-to-end
