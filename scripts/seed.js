@@ -11,7 +11,6 @@ import seedOfficeSupplies from './seedOfficeSupplies.js'
 export default async () => {
   try {
     // Seed Asset Categories
-    console.info('🏷️  Seeding Asset Categories...')
 
     const categories = [
       { name: 'Laptop', description: 'Portable computers for employees' },
@@ -34,15 +33,14 @@ export default async () => {
       if (!existing) {
         const created = await db.assetCategory.create({ data: category })
         createdCategories.push(created)
-        console.info(`Created category: ${created.name}`)
       } else {
         createdCategories.push(existing)
-        console.info(`Category already exists: ${existing.name}`)
+
       }
     }
 
     // Seed Sample Assets
-    console.info('💻 Seeding Sample Assets...')
+
 
     const laptopCategory = createdCategories.find((c) => c.name === 'Laptop')
     const monitorCategory = createdCategories.find((c) => c.name === 'Monitor')
@@ -145,7 +143,6 @@ export default async () => {
 
       if (!existing) {
         const created = await db.asset.create({ data: asset })
-        console.info(`Created asset: ${created.assetId} - ${created.name}`)
       } else {
         console.info(
           `Asset already exists: ${existing.assetId} - ${existing.name}`
@@ -153,10 +150,10 @@ export default async () => {
       }
     }
 
-    console.info('\n✅ Asset tracker seeding completed successfully!\n')
+
 
     // Also seed office supplies (destructive: clears existing supply data)
-    console.info('📦 Seeding office supplies...')
+
     await seedOfficeSupplies()
   } catch (error) {
     console.error('❌ Error seeding asset data:', error)
