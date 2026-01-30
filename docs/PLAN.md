@@ -10,6 +10,17 @@
 - Prisma schema targets PostgreSQL and defines models for users/roles, bookings, attendance, vacation, assets, projects, and office supplies. (evidence: api/db/schema.prisma#L7-L449)
 - Seed scripts exist for asset data and office supply data. (evidence: scripts/seed.js#L1-L112, scripts/seedOfficeSupplies.js#L1-L120)
 
+## Feature Inventory (with evidence)
+- Authentication: DbAuth login/signup/forgot/reset wired via web auth client and auth pages; server handled by DbAuth function. (evidence: web/src/auth.js#L1-L5, web/src/pages/LoginPage/LoginPage.jsx#L15-L71, web/src/pages/SignupPage/SignupPage.jsx#L15-L118, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx#L11-L84, api/src/functions/auth.js#L1-L208)
+- Dashboard: consolidated view for attendance/vacation summaries and shortcuts. (evidence: web/src/pages/DashboardPage/DashboardPage.jsx#L1-L210)
+- Meeting room bookings: CRUD pages and API services for bookings/rooms. (evidence: web/src/pages/Booking/BookingsPage/BookingsPage.jsx#L1-L115, web/src/pages/Booking/NewBookingPage/NewBookingPage.jsx#L1-L42, api/src/services/bookings/bookings.js#L1-L140, api/src/services/meetingRooms/meetingRooms.js#L1-L77)
+- Asset tracker: asset list and category management with services. (evidence: web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx#L1-L155, api/src/services/assets/assets.js#L1-L150, api/src/services/assetCategories/assetCategories.js#L1-L118)
+- Office supplies: inventory, requests, and admin review flows. (evidence: web/src/pages/OfficeSupply/OfficeSupplyInventoryPage/OfficeSupplyInventoryPage.jsx#L1-L120, web/src/pages/OfficeSupply/SupplyRequestsPage/SupplyRequestsPage.jsx#L1-L108, web/src/pages/OfficeSupply/AdminSupplyRequestsPage/AdminSupplyRequestsPage.jsx#L1-L86, api/src/services/officeSupplies/officeSupplies.js#L1-L138, api/src/services/supplyRequests/supplyRequests.js#L1-L152)
+- Project tracker: project list and allocation/meeting services. (evidence: web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx#L1-L160, api/src/services/projects/projects.js#L1-L152, api/src/services/projectAllocations/projectAllocations.js#L1-L126, api/src/services/projectMeetings/projectMeetings.js#L1-L120)
+- Attendance & overtime: tracking services with breaks support; surfaced on dashboard. (evidence: api/src/services/attendances/attendances.js#L1-L152, api/src/services/attendanceBreaks/attendanceBreaks.js#L1-L102, api/src/services/overtimeAttendances/overtimeAttendances.js#L1-L144)
+- Vacation and exceptions: vacation request CRUD and exception requests. (evidence: api/src/services/vacationRequests/vacationRequests.js#L1-L146, api/src/services/exceptionRequests/exceptionRequests.js#L1-L112)
+- Admin/role panels: role-specific panels and role helper logic. (evidence: web/src/pages/AdminPanelPage/AdminPanelPage.jsx#L1-L120, web/src/pages/ManagerPanelPage/ManagerPanelPage.jsx#L1-L118, web/src/pages/HRPanelPage/HRPanelPage.jsx#L1-L118, api/src/lib/auth.js#L1-L95)
+
 ## Unknowns / Gaps
 - Office supplies seed should be included in default seed flow; pending implementation (PT-006). (evidence: docs/PBI-Sarath.md#L1-L13, package.json#L25-L27, scripts/seedOfficeSupplies.js#L1-L120)
 - Whether SMTP credentials are available/required for password reset flows in production. (evidence: api/src/functions/auth.js#L27-L46, .env.example#L7-L27, docs/TODO.md#L1)

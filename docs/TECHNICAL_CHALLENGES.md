@@ -10,3 +10,4 @@
 | 2026-01-27 | GraphQL codegen failed: `checkAvailability` query missing in schema | Replaced query with `meetingRoom` bookings and client-side date filter | Codegen error resolved on next dev run | web/src/components/Booking/BookingForm/BookingForm.jsx |
 | 2026-01-27 | `yarn rw check` failed due to unimplemented SDL fields and env var warnings | Removed unused SDL fields; added NODE_ENV default and exposed SMTP_USER | `yarn rw check` blockers resolved | api/src/graphql/bookings.sdl.js; api/src/graphql/supplyRequests.sdl.js; .env.defaults; redwood.toml |
 | 2026-01-27 | `yarn rw check` status after fixes | Reran `yarn rw check` | No errors or warnings | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-28 | `yarn rw build` failed (Corepack unable to download Yarn 4.6.0 in sandbox) | Tried `HOME=./.home yarn rw build` (blocked); then `corepack prepare yarn@4.6.0 --activate` and reran `yarn rw build` | Build now succeeds | build logs |

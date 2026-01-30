@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-01-28
+- Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)
+- Documented warning that office supplies seeding clears existing data. (evidence: docs/GETTING_STARTED.md)
+- Installed Yarn 4.6.0 via Corepack and `yarn rw build` now passes. (evidence: docs/TECHNICAL_CHALLENGES.md)
+- DbAuth audit: fixed signup username field + forgot-password email handling; verified DbAuth provider usage. (evidence: web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/auth.js)
+- Added feature inventory with evidence links to plan. (evidence: docs/PLAN.md)
+- Validated Prisma migrations align with current schema; no drift noted. (evidence: api/db/schema.prisma, api/db/migrations)
+- Reviewed role gating: Private routes and admin routes wired to DbAuth roles; services enforce auth/ADMIN where needed. (evidence: web/src/Routes.jsx; api/src/services/officeSupplies/officeSupplies.js; api/src/services/officeSupplyCategories/officeSupplyCategories.js; api/src/services/assetAssignments/assetAssignments.js; api/src/lib/auth.js)
+- Verified office supplies workflows end-to-end: routes align with services and schema; admin gating enforced; supply requests approval flow checked. (evidence: web/src/Routes.jsx; api/src/services/officeSupplies/officeSupplies.js; api/src/services/officeSupplyCategories/officeSupplyCategories.js; api/src/services/supplyRequests/supplyRequests.js; api/db/schema.prisma)
+- Verified asset tracker workflows end-to-end: routes/pages align with services and Prisma schema; asset assignments and requests enforce auth/ADMIN where needed. (evidence: web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx; api/src/services/assets/assets.js; api/src/services/assetCategories/assetCategories.js; api/src/services/assetAssignments/assetAssignments.js; api/src/services/assetRequests/assetRequests.js; api/db/schema.prisma)
+- Verified project tracker workflows end-to-end: project tracker page and tabs align with project/allocations/meetings/daily updates services and Prisma schema; build remains clean. (evidence: web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx; web/src/components/ProjectTracker/ProjectTracker.jsx; api/src/services/projects/projects.js; api/src/services/projectAllocations/projectAllocations.js; api/src/services/projectMeetings/projectMeetings.js; api/src/services/dailyProjectUpdates/dailyProjectUpdates.js; api/db/schema.prisma)
+- Fixed team allocation deletion error: deleteProjectAllocation now returns pre-delete data and resolvers use parent data, preventing null user GraphQL errors. (evidence: api/src/services/projectAllocations/projectAllocations.js)
+- Verified attendance and vacation workflows: dashboard attendance/vacation components align with attendance/overtime/exception/vacation services and Prisma schema; build remains clean. (evidence: web/src/pages/DashboardPage/DashboardPage.jsx; web/src/components/Attendance/Attendance.jsx; web/src/components/VacationPlanner/VacationPlanner.jsx; api/src/services/attendances/attendances.js; api/src/services/attendanceBreaks/attendanceBreaks.js; api/src/services/overtimeAttendances/overtimeAttendances.js; api/src/services/vacationRequests/vacationRequests.js; api/src/services/exceptionRequests/exceptionRequests.js; api/db/schema.prisma)
+- Hardened project allocation delete: remove dailyUpdates from the returned payload to avoid resolver errors when deleted child rows are selected. (evidence: api/src/services/projectAllocations/projectAllocations.js)
+
 ## 2026-01-27
 - Split mixed notes into `docs/PROJECT_NOTES.md` and `docs/REDWOOD_TUTORIAL_NOTES.md`; removed old `REDWOOD_NOTES.md`. (evidence: docs/PROJECT_NOTES.md, docs/REDWOOD_TUTORIAL_NOTES.md)
 - Added plan in `docs/PLAN.md` and moved planning stub to `docs/Planning Guide.md`. (evidence: docs/PLAN.md, docs/Planning Guide.md)
