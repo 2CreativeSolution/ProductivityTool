@@ -57,3 +57,4 @@
 | E-053 | scripts/seed.js | Seed script cleaned up existing-asset log branch | scripts/seed.js |
 | E-054 | web/src/components/ProjectTracker/ProjectManagement.jsx; web/src/components/Dialog/ProjectDetailsDialog.jsx | Project dialogs derive data by projectId to stay in sync with refetches | web/src/components/ProjectTracker/ProjectManagement.jsx; web/src/components/Dialog/ProjectDetailsDialog.jsx |
 | E-055 | package.json; web/package.json; yarn.lock; docs/PROJECT_NOTES.md | Removed unused Capacitor dependencies and references | package.json; web/package.json; yarn.lock; docs/PROJECT_NOTES.md |
+| E-056 | AGENTS.md | Added instruction to avoid unsolicited dependency warning commentary | AGENTS.md |

@@ -142,3 +142,28 @@
   - Remove `capacitor.config.ts`, `@capacitor/*` deps, and lockfile entries.
 - Estimation: S
 - Evidence: package.json, web/package.json, yarn.lock, docs/PROJECT_NOTES.md, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-023 ✅ Add instruction to avoid warning complaints
+- Owner: Shekhar
+- Scope: Docs/Process
+- Problem: Guidance needed to avoid unsolicited warning commentary during support.
+- Acceptance Criteria:
+  - [ ] AGENTS.md includes rule to not complain about dependency warnings unless asked.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Add a single non-negotiable line to AGENTS.md.
+- Estimation: S
+- Evidence: AGENTS.md, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-024 ⬜ Add default admin seed (first-run)
+- Owner: Shekhar
+- Scope: DB/Seed/Docs
+- Problem: No default user/admin exists after seeding, blocking first-run access to admin routes.
+- Acceptance Criteria:
+  - [ ] Seed script can create a default admin when explicitly enabled (e.g., env flag).
+  - [ ] Credentials or setup instructions documented without hardcoding secrets.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use env vars to avoid committing credentials; keep off by default.
+- Estimation: M
+- Evidence: scripts/seed.js, docs/ENVIRONMENT.md, docs/CHANGELOG.md, docs/WORK_LOG.md

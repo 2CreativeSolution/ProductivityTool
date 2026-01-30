@@ -2,6 +2,7 @@
 
 ## 2026-01-30
 - Removed unused Capacitor dependencies and references. (evidence: package.json, web/package.json, yarn.lock, docs/PROJECT_NOTES.md)
+- Added instruction to avoid unsolicited dependency warning commentary. (evidence: AGENTS.md)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)
