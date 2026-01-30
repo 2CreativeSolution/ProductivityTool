@@ -14,6 +14,7 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
 - Every change must update PBIs + CHANGELOG
 - Do not invent history. All timeline/challenges must come from repo evidence or explicit user input.
 - Every “claim” must link to evidence (commit hash, file path, screenshot, ticket).
+- DO NOT touch/edit yarn.ock file(s). if you modify any package - run yarn install for relevant dir to update yarn.lock
 
 ## Workflow
 1. Read key config + schema files

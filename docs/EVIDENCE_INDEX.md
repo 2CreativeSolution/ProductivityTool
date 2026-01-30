@@ -56,3 +56,4 @@
 | E-052 | api/src/services/projectAllocations/projectAllocations.js | DailyUpdates returned payload hardened to avoid resolver errors after allocation delete | api/src/services/projectAllocations/projectAllocations.js |
 | E-053 | scripts/seed.js | Seed script cleaned up existing-asset log branch | scripts/seed.js |
 | E-054 | web/src/components/ProjectTracker/ProjectManagement.jsx; web/src/components/Dialog/ProjectDetailsDialog.jsx | Project dialogs derive data by projectId to stay in sync with refetches | web/src/components/ProjectTracker/ProjectManagement.jsx; web/src/components/Dialog/ProjectDetailsDialog.jsx |
+| E-055 | package.json; web/package.json; yarn.lock; docs/PROJECT_NOTES.md | Removed unused Capacitor dependencies and references | package.json; web/package.json; yarn.lock; docs/PROJECT_NOTES.md |

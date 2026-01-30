@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 2026-01-30
+- Removed unused Capacitor dependencies and references. (evidence: package.json, web/package.json, yarn.lock, docs/PROJECT_NOTES.md)
+
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)
 - Documented warning that office supplies seeding clears existing data. (evidence: docs/GETTING_STARTED.md)

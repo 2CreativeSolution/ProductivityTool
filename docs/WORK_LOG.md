@@ -19,6 +19,7 @@
 | 2026-01-27 | PT-021 | `yarn rw check` now passes cleanly | docs/TECHNICAL_CHALLENGES.md |
 | 2026-01-27 | PT-021 | Added new hire setup + contributing docs; updated README | docs/GETTING_STARTED.md; docs/CONTRIBUTING.md; README.md |
 | 2026-01-27 | PT-021 | Ignored local cache folders in git | .gitignore |
+| 2026-01-30 | PT-022 | Removed unused Capacitor dependencies and references | package.json; web/package.json; yarn.lock; docs/PROJECT_NOTES.md |
 
 ## Sarath
 

@@ -362,15 +362,6 @@ Productivity_Tool/
 }
 ```
 
-### Mobile & Desktop
-```json
-{
-  "@capacitor/core": "^7.4.0",         // Cross-platform runtime
-  "@capacitor/cli": "^7.4.0",          // Capacitor CLI
-  "@capacitor/ios": "^7.4.0"           // iOS platform
-}
-```
-
 ## 🔐 Authentication
 
 ### Supported Auth Providers

@@ -129,3 +129,16 @@
 - Dependencies: PT-002
 - Evidence: .nvmrc, package.json, api/package.json, web/package.json, netlify.toml, README.md, docs/TECHNICAL_CHALLENGES.md
 - Size: M
+
+## PT-022 ✅ Remove unused Capacitor setup
+- Owner: Shekhar
+- Scope: Web/Docs/Deps
+- Problem: Capacitor config and dependencies exist without native projects; dead weight.
+- Acceptance Criteria:
+  - [ ] Capacitor config and packages removed.
+  - [ ] Docs updated to remove Capacitor references.
+  - [ ] Evidence recorded in changelog and work log.
+- Tech Notes:
+  - Remove `capacitor.config.ts`, `@capacitor/*` deps, and lockfile entries.
+- Estimation: S
+- Evidence: package.json, web/package.json, yarn.lock, docs/PROJECT_NOTES.md, docs/CHANGELOG.md, docs/WORK_LOG.md
