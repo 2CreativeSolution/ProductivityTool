@@ -3,6 +3,12 @@
 ## 2026-01-30
 - Removed unused Capacitor dependencies and references. (evidence: package.json, web/package.json, yarn.lock, docs/PROJECT_NOTES.md)
 - Added instruction to avoid unsolicited dependency warning commentary. (evidence: AGENTS.md)
+- Added optional default admin seed with env overrides for first-run setup. (evidence: scripts/seed.js, docs/ENVIRONMENT.md, docs/GETTING_STARTED.md)
+- Fixed office supplies seed to use current SupplyRequest fields. (evidence: scripts/seedOfficeSupplies.js)
+- Highlighted default admin seed log output. (evidence: scripts/seed.js)
+- Added divider lines around admin seed log output. (evidence: scripts/seed.js)
+- Removed unused variable in asset seed loop. (evidence: scripts/seed.js)
+- Added blank lines between seed sections for readability. (evidence: scripts/seed.js, scripts/seedOfficeSupplies.js)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)

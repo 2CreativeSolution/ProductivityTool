@@ -2,7 +2,9 @@ import { db } from 'api/src/lib/db.js'
 
 export default async () => {
   try {
+    console.log('')
     console.log('Starting to seed office supplies data...')
+    console.log('')
 
     // Clear existing data to prevent duplicates
     console.log('Clearing existing supply requests...')
@@ -205,6 +207,7 @@ export default async () => {
     const users = await db.user.findMany({ take: 3 })
 
     if (users.length > 0) {
+      console.log('')
       console.log('Creating sample supply requests...')
 
       const requests = await Promise.all([
@@ -212,18 +215,20 @@ export default async () => {
           data: {
             userId: users[0].id,
             supplyId: supplies.find((s) => s.name === 'Blue Ballpoint Pens').id,
-            quantity: 2,
-            reason: 'Need pens for daily note-taking and document signing',
-            status: 'Pending',
+            quantityRequested: 2,
+            justification:
+              'Need pens for daily note-taking and document signing',
+            status: 'PENDING',
           },
         }),
         db.supplyRequest.create({
           data: {
             userId: users[0].id,
             supplyId: supplies.find((s) => s.name === 'Wireless Mouse').id,
-            quantity: 1,
-            reason: 'Current mouse is malfunctioning, affecting productivity',
-            status: 'Approved',
+            quantityRequested: 1,
+            justification:
+              'Current mouse is malfunctioning, affecting productivity',
+            status: 'APPROVED',
           },
         }),
         ...(users.length > 1
@@ -232,10 +237,10 @@ export default async () => {
                 data: {
                   userId: users[1].id,
                   supplyId: supplies.find((s) => s.name === 'Notebooks').id,
-                  quantity: 3,
-                  reason:
+                  quantityRequested: 3,
+                  justification:
                     'Need notebooks for meeting notes and project planning',
-                  status: 'Pending',
+                  status: 'PENDING',
                 },
               }),
             ]
@@ -246,9 +251,9 @@ export default async () => {
                 data: {
                   userId: users[2].id,
                   supplyId: supplies.find((s) => s.name === 'Coffee Pods').id,
-                  quantity: 5,
-                  reason: 'Break room coffee supply is running low',
-                  status: 'Rejected',
+                  quantityRequested: 5,
+                  justification: 'Break room coffee supply is running low',
+                  status: 'REJECTED',
                 },
               }),
             ]

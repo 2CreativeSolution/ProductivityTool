@@ -53,10 +53,13 @@ See `docs/ENVIRONMENT.md` for the full list.
 ```bash
 yarn rw prisma migrate dev
 yarn rw prisma generate
-yarn rw prisma db seed   # seeds assets and office supplies
+yarn rw prisma db seed   # seeds assets, office supplies, and default admin (if enabled)
 ```
 
 > Warning: the office supplies seed clears existing supply tables before reloading sample data. Do not run against shared/production databases.
+>
+> Default admin seed is enabled by default when no users exist. Override with:
+> `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, or disable with `SEED_ADMIN_ENABLED=false`.
 
 ## 6) Run the app
 

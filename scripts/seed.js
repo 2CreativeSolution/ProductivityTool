@@ -1,4 +1,7 @@
 import { db } from 'api/src/lib/db'
+
+import { hashPassword } from '@redwoodjs/auth-dbauth-api'
+
 import seedOfficeSupplies from './seedOfficeSupplies.js'
 
 // Manually apply seeds via the `yarn rw prisma db seed` command.
@@ -10,7 +13,42 @@ import seedOfficeSupplies from './seedOfficeSupplies.js'
 
 export default async () => {
   try {
+    console.info('')
+    const seedAdminEnabled = !['0', 'false'].includes(
+      (process.env.SEED_ADMIN_ENABLED || 'true').toLowerCase()
+    )
+    const seedAdminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@example.com'
+    const seedAdminPassword = process.env.SEED_ADMIN_PASSWORD || 'test_password'
+
+    if (seedAdminEnabled) {
+      const existingUser = await db.user.findFirst()
+      if (!existingUser) {
+        const [hashedPassword, salt] = hashPassword(seedAdminPassword)
+        await db.user.create({
+          data: {
+            email: seedAdminEmail,
+            name: seedAdminEmail,
+            hashedPassword,
+            salt,
+            roles: ['ADMIN'],
+          },
+        })
+        const adminMessage = `🔑🔑 Seeded default admin user: ${seedAdminEmail} (roles: ADMIN)`
+        const adminDivider = '='.repeat(adminMessage.length)
+        console.log('')
+        console.info(
+          `\x1b[40m\x1b[97m${adminDivider}\n${adminMessage}\n${adminDivider}\x1b[0m`
+        )
+      } else {
+        console.log('')
+        console.info('Users already exist; skipping default admin seed.')
+      }
+    } else {
+      console.info('SEED_ADMIN_ENABLED=false; skipping default admin seed.')
+    }
+
     // Seed Asset Categories
+    console.info('')
 
     const categories = [
       { name: 'Laptop', description: 'Portable computers for employees' },
@@ -35,12 +73,11 @@ export default async () => {
         createdCategories.push(created)
       } else {
         createdCategories.push(existing)
-
       }
     }
 
     // Seed Sample Assets
-
+    console.info('')
 
     const laptopCategory = createdCategories.find((c) => c.name === 'Laptop')
     const monitorCategory = createdCategories.find((c) => c.name === 'Monitor')
@@ -142,7 +179,7 @@ export default async () => {
       })
 
       if (!existing) {
-        const created = await db.asset.create({ data: asset })
+        await db.asset.create({ data: asset })
       } else {
         console.info(
           `Asset already exists: ${existing.assetId} - ${existing.name}`
@@ -150,10 +187,8 @@ export default async () => {
       }
     }
 
-
-
     // Also seed office supplies (destructive: clears existing supply data)
-
+    console.info('')
     await seedOfficeSupplies()
   } catch (error) {
     console.error('❌ Error seeding asset data:', error)

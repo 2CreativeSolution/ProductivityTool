@@ -58,3 +58,9 @@
 | E-054 | web/src/components/ProjectTracker/ProjectManagement.jsx; web/src/components/Dialog/ProjectDetailsDialog.jsx | Project dialogs derive data by projectId to stay in sync with refetches | web/src/components/ProjectTracker/ProjectManagement.jsx; web/src/components/Dialog/ProjectDetailsDialog.jsx |
 | E-055 | package.json; web/package.json; yarn.lock; docs/PROJECT_NOTES.md | Removed unused Capacitor dependencies and references | package.json; web/package.json; yarn.lock; docs/PROJECT_NOTES.md |
 | E-056 | AGENTS.md | Added instruction to avoid unsolicited dependency warning commentary | AGENTS.md |
+| E-057 | scripts/seed.js; docs/ENVIRONMENT.md; docs/GETTING_STARTED.md | Added default admin seed with env overrides for first-run setup | scripts/seed.js; docs/ENVIRONMENT.md; docs/GETTING_STARTED.md |
+| E-058 | scripts/seedOfficeSupplies.js | Fixed office supplies seed to align with SupplyRequest schema fields | scripts/seedOfficeSupplies.js |
+| E-059 | scripts/seed.js | Highlighted default admin seed log output | scripts/seed.js |
+| E-060 | scripts/seed.js | Added divider lines around admin seed log output | scripts/seed.js |
+| E-061 | scripts/seed.js | Removed unused variable in asset seed loop | scripts/seed.js |
+| E-062 | scripts/seed.js; scripts/seedOfficeSupplies.js | Added blank lines between seed sections for readability | scripts/seed.js; scripts/seedOfficeSupplies.js |

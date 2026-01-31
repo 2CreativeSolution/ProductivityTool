@@ -155,7 +155,7 @@
 - Estimation: S
 - Evidence: AGENTS.md, docs/CHANGELOG.md, docs/WORK_LOG.md
 
-## PT-024 ⬜ Add default admin seed (first-run)
+## PT-024 ✅ Add default admin seed (first-run)
 - Owner: Shekhar
 - Scope: DB/Seed/Docs
 - Problem: No default user/admin exists after seeding, blocking first-run access to admin routes.
@@ -166,4 +166,64 @@
 - Tech Notes:
   - Use env vars to avoid committing credentials; keep off by default.
 - Estimation: M
-- Evidence: scripts/seed.js, docs/ENVIRONMENT.md, docs/CHANGELOG.md, docs/WORK_LOG.md
+- Evidence: scripts/seed.js, docs/ENVIRONMENT.md, docs/GETTING_STARTED.md, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-025 ✅ Fix office supplies seed request fields
+- Owner: Shekhar
+- Scope: DB/Seed
+- Problem: Seed script uses legacy `quantity`/`reason` fields and fails against current schema.
+- Acceptance Criteria:
+  - [ ] Seed uses `quantityRequested` and `justification` with current status values.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Align seed data to `SupplyRequest` model field names.
+- Estimation: S
+- Evidence: scripts/seedOfficeSupplies.js, docs/CHANGELOG.md, docs/WORK_LOG.md, docs/TECHNICAL_CHALLENGES.md
+
+## PT-026 ✅ Highlight default admin seed log
+- Owner: Shekhar
+- Scope: Seed/UX
+- Problem: Default admin seed log is easy to miss during setup.
+- Acceptance Criteria:
+  - [ ] Seeded admin log is visually highlighted in terminal output.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use ANSI colors with a clear emoji prefix.
+- Estimation: S
+- Evidence: scripts/seed.js, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-027 ✅ Add divider lines around admin seed log
+- Owner: Shekhar
+- Scope: Seed/UX
+- Problem: Highlight needs clear top/bottom separators in terminal output.
+- Acceptance Criteria:
+  - [ ] Seeded admin log is wrapped with divider lines matching message width.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use a computed divider based on message length.
+- Estimation: S
+- Evidence: scripts/seed.js, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-028 ✅ Remove unused seed variable
+- Owner: Shekhar
+- Scope: Seed/Quality
+- Problem: Seed script has an unused variable flagged by lint/TS.
+- Acceptance Criteria:
+  - [ ] Unused variable removed from seed script.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Remove unused `created` in asset seed loop.
+- Estimation: S
+- Evidence: scripts/seed.js, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-029 ✅ Add spacing between seed sections
+- Owner: Shekhar
+- Scope: Seed/UX
+- Problem: Seed output is hard to read without visual separation.
+- Acceptance Criteria:
+  - [ ] Seed logs include blank lines before major sections.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Add empty log lines in seed scripts around section boundaries.
+- Estimation: S
+- Evidence: scripts/seed.js, scripts/seedOfficeSupplies.js, docs/CHANGELOG.md, docs/WORK_LOG.md

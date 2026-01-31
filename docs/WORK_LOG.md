@@ -21,6 +21,12 @@
 | 2026-01-27 | PT-021 | Ignored local cache folders in git | .gitignore |
 | 2026-01-30 | PT-022 | Removed unused Capacitor dependencies and references | package.json; web/package.json; yarn.lock; docs/PROJECT_NOTES.md |
 | 2026-01-30 | PT-023 | Added rule to avoid unsolicited dependency warning commentary | AGENTS.md |
+| 2026-01-30 | PT-024 | Added default admin seed with env overrides for first-run setup | scripts/seed.js; docs/ENVIRONMENT.md; docs/GETTING_STARTED.md |
+| 2026-01-31 | PT-025 | Fixed office supplies seed to align with SupplyRequest fields | scripts/seedOfficeSupplies.js; docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-31 | PT-026 | Highlighted default admin seed log output | scripts/seed.js |
+| 2026-01-31 | PT-027 | Added divider lines around admin seed log output | scripts/seed.js |
+| 2026-01-31 | PT-028 | Removed unused variable in asset seed loop | scripts/seed.js |
+| 2026-01-31 | PT-029 | Added blank lines between seed sections for readability | scripts/seed.js; scripts/seedOfficeSupplies.js |
 
 ## Sarath
 

@@ -29,3 +29,11 @@
 | LOG_LEVEL | API-side logger verbosity. | .env.defaults#L16-L19 |
 | TEST_DATABASE_URL | Test database connection string for scenarios. | .env.defaults#L11-L12 |
 | NODE_ENV | Runtime environment (default set for local development). | .env.defaults#L20-L22 |
+
+## Seed (first-run admin)
+
+| Variable | Purpose | Evidence |
+| --- | --- | --- |
+| SEED_ADMIN_ENABLED | Enable default admin seed on `yarn rw prisma db seed` (default true). | scripts/seed.js |
+| SEED_ADMIN_EMAIL | Admin email for seed user (default `admin@example.com`). | scripts/seed.js |
+| SEED_ADMIN_PASSWORD | Admin password for seed user (default `test_password`). | scripts/seed.js |
