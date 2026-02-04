@@ -12,3 +12,7 @@
 | 2026-01-27 | `yarn rw check` status after fixes | Reran `yarn rw check` | No errors or warnings | docs/TECHNICAL_CHALLENGES.md |
 | 2026-01-28 | `yarn rw build` failed (Corepack unable to download Yarn 4.6.0 in sandbox) | Tried `HOME=./.home yarn rw build` (blocked); then `corepack prepare yarn@4.6.0 --activate` and reran `yarn rw build` | Build now succeeds | build logs |
 | 2026-01-31 | Seed failed: SupplyRequest requires `quantityRequested`/`justification` | Updated office supplies seed to use current schema fields | Seed now aligns with SupplyRequest schema | scripts/seedOfficeSupplies.js |
+| 2026-02-04 | `yarn rw build` failed after Tailwind v4 upgrade: `@tailwindcss/vite` ESM load error | Switched Vite config to dynamic import of `@tailwindcss/vite` | Build progressed past config load on re-run | web/vite.config.js |
+| 2026-02-04 | `yarn rw build` failed: `@apply` utilities unknown in `scaffold.css` | Added `@reference "tailwindcss";` and replaced theme() usage | Build now succeeds | web/src/scaffold.css |
+| 2026-02-04 | Admin panel failed to load: missing `gql` import | Added `gql` import in AdminPanelPage | Pending `yarn rw dev` re-run | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
+| 2026-02-04 | `yarn rw dev` failed due to busy ports (8910/8911) | No change yet; requires freeing ports or updating redwood.toml | Pending user decision | redwood.toml |

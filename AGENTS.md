@@ -39,9 +39,9 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
   - Estimation (S/M/L)
 
 ## Mandatory Checks
-After each meaningful change:
-- yarn rw build
-- yarn rw dev (if relevant)
+After each package dependency update:
+- yarn install
+- yarn rw dev (ask perm with yes and no, and if I say no - continue thread)
 
 ## Audit Evidence Requirements
 Codex must maintain:

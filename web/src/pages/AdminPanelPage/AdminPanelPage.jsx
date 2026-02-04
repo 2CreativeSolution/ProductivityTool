@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline'
 
 import { Link } from '@redwoodjs/router'
-import { Metadata, useQuery, useMutation } from '@redwoodjs/web'
+import { Metadata, useQuery, useMutation, gql } from '@redwoodjs/web'
 
 import AdminVacationManager from 'src/components/AdminVacationManager/AdminVacationManager'
 import Header from 'src/components/Header/Header'

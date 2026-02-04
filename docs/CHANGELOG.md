@@ -9,6 +9,10 @@
 - Added divider lines around admin seed log output. (evidence: scripts/seed.js)
 - Removed unused variable in asset seed loop. (evidence: scripts/seed.js)
 - Added blank lines between seed sections for readability. (evidence: scripts/seed.js, scripts/seedOfficeSupplies.js)
+- Upgraded Tailwind to v4.1 with Vite plugin and updated CSS import; removed PostCSS/autoprefixer. (evidence: web/package.json, web/vite.config.js, web/src/index.css)
+- Added Tailwind v4 reference directive and fixed scaffold scrollbar color; removed Tailwind config from Prettier. (evidence: web/src/scaffold.css, prettier.config.js)
+- Fixed AdminPanelPage to import gql for runtime queries. (evidence: web/src/pages/AdminPanelPage/AdminPanelPage.jsx)
+- Removed unused browserslist from web/package.json. (evidence: web/package.json)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)

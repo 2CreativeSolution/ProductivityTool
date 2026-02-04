@@ -27,6 +27,9 @@
 | 2026-01-31 | PT-027 | Added divider lines around admin seed log output | scripts/seed.js |
 | 2026-01-31 | PT-028 | Removed unused variable in asset seed loop | scripts/seed.js |
 | 2026-01-31 | PT-029 | Added blank lines between seed sections for readability | scripts/seed.js; scripts/seedOfficeSupplies.js |
+| 2026-02-04 | PT-030 | Upgraded Tailwind to v4.1 with Vite plugin, updated CSS import, removed PostCSS/autoprefixer, fixed scaffold Tailwind reference, and removed Prettier Tailwind config | web/package.json; web/vite.config.js; web/src/index.css; web/src/scaffold.css; prettier.config.js |
+| 2026-02-04 | PT-031 | Fixed AdminPanelPage gql import to prevent runtime load failure | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
+| 2026-02-04 | PT-032 | Removed unused browserslist from web package config | web/package.json |
 
 ## Sarath
 

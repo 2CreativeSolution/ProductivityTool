@@ -227,3 +227,40 @@
   - Add empty log lines in seed scripts around section boundaries.
 - Estimation: S
 - Evidence: scripts/seed.js, scripts/seedOfficeSupplies.js, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-030 ✅ Upgrade Tailwind to v4.1 (Vite)
+- Owner: Shekhar
+- Scope: Web/Styling
+- Problem: Web uses Tailwind v3; upgrade needed to stay current with v4.
+- Acceptance Criteria:
+  - [ ] Tailwind upgraded to v4.1 with Vite plugin per official docs.
+  - [ ] CSS entry updated for v4 import style.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use `@tailwindcss/vite` and update `web/src/index.css`.
+- Estimation: M
+- Evidence: web/package.json, web/vite.config.js, web/src/index.css, web/src/scaffold.css, prettier.config.js, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-031 🟦 Fix AdminPanelPage gql import
+- Owner: Shekhar
+- Scope: Web
+- Problem: Admin panel page uses `gql` without importing it, causing runtime load failure.
+- Acceptance Criteria:
+  - [ ] AdminPanelPage imports `gql` from `@redwoodjs/web`.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep change minimal to avoid broader refactors.
+- Estimation: S
+- Evidence: web/src/pages/AdminPanelPage/AdminPanelPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md, docs/TECHNICAL_CHALLENGES.md
+
+## PT-032 🟦 Remove unused browserslist config
+- Owner: Shekhar
+- Scope: Web/Config
+- Problem: `browserslist` remains in web/package.json but no longer used after removing PostCSS/autoprefixer.
+- Acceptance Criteria:
+  - [ ] `browserslist` removed from web/package.json.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep change limited to web/package.json.
+- Estimation: S
+- Evidence: web/package.json, docs/CHANGELOG.md, docs/WORK_LOG.md

@@ -64,3 +64,7 @@
 | E-060 | scripts/seed.js | Added divider lines around admin seed log output | scripts/seed.js |
 | E-061 | scripts/seed.js | Removed unused variable in asset seed loop | scripts/seed.js |
 | E-062 | scripts/seed.js; scripts/seedOfficeSupplies.js | Added blank lines between seed sections for readability | scripts/seed.js; scripts/seedOfficeSupplies.js |
+| E-063 | web/package.json; web/vite.config.js; web/src/index.css | Upgraded Tailwind to v4.1 with Vite plugin, updated CSS import, removed PostCSS/autoprefixer | web/package.json; web/vite.config.js; web/src/index.css |
+| E-064 | web/src/scaffold.css; prettier.config.js | Added Tailwind v4 reference directive, fixed scrollbar color, and removed Prettier Tailwind config | web/src/scaffold.css; prettier.config.js |
+| E-065 | web/src/pages/AdminPanelPage/AdminPanelPage.jsx | Fixed AdminPanelPage gql import | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
+| E-066 | web/package.json | Removed unused browserslist from web package config | web/package.json |
