@@ -68,3 +68,4 @@
 | E-064 | web/src/scaffold.css; prettier.config.js | Added Tailwind v4 reference directive, fixed scrollbar color, and removed Prettier Tailwind config | web/src/scaffold.css; prettier.config.js |
 | E-065 | web/src/pages/AdminPanelPage/AdminPanelPage.jsx | Fixed AdminPanelPage gql import | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
 | E-066 | web/package.json | Removed unused browserslist from web package config | web/package.json |
+| E-067 | web/src/components/Header/Header.jsx | Updated user dropdown to show full name and email | web/src/components/Header/Header.jsx |

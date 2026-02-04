@@ -264,3 +264,16 @@
   - Keep change limited to web/package.json.
 - Estimation: S
 - Evidence: web/package.json, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-033 🟦 Improve user dropdown identity display
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: User dropdown shows only email; full name should be visible.
+- Acceptance Criteria:
+  - [ ] Dropdown shows full user name under “Signed in as”.
+  - [ ] Email displayed in smaller, muted text.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update header dropdown markup only.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md

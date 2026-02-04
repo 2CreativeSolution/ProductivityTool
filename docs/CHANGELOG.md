@@ -13,6 +13,7 @@
 - Added Tailwind v4 reference directive and fixed scaffold scrollbar color; removed Tailwind config from Prettier. (evidence: web/src/scaffold.css, prettier.config.js)
 - Fixed AdminPanelPage to import gql for runtime queries. (evidence: web/src/pages/AdminPanelPage/AdminPanelPage.jsx)
 - Removed unused browserslist from web/package.json. (evidence: web/package.json)
+- Updated user dropdown to show full name and email. (evidence: web/src/components/Header/Header.jsx)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)

@@ -277,7 +277,10 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                         Signed in as
                       </div>
                       <div className="truncate font-semibold text-gray-800">
-                        {currentUser.email}
+                        {currentUser?.name || 'User'}
+                      </div>
+                      <div className="truncate text-xs text-gray-500">
+                        {currentUser?.email}
                       </div>
                     </div>
                     <button
@@ -293,7 +296,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                       className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm text-gray-700 transition hover:bg-gray-50"
                     >
                       <i className="ri-user-settings-line"></i>
-                      Update Profile
+                      Update profile
                     </button>
                     <button
                       type="button"
@@ -301,7 +304,7 @@ const Header = ({ isAdmin, showQuickAccess = false }) => {
                       className="flex w-full items-center gap-2 rounded-b-xl px-4 py-3 text-left text-sm text-red-600 transition hover:bg-red-50"
                     >
                       <i className="ri-logout-circle-line"></i>
-                      Sign Out
+                      Sign out
                     </button>
                   </div>
                 )}
