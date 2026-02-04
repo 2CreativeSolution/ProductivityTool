@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react'
 
-import { Form, Label, TextField, Submit, FieldError } from '@redwoodjs/forms'
-import { navigate, routes } from '@redwoodjs/router'
+import { Form, TextField, Submit, FieldError } from '@redwoodjs/forms'
+import { Link, navigate, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
+import 'src/styles/brand-nxa.css'
 
 const ForgotPasswordPage = () => {
   const { isAuthenticated, forgotPassword } = useAuth()
@@ -36,47 +37,61 @@ const ForgotPasswordPage = () => {
   return (
     <>
       <Metadata title="Forgot Password" />
-      <main className="rw-main">
+      <main className="nxa-page">
         <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-        <div className="rw-scaffold rw-login-container">
-          <div className="rw-segment">
-            <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">
-                Forgot Password
-              </h2>
-            </header>
-            <div className="rw-segment-main">
-              <div className="rw-form-wrapper">
-                <Form onSubmit={onSubmit} className="rw-form-wrapper">
-                  <div className="text-left">
-                    <Label
-                      name="Email"
-                      className="rw-label"
-                      errorClassName="rw-label rw-label-error"
-                    >
-                      Email
-                    </Label>
-                    <TextField
-                      name="email"
-                      className="rw-input"
-                      errorClassName="rw-input rw-input-error"
-                      ref={usernameRef}
-                      validation={{
-                        required: {
-                          value: true,
-                          message: 'Email is required',
-                        },
-                      }}
-                    />
-                    <FieldError name="email" className="rw-field-error" />
-                  </div>
-                  <div className="rw-button-group">
-                    <Submit className="rw-button rw-button-blue">Submit</Submit>
-                  </div>
-                </Form>
+        <div className="nxa-card nxa-card-split max-w-5xl">
+          <section className="nxa-section">
+            <div className="nxa-brand">
+              <img src="/logo.jpg" alt="2Creative Logo" loading="lazy" />
+              <div>
+                <div className="nxa-brand-title">Productivity Tool</div>
+                <div className="text-xs text-gray-500">
+                  2Creative Solutions
+                </div>
               </div>
             </div>
-          </div>
+
+            <h1 className="nxa-title">
+              Reset
+              <br />
+              Your Password
+            </h1>
+            <p className="nxa-subtitle">
+              We’ll send you a reset link to your email
+            </p>
+
+            <Form onSubmit={onSubmit} className="nxa-form">
+              <TextField
+                name="email"
+                className="nxa-input"
+                ref={usernameRef}
+                placeholder="Email address"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Email is required',
+                  },
+                }}
+              />
+              <FieldError name="email" className="nxa-error" />
+              <Submit className="nxa-button">Send Reset Link</Submit>
+            </Form>
+
+            <div className="nxa-footer">
+              Remembered your password?{' '}
+              <Link to={routes.login()} className="nxa-link">
+                Log in
+              </Link>
+            </div>
+          </section>
+
+          <section className="auth-illustration">
+            <img
+              src="/auth-banner.webp"
+              alt="Reset password illustration"
+              loading="lazy"
+            />
+          </section>
         </div>
       </main>
     </>

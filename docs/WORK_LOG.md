@@ -39,6 +39,14 @@
 | 2026-02-04 | PT-036 | Added right chevron icons to nested resource items | web/src/components/Header/Header.jsx |
 | 2026-02-04 | PT-037 | Added Remixicon npm package and local stylesheet import | web/package.json; web/src/index.css |
 | 2026-02-04 | PT-038 | Moved react-icons dependency to web workspace | package.json; web/package.json; yarn.lock |
+| 2026-02-04 | PT-039 | Redesigned login page layout with reusable brand styles and illustration | web/src/pages/LoginPage/LoginPage.jsx; web/src/styles/brand-nxa.css; web/public/login-illustration.svg |
+| 2026-02-04 | PT-040 | Applied NXA auth styling to signup/forgot pages and added normal-case auth error styling | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-04 | PT-040 | Added reusable NXA link styling with dashed hover treatment for auth links | web/src/styles/brand-nxa.css; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
+| 2026-02-05 | PT-040 | Swapped auth illustration to auth-banner.webp and removed legacy SVG | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/public/auth-banner.webp |
+| 2026-02-05 | PT-040 | Updated auth illustration to fill panel using object-cover | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-040 | Prevented layout shift on NXA links by reserving underline space | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-040 | Restored inline login validation errors using NXA error styling | web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-040 | Tuned auth error spacing and color to sit closer to inputs | web/src/styles/brand-nxa.css |
 
 ## Sarath
 

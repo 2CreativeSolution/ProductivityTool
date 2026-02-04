@@ -241,7 +241,7 @@
 - Estimation: M
 - Evidence: web/package.json, web/vite.config.js, web/src/index.css, web/src/scaffold.css, prettier.config.js, docs/CHANGELOG.md, docs/WORK_LOG.md
 
-## PT-031 🟦 Fix AdminPanelPage gql import
+## PT-031 ✅ Fix AdminPanelPage gql import
 - Owner: Shekhar
 - Scope: Web
 - Problem: Admin panel page uses `gql` without importing it, causing runtime load failure.
@@ -253,7 +253,7 @@
 - Estimation: S
 - Evidence: web/src/pages/AdminPanelPage/AdminPanelPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md, docs/TECHNICAL_CHALLENGES.md
 
-## PT-032 🟦 Remove unused browserslist config
+## PT-032 ✅ Remove unused browserslist config
 - Owner: Shekhar
 - Scope: Web/Config
 - Problem: `browserslist` remains in web/package.json but no longer used after removing PostCSS/autoprefixer.
@@ -265,7 +265,7 @@
 - Estimation: S
 - Evidence: web/package.json, docs/CHANGELOG.md, docs/WORK_LOG.md
 
-## PT-033 🟦 Improve user dropdown identity display
+## PT-033 ✅ Improve user dropdown identity display
 - Owner: Shekhar
 - Scope: Web/UI
 - Problem: User dropdown shows only email; full name should be visible.
@@ -278,7 +278,7 @@
 - Estimation: S
 - Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
 
-## PT-034 🟦 Simplify main nav layout and styles
+## PT-034 ✅ Simplify main nav layout and styles
 - Owner: Shekhar
 - Scope: Web/UI
 - Problem: Main nav is centered with button-like styles; needs left alignment and plain styling.
@@ -291,7 +291,7 @@
 - Estimation: S
 - Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
 
-## PT-035 🟦 Simplify mobile nav styling
+## PT-035 ✅ Simplify mobile nav styling
 - Owner: Shekhar
 - Scope: Web/UI
 - Problem: Mobile nav uses colorful tiles and heavy styling; needs minimal list styling.
@@ -305,7 +305,7 @@
 - Estimation: S
 - Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
 
-## PT-036 🟦 Add chevrons to mobile submenu items
+## PT-036 ✅ Add chevrons to mobile submenu items
 - Owner: Shekhar
 - Scope: Web/UI
 - Problem: Nested resource links lack visual affordance.
@@ -317,7 +317,7 @@
 - Estimation: S
 - Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
 
-## PT-037 🟦 Restore Remix Icon styles
+## PT-037 ✅ Restore Remix Icon styles
 - Owner: Shekhar
 - Scope: Web/UI
 - Problem: Remix icon classes render as missing because the CSS is not loaded.
@@ -330,7 +330,7 @@
 - Estimation: S
 - Evidence: web/package.json, web/src/index.css, docs/CHANGELOG.md, docs/WORK_LOG.md
 
-## PT-038 🟦 Move react-icons to web workspace
+## PT-038 ✅ Move react-icons to web workspace
 - Owner: Shekhar
 - Scope: Web/Deps
 - Problem: `react-icons` is used in web but declared at root.
@@ -342,3 +342,30 @@
   - Run yarn install to update lockfile.
 - Estimation: S
 - Evidence: package.json, web/package.json, yarn.lock, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-039 ✅ Redesign login page (NXA)
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Login page uses default scaffold; needs branded layout to match new design.
+- Acceptance Criteria:
+  - [ ] Login page matches NX-style layout with split form + illustration.
+  - [ ] Uses `brand-nxa.css` classes for inputs/buttons.
+  - [ ] Logo displayed without navigation menu.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Add `web/src/styles/brand-nxa.css` and use in LoginPage.
+- Estimation: M
+- Evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/styles/brand-nxa.css, web/public/login-illustration.svg, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-040 ✅ Apply NXA auth styling to signup/forgot pages
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth pages beyond login lack the new branded layout and show uppercase errors.
+- Acceptance Criteria:
+  - [ ] Signup and forgot-password pages use NXA layout and illustration.
+  - [ ] Auth field errors render in normal case.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Add shared error style in `brand-nxa.css` and update FieldError classes.
+- Estimation: S
+- Evidence: web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md

@@ -22,6 +22,14 @@
 - Added right chevron icon before nested resource text. (evidence: web/src/components/Header/Header.jsx)
 - Added Remixicon npm package and local stylesheet import for ri-* icons. (evidence: web/package.json, web/src/index.css)
 - Moved react-icons dependency from root to web workspace. (evidence: package.json, web/package.json, yarn.lock)
+- Redesigned login page layout with reusable brand styles and illustration. (evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/styles/brand-nxa.css, web/public/login-illustration.svg)
+- Applied NXA auth styling to signup/forgot pages and added normal-case auth error styling. (evidence: web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/styles/brand-nxa.css)
+- Added reusable NXA link styling with dashed hover treatment for auth links. (evidence: web/src/styles/brand-nxa.css, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx)
+- Replaced auth illustration with auth-banner.webp and removed legacy SVG. (evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/public/auth-banner.webp)
+- Updated auth illustration to fill the entire panel with object-cover. (evidence: web/src/styles/brand-nxa.css)
+- Prevented layout shift on NXA links by reserving the hover underline space. (evidence: web/src/styles/brand-nxa.css)
+- Restored inline login validation errors using the NXA error style. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
+- Refined auth error styling with tighter spacing and darker normal-weight red. (evidence: web/src/styles/brand-nxa.css)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)
