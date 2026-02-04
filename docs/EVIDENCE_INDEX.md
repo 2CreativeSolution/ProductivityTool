@@ -71,3 +71,4 @@
 | E-067 | api/src/services/projectAllocations/projectAllocations.js | dailyAllocations accepts Title/upper-case statuses to return allocations for seeded projects | api/src/services/projectAllocations/projectAllocations.js |
 | E-068 | web/src/components/ProjectTracker/EmployeeManagement.jsx | Active project counts and hours/day calculated with case-insensitive status match | web/src/components/ProjectTracker/EmployeeManagement.jsx |
 | E-069 | scripts/seed.js | Seed assigns default `hoursAllocated` (8h) when JSON allocations omit hours | scripts/seed.js |
+| E-070 | scripts/seed.js | Attendance/vacation/exception seeding added (past-year workdays, 2 vacations, 3 exceptions per user) | scripts/seed.js |

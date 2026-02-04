@@ -10,6 +10,7 @@
 - Prisma schema targets PostgreSQL and defines models for users/roles, bookings, attendance, vacation, assets, projects, and office supplies. (evidence: api/db/schema.prisma#L7-L449)
 - Seed scripts cover assets, office supplies, and JSON-imported users/projects/allocations/meetings/daily updates with sequence reset and configurable seeded-user password. (evidence: scripts/seed.js#L1-L320, scripts/seed_data_2creative.json)
 - Status casing is normalized in project/allocations UI and services so seeded statuses (e.g., "Active", "On Hold") display correctly; allocations seeded without hours default to 8h. (evidence: api/src/services/projects/projects.js; api/src/services/projectAllocations/projectAllocations.js; web/src/components/ProjectTracker/EmployeeManagement.jsx; scripts/seed.js)
+- Attendance, vacations, and exception requests are now seeded for the past year to populate dashboard widgets. (evidence: scripts/seed.js)
 
 ## Feature Inventory (with evidence)
 - Authentication: DbAuth login/signup/forgot/reset wired via web auth client and auth pages; server handled by DbAuth function. (evidence: web/src/auth.js#L1-L5, web/src/pages/LoginPage/LoginPage.jsx#L15-L71, web/src/pages/SignupPage/SignupPage.jsx#L15-L118, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx#L11-L84, api/src/functions/auth.js#L1-L208)
@@ -38,6 +39,7 @@
 - Manual ID seeding requires sequence reset; skipping that step would break future inserts due to duplicate key errors. (evidence: scripts/seed.js#L198-L245)
 - Build currently succeeds after lockfile repair (`yarn install`). (evidence: yarn rw build, docs/TECHNICAL_CHALLENGES.md#L1-L22)
 - Status value casing differs between data and UI; normalized handling is now in place but regressions could hide allocations if new statuses are added without casing coverage. (evidence: api/src/services/projectAllocations/projectAllocations.js; web/src/components/ProjectTracker/EmployeeManagement.jsx)
+- Seeded attendance/vacation data is synthetic; ensure production seeds align with real HR data before deploying to prod DBs. (evidence: scripts/seed.js)
 
 ## Production Readiness Checklist
 - [ ] Confirm Node 25.x and Yarn 4.6.0 toolchain alignment. (evidence: package.json#L23-L30, netlify.toml#L6-L8)

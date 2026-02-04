@@ -6,6 +6,7 @@
 - Fixed `activeProjects` service filter to match Title Case status values so seeded projects appear in Project Tracker. (evidence: api/src/services/projects/projects.js)
 - Normalized allocation status checks in Project Management/Employee Management so active projects and hours/day display correctly. (evidence: api/src/services/projectAllocations/projectAllocations.js; web/src/components/ProjectTracker/EmployeeManagement.jsx)
 - Seed now assigns a default `hoursAllocated` (8h) when JSON allocations omit hours, keeping hours/day from showing 0. (evidence: scripts/seed.js)
+- Added historical attendance (past year workdays), vacations, and exception requests for all seeded users. (evidence: scripts/seed.js; yarn rw prisma db seed)
 
 ## 2026-01-30
 - Removed unused Capacitor dependencies and references. (evidence: package.json, web/package.json, yarn.lock, docs/PROJECT_NOTES.md)

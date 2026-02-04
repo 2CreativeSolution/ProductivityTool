@@ -22,6 +22,14 @@ const normalizeManager = (value) => (value && value > 0 ? value : null)
 const buildProjectCode = (project) =>
   project.code || `PROJ-${String(project.id ?? '').padStart(3, '0')}`
 
+const WORK_HOURS_DEFAULT = 8
+const WORKDAY_START_HOUR = 9
+const WORKDAY_END_HOUR = 18
+
+const WORKDAYS = [1, 2, 3, 4, 5] // Mon-Fri
+const VACATION_REASON = 'Annual leave'
+const EXCEPTION_TYPES = ['Late Arrival', 'Early Departure', 'WFH']
+
 async function loadSeedData() {
   if (!fs.existsSync(dataPath)) {
     console.info(
@@ -252,6 +260,134 @@ async function seedDailyUpdates(dailies = [], allocationIdMap) {
   }
 }
 
+function* workingDaysWithinPastYear() {
+  const end = new Date()
+  end.setHours(0, 0, 0, 0)
+  const start = new Date(end)
+  start.setFullYear(start.getFullYear() - 1)
+  for (
+    let d = new Date(start);
+    d <= end;
+    d = new Date(d.getTime() + 24 * 60 * 60 * 1000)
+  ) {
+    if (WORKDAYS.includes(d.getDay())) {
+      yield new Date(d)
+    }
+  }
+}
+
+function randomBetween(min, max) {
+  return Math.random() * (max - min) + min
+}
+
+function makeWorkdayWindow(day) {
+  const clockIn = new Date(day)
+  clockIn.setHours(WORKDAY_START_HOUR, Math.floor(randomBetween(0, 20)), 0, 0)
+  const clockOut = new Date(day)
+  clockOut.setHours(
+    WORKDAY_END_HOUR,
+    Math.floor(randomBetween(0, 20)),
+    0,
+    0
+  )
+  // occasional late start / early leave variance
+  const offsetMinutes = Math.floor(randomBetween(-20, 40))
+  clockIn.setMinutes(clockIn.getMinutes() + offsetMinutes)
+  const dayDurationMinutes = 8 * 60 - offsetMinutes + Math.floor(randomBetween(-30, 60))
+  clockOut.setMinutes(clockIn.getMinutes() + dayDurationMinutes)
+  return { clockIn, clockOut }
+}
+
+async function seedAttendanceHistory(users = []) {
+  if (!users.length) return
+  console.info('Seeding attendance history for past year...')
+
+  const attendanceData = []
+  for (const user of users) {
+    for (const day of workingDaysWithinPastYear()) {
+      // skip some days to look realistic
+      if (Math.random() < 0.05) continue // absent
+      const { clockIn, clockOut } = makeWorkdayWindow(day)
+      const durationMinutes = Math.max(
+        0,
+        Math.round((clockOut - clockIn) / (1000 * 60))
+      )
+      attendanceData.push({
+        userId: user.id,
+        date: day,
+        clockIn,
+        clockOut,
+        duration: `${durationMinutes} minutes`,
+        status: 'PRESENT',
+        location: 'Office',
+      })
+    }
+  }
+
+  // bulk insert in chunks
+  const chunkSize = 500
+  for (let i = 0; i < attendanceData.length; i += chunkSize) {
+    const chunk = attendanceData.slice(i, i + chunkSize)
+    await db.attendance.createMany({ data: chunk, skipDuplicates: true })
+  }
+  console.info(`Seeded ${attendanceData.length} attendance records`)
+}
+
+async function seedVacationHistory(users = []) {
+  if (!users.length) return
+  console.info('Seeding vacation requests (historical)...')
+  const vacationData = []
+  for (const user of users) {
+    // 2 vacations per user over past year
+    for (let i = 0; i < 2; i++) {
+      const start = new Date()
+      start.setMonth(start.getMonth() - Math.floor(randomBetween(1, 10)))
+      start.setDate(start.getDate() - Math.floor(randomBetween(0, 20)))
+      const end = new Date(start)
+      end.setDate(end.getDate() + Math.floor(randomBetween(2, 6)))
+      vacationData.push({
+        userId: user.id,
+        startDate: start,
+        endDate: end,
+        reason: VACATION_REASON,
+        status: 'Approved',
+        createdAt: start,
+        updatedAt: end,
+      })
+    }
+  }
+  if (vacationData.length) {
+    await db.vacationRequest.createMany({ data: vacationData, skipDuplicates: true })
+    console.info(`Seeded ${vacationData.length} vacation requests`)
+  }
+}
+
+async function seedExceptionRequests(users = []) {
+  if (!users.length) return
+  console.info('Seeding exception requests...')
+  const exceptions = []
+  for (const user of users) {
+    // 3 exceptions per user
+    for (let i = 0; i < 3; i++) {
+      const date = new Date()
+      date.setMonth(date.getMonth() - Math.floor(randomBetween(0, 6)))
+      date.setDate(date.getDate() - Math.floor(randomBetween(0, 20)))
+      exceptions.push({
+        userId: user.id,
+        type: EXCEPTION_TYPES[i % EXCEPTION_TYPES.length],
+        reason: 'Schedule adjustment',
+        date,
+        status: 'Approved',
+        createdAt: date,
+      })
+    }
+  }
+  if (exceptions.length) {
+    await db.exceptionRequest.createMany({ data: exceptions, skipDuplicates: true })
+    console.info(`Seeded ${exceptions.length} exception requests`)
+  }
+}
+
 async function resetSequences() {
   const tables = [
     'User',
@@ -466,6 +602,9 @@ export default async () => {
       allocations?.forEach((value, key) => allocationIdMap.set(key, value))
       await seedMeetings(seedData.meetings)
       await seedDailyUpdates(seedData.dailyProjectUpdates, allocationIdMap)
+      await seedAttendanceHistory(seedData.users)
+      await seedVacationHistory(seedData.users)
+      await seedExceptionRequests(seedData.users)
       await resetSequences()
     }
 
