@@ -281,20 +281,30 @@ function randomBetween(min, max) {
 }
 
 function makeWorkdayWindow(day) {
+  // Clock-in between 8:45–9:30 AM
   const clockIn = new Date(day)
-  clockIn.setHours(WORKDAY_START_HOUR, Math.floor(randomBetween(0, 20)), 0, 0)
+  const clockInMinutesOffset = Math.floor(randomBetween(-15, 30)) // -15 to +30 minutes around 9:00
+  clockIn.setHours(WORKDAY_START_HOUR, 0, 0, 0)
+  clockIn.setMinutes(clockIn.getMinutes() + clockInMinutesOffset)
+
+  // Clock-out between 17:30–19:00 PM
   const clockOut = new Date(day)
-  clockOut.setHours(
-    WORKDAY_END_HOUR,
-    Math.floor(randomBetween(0, 20)),
-    0,
-    0
-  )
-  // occasional late start / early leave variance
-  const offsetMinutes = Math.floor(randomBetween(-20, 40))
-  clockIn.setMinutes(clockIn.getMinutes() + offsetMinutes)
-  const dayDurationMinutes = 8 * 60 - offsetMinutes + Math.floor(randomBetween(-30, 60))
-  clockOut.setMinutes(clockIn.getMinutes() + dayDurationMinutes)
+  const clockOutMinutesOffset = Math.floor(randomBetween(30, 120)) // 30 to 120 minutes after 17:00
+  clockOut.setHours(17, 0, 0, 0)
+  clockOut.setMinutes(clockOut.getMinutes() + clockOutMinutesOffset)
+
+  // Ensure clockOut is after clockIn by at least 6h; if not, push clockOut
+  const minDurationMinutes = 6 * 60
+  if (clockOut - clockIn < minDurationMinutes * 60 * 1000) {
+    clockOut.setMinutes(clockIn.getMinutes() + minDurationMinutes)
+  }
+
+  // Cap excessively long days to ~10h
+  const maxDurationMinutes = 10 * 60
+  if (clockOut - clockIn > maxDurationMinutes * 60 * 1000) {
+    clockOut.setMinutes(clockIn.getMinutes() + maxDurationMinutes)
+  }
+
   return { clockIn, clockOut }
 }
 
