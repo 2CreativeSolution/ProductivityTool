@@ -16,3 +16,4 @@
 | 2026-02-04 | `yarn rw build` failed: `@apply` utilities unknown in `scaffold.css` | Added `@reference "tailwindcss";` and replaced theme() usage | Build now succeeds | web/src/scaffold.css |
 | 2026-02-04 | Admin panel failed to load: missing `gql` import | Added `gql` import in AdminPanelPage | Pending `yarn rw dev` re-run | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
 | 2026-02-04 | `yarn rw dev` failed due to busy ports (8910/8911) | No change yet; requires freeing ports or updating redwood.toml | Pending user decision | redwood.toml |
+| 2026-02-04 | `remixicon` package not found on npm registry | Tried versions `^4.6.0`, `^4.5.0`, and `^4.9.1`; all failed | Switched to non-jsdelivr CDN stylesheet import (temporary) | web/src/index.css |

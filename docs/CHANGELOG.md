@@ -14,6 +14,14 @@
 - Fixed AdminPanelPage to import gql for runtime queries. (evidence: web/src/pages/AdminPanelPage/AdminPanelPage.jsx)
 - Removed unused browserslist from web/package.json. (evidence: web/package.json)
 - Updated user dropdown to show full name and email. (evidence: web/src/components/Header/Header.jsx)
+- Left-aligned main nav and removed button-like styles. (evidence: web/src/components/Header/Header.jsx)
+- Simplified mobile nav styling to plain list with separators. (evidence: web/src/components/Header/Header.jsx)
+- Mobile nav now fills viewport height with root padding 4. (evidence: web/src/components/Header/Header.jsx)
+- Increased mobile nav item padding for readability. (evidence: web/src/components/Header/Header.jsx)
+- Reverted padding increase for nested resource items. (evidence: web/src/components/Header/Header.jsx)
+- Added right chevron icon before nested resource text. (evidence: web/src/components/Header/Header.jsx)
+- Added Remixicon npm package and local stylesheet import for ri-* icons. (evidence: web/package.json, web/src/index.css)
+- Moved react-icons dependency from root to web workspace. (evidence: package.json, web/package.json, yarn.lock)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)

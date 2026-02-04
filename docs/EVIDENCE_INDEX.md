@@ -69,3 +69,11 @@
 | E-065 | web/src/pages/AdminPanelPage/AdminPanelPage.jsx | Fixed AdminPanelPage gql import | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
 | E-066 | web/package.json | Removed unused browserslist from web package config | web/package.json |
 | E-067 | web/src/components/Header/Header.jsx | Updated user dropdown to show full name and email | web/src/components/Header/Header.jsx |
+| E-068 | web/src/components/Header/Header.jsx | Left-aligned main nav and removed button-like styles | web/src/components/Header/Header.jsx |
+| E-069 | web/src/components/Header/Header.jsx | Simplified mobile nav styling to plain list with separators | web/src/components/Header/Header.jsx |
+| E-070 | web/src/components/Header/Header.jsx | Mobile nav fills viewport height with root padding 4 | web/src/components/Header/Header.jsx |
+| E-071 | web/src/components/Header/Header.jsx | Increased mobile nav item padding | web/src/components/Header/Header.jsx |
+| E-072 | web/src/components/Header/Header.jsx | Reverted padding increase for nested resource items | web/src/components/Header/Header.jsx |
+| E-073 | web/src/components/Header/Header.jsx | Added right chevron icons to nested resource items | web/src/components/Header/Header.jsx |
+| E-074 | web/package.json; web/src/index.css | Added Remixicon npm package and local stylesheet import | web/package.json; web/src/index.css |
+| E-075 | package.json; web/package.json; yarn.lock | Moved react-icons dependency to web workspace | package.json; web/package.json; yarn.lock |
