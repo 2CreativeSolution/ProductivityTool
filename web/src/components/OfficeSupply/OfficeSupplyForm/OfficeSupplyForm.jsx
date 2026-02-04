@@ -17,7 +17,7 @@ import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 const CREATE_OFFICE_SUPPLY = gql`
-  mutation CreateOfficeSupply($input: CreateOfficeSupplyInput!) {
+  mutation CreateOfficeSupplyFromForm($input: CreateOfficeSupplyInput!) {
     createOfficeSupply(input: $input) {
       id
       name
@@ -33,7 +33,7 @@ const CREATE_OFFICE_SUPPLY = gql`
 `
 
 const UPDATE_OFFICE_SUPPLY = gql`
-  mutation UpdateOfficeSupply($id: Int!, $input: UpdateOfficeSupplyInput!) {
+  mutation UpdateOfficeSupplyFromForm($id: Int!, $input: UpdateOfficeSupplyInput!) {
     updateOfficeSupply(id: $id, input: $input) {
       id
       name
@@ -49,7 +49,7 @@ const UPDATE_OFFICE_SUPPLY = gql`
 `
 
 const GET_CATEGORIES = gql`
-  query GetOfficeSupplyCategories {
+  query GetOfficeSupplyCategoriesForForm {
     officeSupplyCategories {
       id
       name

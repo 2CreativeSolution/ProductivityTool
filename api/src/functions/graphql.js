@@ -9,7 +9,7 @@ import { cookieName, getCurrentUser } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
 
-// Temporary mock auth decoder for demo
+// Temporary mock auth decoder for review
 const mockAuthDecoder = () => null
 
 const authDecoder = createAuthDecoder(cookieName)

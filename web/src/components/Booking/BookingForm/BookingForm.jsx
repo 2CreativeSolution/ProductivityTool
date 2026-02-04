@@ -30,12 +30,12 @@ const GET_MEETING_ROOMS = gql`
   }
 `
 
-const CHECK_AVAILABILITY = gql`
-  query CheckAvailability($meetingRoomId: Int!, $date: String!) {
-    checkAvailability(meetingRoomId: $meetingRoomId, date: $date) {
-      meetingRoomId
-      date
-      bookedSlots {
+const GET_MEETING_ROOM_BOOKINGS = gql`
+  query GetMeetingRoomBookings($id: Int!) {
+    meetingRoom(id: $id) {
+      id
+      name
+      bookings {
         id
         startTime
         endTime
@@ -55,14 +55,13 @@ const BookingForm = (props) => {
   )
   const [selectedDate, setSelectedDate] = useState('')
 
-  const { data: availabilityData, loading: availabilityLoading } = useQuery(
-    CHECK_AVAILABILITY,
+  const { data: roomData, loading: roomLoading } = useQuery(
+    GET_MEETING_ROOM_BOOKINGS,
     {
       variables: {
-        meetingRoomId: parseInt(selectedRoomId),
-        date: selectedDate,
+        id: parseInt(selectedRoomId),
       },
-      skip: !selectedRoomId || !selectedDate,
+      skip: !selectedRoomId,
     }
   )
 
@@ -86,7 +85,14 @@ const BookingForm = (props) => {
     })
   }
 
-  const bookedSlots = availabilityData?.checkAvailability?.bookedSlots || []
+  const bookedSlots =
+    roomData?.meetingRoom?.bookings?.filter((slot) => {
+      if (!selectedDate) {
+        return false
+      }
+      const slotDate = new Date(slot.startTime).toISOString().split('T')[0]
+      return slotDate === selectedDate
+    }) || []
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-gray-100 px-6 py-16">
@@ -263,7 +269,7 @@ const BookingForm = (props) => {
                 <h3 className="mb-2 font-semibold text-gray-700">
                   Room Availability for {selectedDate}
                 </h3>
-                {availabilityLoading ? (
+                {roomLoading ? (
                   <p className="text-gray-500">Checking availability...</p>
                 ) : bookedSlots.length === 0 ? (
                   <p className="font-medium text-green-600">

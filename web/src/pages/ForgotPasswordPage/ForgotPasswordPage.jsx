@@ -22,7 +22,7 @@ const ForgotPasswordPage = () => {
   }, [])
 
   const onSubmit = async (data) => {
-    const response = await forgotPassword(data.username)
+    const response = await forgotPassword(data.email)
     if (response.error) {
       toast.error(response.error)
     } else {

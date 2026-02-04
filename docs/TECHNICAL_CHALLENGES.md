@@ -1,0 +1,14 @@
+# TECHNICAL_CHALLENGES
+
+| Date | Uncertainty | Options Tried | Result | Evidence |
+| --- | --- | --- | --- | --- |
+| 2026-01-27 | SMTP availability for password reset | Not verified (credentials not provided) | Pending verification; tracked in TODO | docs/TODO.md |
+| 2026-01-27 | `yarn rw build` failed due to Node version mismatch (expected 20.x, got 25.4.0) | Ran `yarn rw build` | Build failed; requires Node 20.x | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-27 | `yarn rw dev` failed to determine a free API port | Checked port 8911 (no listener) and retried `yarn rw dev` | Still fails with "Could not determine a free port for the api server" | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-27 | Prisma client generation failed to download engine binaries | Reran `yarn rw build` with network permission and HOME override | Build succeeded | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-27 | GraphQL codegen failed due to duplicate operation names in office supplies components | Renamed duplicate operations in office supply queries/mutations | Codegen error resolved on next dev run | web/src/components/OfficeSupply/CategoryManager/CategoryManager.jsx; web/src/components/OfficeSupply/OfficeSupplyForm/OfficeSupplyForm.jsx; web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx; web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx |
+| 2026-01-27 | GraphQL codegen failed: `checkAvailability` query missing in schema | Replaced query with `meetingRoom` bookings and client-side date filter | Codegen error resolved on next dev run | web/src/components/Booking/BookingForm/BookingForm.jsx |
+| 2026-01-27 | `yarn rw check` failed due to unimplemented SDL fields and env var warnings | Removed unused SDL fields; added NODE_ENV default and exposed SMTP_USER | `yarn rw check` blockers resolved | api/src/graphql/bookings.sdl.js; api/src/graphql/supplyRequests.sdl.js; .env.defaults; redwood.toml |
+| 2026-01-27 | `yarn rw check` status after fixes | Reran `yarn rw check` | No errors or warnings | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-28 | `yarn rw build` failed (Corepack unable to download Yarn 4.6.0 in sandbox) | Tried `HOME=./.home yarn rw build` (blocked); then `corepack prepare yarn@4.6.0 --activate` and reran `yarn rw build` | Build now succeeds | build logs |
+| 2026-01-31 | Seed failed: SupplyRequest requires `quantityRequested`/`justification` | Updated office supplies seed to use current schema fields | Seed now aligns with SupplyRequest schema | scripts/seedOfficeSupplies.js |
