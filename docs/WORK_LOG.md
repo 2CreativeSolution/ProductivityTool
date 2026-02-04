@@ -30,6 +30,15 @@
 | 2026-02-04 | PT-030 | Upgraded Tailwind to v4.1 with Vite plugin, updated CSS import, removed PostCSS/autoprefixer, fixed scaffold Tailwind reference, and removed Prettier Tailwind config | web/package.json; web/vite.config.js; web/src/index.css; web/src/scaffold.css; prettier.config.js |
 | 2026-02-04 | PT-031 | Fixed AdminPanelPage gql import to prevent runtime load failure | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
 | 2026-02-04 | PT-032 | Removed unused browserslist from web package config | web/package.json |
+| 2026-02-04 | PT-033 | Updated user dropdown to show full name and email | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-034 | Left-aligned main nav and removed button-like styles | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-035 | Simplified mobile nav styling to plain list with separators | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-035 | Mobile nav now fills viewport height with root padding 4 | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-035 | Increased mobile nav item padding | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-035 | Reverted padding increase for nested resource items | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-036 | Added right chevron icons to nested resource items | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-037 | Added Remixicon npm package and local stylesheet import | web/package.json; web/src/index.css |
+| 2026-02-04 | PT-038 | Moved react-icons dependency to web workspace | package.json; web/package.json; yarn.lock |
 
 ## Sarath
 

@@ -264,3 +264,81 @@
   - Keep change limited to web/package.json.
 - Estimation: S
 - Evidence: web/package.json, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-033 🟦 Improve user dropdown identity display
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: User dropdown shows only email; full name should be visible.
+- Acceptance Criteria:
+  - [ ] Dropdown shows full user name under “Signed in as”.
+  - [ ] Email displayed in smaller, muted text.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update header dropdown markup only.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-034 🟦 Simplify main nav layout and styles
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Main nav is centered with button-like styles; needs left alignment and plain styling.
+- Acceptance Criteria:
+  - [ ] Main nav items are positioned left with the logo.
+  - [ ] Main nav items have no hover/colorful button styles.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep dropdown menu styling unchanged.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-035 🟦 Simplify mobile nav styling
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Mobile nav uses colorful tiles and heavy styling; needs minimal list styling.
+- Acceptance Criteria:
+  - [ ] Remove colorful tile backgrounds in mobile nav.
+  - [ ] Reduce padding/radius and remove shadows.
+  - [ ] Use bottom borders as separators.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep structure intact; adjust classes only.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-036 🟦 Add chevrons to mobile submenu items
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Nested resource links lack visual affordance.
+- Acceptance Criteria:
+  - [ ] Add right chevron icon before nested resource item text.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use existing Remix icon class.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-037 🟦 Restore Remix Icon styles
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Remix icon classes render as missing because the CSS is not loaded.
+- Acceptance Criteria:
+  - [ ] Remixicon package installed in web.
+  - [ ] Remixicon CSS imported in web entry stylesheet.
+- [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Import `remixicon/fonts/remixicon.css` from local package.
+- Estimation: S
+- Evidence: web/package.json, web/src/index.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-038 🟦 Move react-icons to web workspace
+- Owner: Shekhar
+- Scope: Web/Deps
+- Problem: `react-icons` is used in web but declared at root.
+- Acceptance Criteria:
+  - [ ] Remove `react-icons` from root package.json.
+  - [ ] Add `react-icons` to web/package.json.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Run yarn install to update lockfile.
+- Estimation: S
+- Evidence: package.json, web/package.json, yarn.lock, docs/CHANGELOG.md, docs/WORK_LOG.md
