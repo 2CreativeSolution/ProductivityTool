@@ -30,6 +30,9 @@ const WORKDAYS = [1, 2, 3, 4, 5] // Mon-Fri
 const VACATION_REASON = 'Annual leave'
 const EXCEPTION_TYPES = ['Late Arrival', 'Early Departure', 'WFH']
 
+const randomBetween = (min, max) => Math.random() * (max - min) + min
+const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)]
+
 async function loadSeedData() {
   if (!fs.existsSync(dataPath)) {
     console.info(
@@ -276,10 +279,6 @@ function* workingDaysWithinPastYear() {
   }
 }
 
-function randomBetween(min, max) {
-  return Math.random() * (max - min) + min
-}
-
 function makeWorkdayWindow(day) {
   // Clock-in between 8:45–9:30 AM
   const clockIn = new Date(day)
@@ -396,6 +395,56 @@ async function seedExceptionRequests(users = []) {
     await db.exceptionRequest.createMany({ data: exceptions, skipDuplicates: true })
     console.info(`Seeded ${exceptions.length} exception requests`)
   }
+}
+
+async function seedAssetAssignments(users = []) {
+  console.info('Seeding asset assignments...')
+  const existingCount = await db.assetAssignment.count()
+  if (existingCount > 0) {
+    console.info('Asset assignments already exist; skipping.')
+    return
+  }
+
+  const assets = await db.asset.findMany({ include: { category: true } })
+  if (!assets.length || !users.length) return
+
+  const assignments = []
+  const now = new Date()
+  for (const asset of assets) {
+    const user = randomChoice(users)
+    const issueDate = new Date(now)
+    issueDate.setMonth(issueDate.getMonth() - Math.floor(randomBetween(1, 9)))
+    issueDate.setDate(issueDate.getDate() - Math.floor(randomBetween(0, 20)))
+
+    const willReturn = Math.random() < 0.5
+    const returnDate = willReturn
+      ? new Date(issueDate.getTime() + Math.floor(randomBetween(30, 180)) * 24 * 60 * 60 * 1000)
+      : null
+    const expectedReturnDate = willReturn
+      ? new Date(issueDate.getTime() + Math.floor(randomBetween(20, 160)) * 24 * 60 * 60 * 1000)
+      : null
+
+    assignments.push({
+      assetId: asset.id,
+      userId: user.id,
+      issueDate,
+      returnDate,
+      expectedReturnDate,
+      department: user.department ?? null,
+      issuedBy: 'IT Ops',
+      returnedBy: willReturn ? 'IT Ops' : null,
+      status: willReturn ? 'Returned' : 'Active',
+      condition: willReturn ? 'Good' : 'Excellent',
+    })
+
+    await db.asset.update({
+      where: { id: asset.id },
+      data: { status: willReturn ? 'Available' : 'Assigned' },
+    })
+  }
+
+  await db.assetAssignment.createMany({ data: assignments })
+  console.info(`Seeded ${assignments.length} asset assignments`)
 }
 
 async function resetSequences() {
@@ -615,6 +664,7 @@ export default async () => {
       await seedAttendanceHistory(seedData.users)
       await seedVacationHistory(seedData.users)
       await seedExceptionRequests(seedData.users)
+      await seedAssetAssignments(seedData.users)
       await resetSequences()
     }
 
