@@ -30,6 +30,7 @@
 - Prevented layout shift on NXA links by reserving the hover underline space. (evidence: web/src/styles/brand-nxa.css)
 - Restored inline login validation errors using the NXA error style. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
 - Refined auth error styling with tighter spacing and darker normal-weight red. (evidence: web/src/styles/brand-nxa.css)
+- Normalized auth routes to `/signin` and `/signup`, keeping legacy reset/forgot paths. (evidence: web/src/Routes.jsx)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)

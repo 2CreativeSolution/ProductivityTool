@@ -369,3 +369,16 @@
   - Add shared error style in `brand-nxa.css` and update FieldError classes.
 - Estimation: S
 - Evidence: web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-041 ✅ Normalize auth routes to signin/signup with legacy reset/forgot paths
+- Owner: Shekhar
+- Scope: Web/Routes
+- Problem: Auth routes are inconsistent (`/login`, `/signup`, `/forgot-password`).
+- Acceptance Criteria:
+  - [ ] Auth routes use `/signin` and `/signup`.
+  - [ ] Forgot/reset routes remain `/forgot-password` and `/reset-password`.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep route names intact so existing `routes.*` helpers remain valid.
+- Estimation: S
+- Evidence: web/src/Routes.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md

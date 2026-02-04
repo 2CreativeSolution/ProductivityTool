@@ -85,3 +85,4 @@
 | E-081 | web/src/styles/brand-nxa.css | NXA links reserve underline space to avoid hover layout shift | web/src/styles/brand-nxa.css |
 | E-082 | web/src/pages/LoginPage/LoginPage.jsx | Restored inline login validation errors using NXA error styling | web/src/pages/LoginPage/LoginPage.jsx |
 | E-083 | web/src/styles/brand-nxa.css | Adjusted auth error spacing and color to sit closer to inputs | web/src/styles/brand-nxa.css |
+| E-084 | web/src/Routes.jsx | Normalized auth routes to /signin and /signup; kept legacy reset/forgot routes | web/src/Routes.jsx |

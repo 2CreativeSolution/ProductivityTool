@@ -47,6 +47,7 @@
 | 2026-02-05 | PT-040 | Prevented layout shift on NXA links by reserving underline space | web/src/styles/brand-nxa.css |
 | 2026-02-05 | PT-040 | Restored inline login validation errors using NXA error styling | web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-040 | Tuned auth error spacing and color to sit closer to inputs | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-041 | Normalized auth routes to /signin and /signup; kept legacy reset/forgot routes | web/src/Routes.jsx |
 
 ## Sarath
 
