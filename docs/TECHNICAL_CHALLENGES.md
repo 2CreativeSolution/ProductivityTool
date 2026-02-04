@@ -12,3 +12,5 @@
 | 2026-01-27 | `yarn rw check` status after fixes | Reran `yarn rw check` | No errors or warnings | docs/TECHNICAL_CHALLENGES.md |
 | 2026-01-28 | `yarn rw build` failed (Corepack unable to download Yarn 4.6.0 in sandbox) | Tried `HOME=./.home yarn rw build` (blocked); then `corepack prepare yarn@4.6.0 --activate` and reran `yarn rw build` | Build now succeeds | build logs |
 | 2026-01-31 | Seed failed: SupplyRequest requires `quantityRequested`/`justification` | Updated office supplies seed to use current schema fields | Seed now aligns with SupplyRequest schema | scripts/seedOfficeSupplies.js |
+| 2026-02-04 | `yarn rw build` initially failed reporting missing @2c/pd-root in lockfile | Ran `yarn install` to recreate workspace root entry and dependencies | Build now succeeds | yarn rw build |
+| 2026-02-04 | `yarn rw prisma db seed` failed: table public.User missing (empty DB) | Ran `yarn rw prisma migrate deploy` to apply all migrations, then reran seed | Seed succeeded | yarn rw prisma migrate deploy; yarn rw prisma db seed |

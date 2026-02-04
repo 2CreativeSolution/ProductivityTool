@@ -1,5 +1,19 @@
 # PBI-Sarath
 
+## PT-030 ✅ Seed JSON dataset across project tracker entities
+- Owner: Sarath
+- Scope: DB
+- Problem: Provided JSON seed file is not ingested; users, projects, allocations, meetings, and daily updates are absent in new environments.
+- Acceptance Criteria:
+  - [x] JSON data file versioned under `scripts/seed_data_2creative.json`.
+  - [x] `scripts/seed.js` imports users, projects, allocations, meetings, and daily updates idempotently.
+  - [x] Reporting manager links and sequence counters are updated so follow-on inserts succeed.
+  - [x] Default password for seeded users is configurable via `SEED_USER_PASSWORD` and documented in PLAN/CHANGELOG.
+- Tech Notes: Use Prisma upserts with explicit IDs; reset Postgres sequences after manual inserts; keep default admin seed optional.
+- Dependencies: PostgreSQL `DATABASE_URL`; Prisma client.
+- Evidence: scripts/seed.js; scripts/seed_data_2creative.json
+- Size: M
+
 ## PT-006 ✅ Add office supplies seed to standard seed flow
 - Owner: Sarath
 - Scope: DB

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-02-04
+- Added JSON-driven seed flow importing users, projects, allocations, meetings, and daily updates with sequence resets and configurable seeded-user password. (evidence: scripts/seed.js, scripts/seed_data_2creative.json)
+- `yarn rw build` initially failed due to missing `@2c/pd-root` in lockfile; resolved with `yarn install` and build now passes. (evidence: docs/TECHNICAL_CHALLENGES.md)
+- Fixed `activeProjects` service filter to match Title Case status values so seeded projects appear in Project Tracker. (evidence: api/src/services/projects/projects.js)
+- Normalized allocation status checks in Project Management/Employee Management so active projects and hours/day display correctly. (evidence: api/src/services/projectAllocations/projectAllocations.js; web/src/components/ProjectTracker/EmployeeManagement.jsx)
+- Seed now assigns a default `hoursAllocated` (8h) when JSON allocations omit hours, keeping hours/day from showing 0. (evidence: scripts/seed.js)
+
 ## 2026-01-30
 - Removed unused Capacitor dependencies and references. (evidence: package.json, web/package.json, yarn.lock, docs/PROJECT_NOTES.md)
 - Added instruction to avoid unsolicited dependency warning commentary. (evidence: AGENTS.md)

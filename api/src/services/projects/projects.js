@@ -56,7 +56,7 @@ export const activeProjects = () => {
   return db.project.findMany({
     where: {
       status: {
-        in: ['ACTIVE', 'ON_HOLD'],
+        in: ['Active', 'On Hold'],
       },
     },
     include: {
