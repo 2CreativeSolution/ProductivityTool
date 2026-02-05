@@ -51,3 +51,4 @@
 | 2026-02-04 | Bugfix | `activeProjects` filter now matches Title Case statuses so seeded projects appear in UI; reran `yarn rw build` | api/src/services/projects/projects.js; yarn rw build |
 | 2026-02-04 | Bugfix | Allocation queries and Employee Management cards now treat statuses case-insensitively; hours/day seeded with default 8h to avoid zero totals | api/src/services/projectAllocations/projectAllocations.js; web/src/components/ProjectTracker/EmployeeManagement.jsx; scripts/seed.js; yarn rw prisma db seed; yarn rw build |
 | 2026-02-04 | Seed | Added historical attendance (workdays past year), vacations, and exception requests for seeded users; reran seeds and build | scripts/seed.js; yarn rw prisma db seed; yarn rw build |
+| 2026-02-05 | Seed | Clear attendance/vacation/exception tables before seeding to prevent duplicate inflation; reseeded successfully | scripts/seed.js; yarn rw prisma db seed |

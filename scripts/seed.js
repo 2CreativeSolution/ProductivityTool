@@ -311,6 +311,10 @@ async function seedAttendanceHistory(users = []) {
   if (!users.length) return
   console.info('Seeding attendance history for past year...')
 
+  // Clear existing records to avoid duplication on re-seed
+  await db.attendanceBreak.deleteMany({})
+  await db.attendance.deleteMany({})
+
   const attendanceData = []
   for (const user of users) {
     for (const day of workingDaysWithinPastYear()) {
@@ -345,6 +349,9 @@ async function seedAttendanceHistory(users = []) {
 async function seedVacationHistory(users = []) {
   if (!users.length) return
   console.info('Seeding vacation requests (historical)...')
+
+  await db.vacationRequest.deleteMany({})
+
   const vacationData = []
   for (const user of users) {
     // 2 vacations per user over past year
@@ -374,6 +381,9 @@ async function seedVacationHistory(users = []) {
 async function seedExceptionRequests(users = []) {
   if (!users.length) return
   console.info('Seeding exception requests...')
+
+  await db.exceptionRequest.deleteMany({})
+
   const exceptions = []
   for (const user of users) {
     // 3 exceptions per user
