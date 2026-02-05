@@ -17,3 +17,5 @@
 | 2026-02-04 | Admin panel failed to load: missing `gql` import | Added `gql` import in AdminPanelPage | Pending `yarn rw dev` re-run | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
 | 2026-02-04 | `yarn rw dev` failed due to busy ports (8910/8911) | No change yet; requires freeing ports or updating redwood.toml | Pending user decision | redwood.toml |
 | 2026-02-04 | `remixicon` package not found on npm registry | Tried versions `^4.6.0`, `^4.5.0`, and `^4.9.1`; all failed | Switched to non-jsdelivr CDN stylesheet import (temporary) | web/src/index.css |
+| 2026-02-04 | `yarn rw build` initially failed reporting missing @2c/pd-root in lockfile | Ran `yarn install` to recreate workspace root entry and dependencies | Build now succeeds | yarn rw build |
+| 2026-02-04 | `yarn rw prisma db seed` failed: table public.User missing (empty DB) | Ran `yarn rw prisma migrate deploy` to apply all migrations, then reran seed | Seed succeeded | yarn rw prisma migrate deploy; yarn rw prisma db seed |

@@ -64,28 +64,38 @@
 | E-060 | scripts/seed.js | Added divider lines around admin seed log output | scripts/seed.js |
 | E-061 | scripts/seed.js | Removed unused variable in asset seed loop | scripts/seed.js |
 | E-062 | scripts/seed.js; scripts/seedOfficeSupplies.js | Added blank lines between seed sections for readability | scripts/seed.js; scripts/seedOfficeSupplies.js |
-| E-063 | web/package.json; web/vite.config.js; web/src/index.css | Upgraded Tailwind to v4.1 with Vite plugin, updated CSS import, removed PostCSS/autoprefixer | web/package.json; web/vite.config.js; web/src/index.css |
-| E-064 | web/src/scaffold.css; prettier.config.js | Added Tailwind v4 reference directive, fixed scrollbar color, and removed Prettier Tailwind config | web/src/scaffold.css; prettier.config.js |
-| E-065 | web/src/pages/AdminPanelPage/AdminPanelPage.jsx | Fixed AdminPanelPage gql import | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
-| E-066 | web/package.json | Removed unused browserslist from web package config | web/package.json |
-| E-067 | web/src/components/Header/Header.jsx | Updated user dropdown to show full name and email | web/src/components/Header/Header.jsx |
-| E-068 | web/src/components/Header/Header.jsx | Left-aligned main nav and removed button-like styles | web/src/components/Header/Header.jsx |
-| E-069 | web/src/components/Header/Header.jsx | Simplified mobile nav styling to plain list with separators | web/src/components/Header/Header.jsx |
-| E-070 | web/src/components/Header/Header.jsx | Mobile nav fills viewport height with root padding 4 | web/src/components/Header/Header.jsx |
-| E-071 | web/src/components/Header/Header.jsx | Increased mobile nav item padding | web/src/components/Header/Header.jsx |
-| E-072 | web/src/components/Header/Header.jsx | Reverted padding increase for nested resource items | web/src/components/Header/Header.jsx |
-| E-073 | web/src/components/Header/Header.jsx | Added right chevron icons to nested resource items | web/src/components/Header/Header.jsx |
-| E-074 | web/package.json; web/src/index.css | Added Remixicon npm package and local stylesheet import | web/package.json; web/src/index.css |
-| E-075 | package.json; web/package.json; yarn.lock | Moved react-icons dependency to web workspace | package.json; web/package.json; yarn.lock |
-| E-076 | web/src/pages/LoginPage/LoginPage.jsx; web/src/styles/brand-nxa.css; web/public/login-illustration.svg | Redesigned login page layout with brand styles and illustration | web/src/pages/LoginPage/LoginPage.jsx; web/src/styles/brand-nxa.css; web/public/login-illustration.svg |
-| E-077 | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/styles/brand-nxa.css | Applied NXA auth styling and normal-case auth error styling to signup/forgot pages | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/styles/brand-nxa.css |
-| E-078 | web/src/styles/brand-nxa.css; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx | Added reusable NXA link styling with dashed hover treatment for auth links | web/src/styles/brand-nxa.css; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
-| E-079 | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/public/auth-banner.webp | Replaced auth illustration with auth-banner.webp | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/public/auth-banner.webp |
-| E-080 | web/src/styles/brand-nxa.css | Auth illustration now fills panel using object-cover | web/src/styles/brand-nxa.css |
-| E-081 | web/src/styles/brand-nxa.css | NXA links reserve underline space to avoid hover layout shift | web/src/styles/brand-nxa.css |
-| E-082 | web/src/pages/LoginPage/LoginPage.jsx | Restored inline login validation errors using NXA error styling | web/src/pages/LoginPage/LoginPage.jsx |
-| E-083 | web/src/styles/brand-nxa.css | Adjusted auth error spacing and color to sit closer to inputs | web/src/styles/brand-nxa.css |
-| E-084 | web/src/Routes.jsx | Normalized auth routes to /signin and /signup; kept legacy reset/forgot routes | web/src/Routes.jsx |
-| E-085 | web/src/pages/LoginPage/LoginPage.jsx | Remember me stores and restores sign-in email locally | web/src/pages/LoginPage/LoginPage.jsx |
-| E-086 | web/src/pages/LoginPage/LoginPage.jsx | Remember-email storage key standardized with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
-| E-087 | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
+| E-063 | scripts/seed.js | JSON-driven seed for users/projects/allocations/meetings/daily updates with sequence reset and default password env | scripts/seed.js |
+| E-064 | scripts/seed_data_2creative.json | Source JSON dataset for project-tracker seeding | scripts/seed_data_2creative.json |
+| E-065 | docs/TECHNICAL_CHALLENGES.md | Recorded Yarn build failure due to missing @2c/pd-root workspace package (resolved by yarn install) | docs/TECHNICAL_CHALLENGES.md |
+| E-066 | api/src/services/projects/projects.js | `activeProjects` filter uses Title Case statuses so seeded projects display | api/src/services/projects/projects.js |
+| E-067 | api/src/services/projectAllocations/projectAllocations.js | dailyAllocations accepts Title/upper-case statuses to return allocations for seeded projects | api/src/services/projectAllocations/projectAllocations.js |
+| E-068 | web/src/components/ProjectTracker/EmployeeManagement.jsx | Active project counts and hours/day calculated with case-insensitive status match | web/src/components/ProjectTracker/EmployeeManagement.jsx |
+| E-069 | scripts/seed.js | Seed assigns default `hoursAllocated` (8h) when JSON allocations omit hours | scripts/seed.js |
+| E-070 | scripts/seed.js | Attendance/vacation/exception seeding added (past-year workdays, 2 vacations, 3 exceptions per user) | scripts/seed.js |
+| E-071 | scripts/seed.js | Attendance/vacation/exception seeds delete existing rows before reseeding to avoid duplicates | scripts/seed.js |
+| E-072 | api/src/services/projectAllocations/projectAllocations.js; api/src/services/projects/projects.js | Status filters are case-insensitive; seed normalizes status casing | api/src/services/projectAllocations/projectAllocations.js; api/src/services/projects/projects.js |
+| E-073 | web/package.json; web/vite.config.js; web/src/index.css | Upgraded Tailwind to v4.1 with Vite plugin, updated CSS import, removed PostCSS/autoprefixer | web/package.json; web/vite.config.js; web/src/index.css |
+| E-074 | web/src/scaffold.css; prettier.config.js | Added Tailwind v4 reference directive, fixed scrollbar color, and removed Prettier Tailwind config | web/src/scaffold.css; prettier.config.js |
+| E-075 | web/src/pages/AdminPanelPage/AdminPanelPage.jsx | Fixed AdminPanelPage gql import | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
+| E-076 | web/package.json | Removed unused browserslist from web package config | web/package.json |
+| E-077 | web/src/components/Header/Header.jsx | Updated user dropdown to show full name and email | web/src/components/Header/Header.jsx |
+| E-078 | web/src/components/Header/Header.jsx | Left-aligned main nav and removed button-like styles | web/src/components/Header/Header.jsx |
+| E-079 | web/src/components/Header/Header.jsx | Simplified mobile nav styling to plain list with separators | web/src/components/Header/Header.jsx |
+| E-080 | web/src/components/Header/Header.jsx | Mobile nav fills viewport height with root padding 4 | web/src/components/Header/Header.jsx |
+| E-081 | web/src/components/Header/Header.jsx | Increased mobile nav item padding | web/src/components/Header/Header.jsx |
+| E-082 | web/src/components/Header/Header.jsx | Reverted padding increase for nested resource items | web/src/components/Header/Header.jsx |
+| E-083 | web/src/components/Header/Header.jsx | Added right chevron icons to nested resource items | web/src/components/Header/Header.jsx |
+| E-084 | web/package.json; web/src/index.css | Added Remixicon npm package and local stylesheet import | web/package.json; web/src/index.css |
+| E-085 | package.json; web/package.json; yarn.lock | Moved react-icons dependency to web workspace | package.json; web/package.json; yarn.lock |
+| E-086 | web/src/pages/LoginPage/LoginPage.jsx; web/src/styles/brand-nxa.css; web/public/login-illustration.svg | Redesigned login page layout with brand styles and illustration | web/src/pages/LoginPage/LoginPage.jsx; web/src/styles/brand-nxa.css; web/public/login-illustration.svg |
+| E-087 | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/styles/brand-nxa.css | Applied NXA auth styling and normal-case auth error styling to signup/forgot pages | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/styles/brand-nxa.css |
+| E-088 | web/src/styles/brand-nxa.css; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx | Added reusable NXA link styling with dashed hover treatment for auth links | web/src/styles/brand-nxa.css; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
+| E-089 | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/public/auth-banner.webp | Replaced auth illustration with auth-banner.webp | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/public/auth-banner.webp |
+| E-090 | web/src/styles/brand-nxa.css | Auth illustration now fills panel using object-cover | web/src/styles/brand-nxa.css |
+| E-091 | web/src/styles/brand-nxa.css | NXA links reserve underline space to avoid hover layout shift | web/src/styles/brand-nxa.css |
+| E-092 | web/src/pages/LoginPage/LoginPage.jsx | Restored inline login validation errors using NXA error styling | web/src/pages/LoginPage/LoginPage.jsx |
+| E-093 | web/src/styles/brand-nxa.css | Adjusted auth error spacing and color to sit closer to inputs | web/src/styles/brand-nxa.css |
+| E-094 | web/src/Routes.jsx | Normalized auth routes to /signin and /signup; kept legacy reset/forgot routes | web/src/Routes.jsx |
+| E-095 | web/src/pages/LoginPage/LoginPage.jsx | Remember me stores and restores sign-in email locally | web/src/pages/LoginPage/LoginPage.jsx |
+| E-096 | web/src/pages/LoginPage/LoginPage.jsx | Remember-email storage key standardized with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
+| E-097 | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
