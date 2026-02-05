@@ -57,6 +57,7 @@ export const activeProjects = () => {
     where: {
       status: {
         in: ['Active', 'On Hold'],
+        mode: 'insensitive',
       },
     },
     include: {

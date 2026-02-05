@@ -92,7 +92,8 @@ export const dailyAllocations = ({ userId, date }) => {
       isActive: true,
       project: {
         status: {
-          in: ['Active', 'On Hold', 'ACTIVE', 'ON_HOLD'],
+          in: ['Active', 'On Hold'],
+          mode: 'insensitive',
         },
       },
     },

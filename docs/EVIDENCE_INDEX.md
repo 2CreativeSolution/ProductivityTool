@@ -73,3 +73,4 @@
 | E-069 | scripts/seed.js | Seed assigns default `hoursAllocated` (8h) when JSON allocations omit hours | scripts/seed.js |
 | E-070 | scripts/seed.js | Attendance/vacation/exception seeding added (past-year workdays, 2 vacations, 3 exceptions per user) | scripts/seed.js |
 | E-071 | scripts/seed.js | Attendance/vacation/exception seeds delete existing rows before reseeding to avoid duplicates | scripts/seed.js |
+| E-072 | api/src/services/projectAllocations/projectAllocations.js; api/src/services/projects/projects.js | Status filters are case-insensitive; seed normalizes status casing | api/src/services/projectAllocations/projectAllocations.js; api/src/services/projects/projects.js |

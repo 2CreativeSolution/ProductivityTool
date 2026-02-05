@@ -32,6 +32,14 @@ const EXCEPTION_TYPES = ['Late Arrival', 'Early Departure', 'WFH']
 
 const randomBetween = (min, max) => Math.random() * (max - min) + min
 const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)]
+const normalizeStatus = (value) => {
+  if (!value) return 'Active'
+  const v = value.toString().toLowerCase()
+  if (v.includes('hold')) return 'On Hold'
+  if (v.includes('cancel')) return 'Cancelled'
+  if (v.includes('complete')) return 'Completed'
+  return 'Active'
+}
 
 async function loadSeedData() {
   if (!fs.existsSync(dataPath)) {
@@ -131,7 +139,7 @@ async function seedProjects(projects = []) {
       update: {
         name: project.name,
         description: project.description,
-        status: project.status,
+        status: normalizeStatus(project.status),
         priority: project.priority,
         startDate,
         endDate: safeDate(project.endDate),
@@ -143,7 +151,7 @@ async function seedProjects(projects = []) {
         code: buildProjectCode(project),
         name: project.name,
         description: project.description,
-        status: project.status,
+        status: normalizeStatus(project.status),
         priority: project.priority,
         startDate,
         endDate: safeDate(project.endDate),
@@ -195,7 +203,7 @@ async function seedMeetings(meetings = []) {
         description: meeting.description,
         meetingDate: safeDate(meeting.meetingDate) ?? new Date(),
         duration: meeting.duration,
-        status: meeting.status,
+        status: normalizeStatus(meeting.status),
         meetingType: meeting.meetingType,
         projectId: meeting.projectId,
         organizerId: normalizeManager(meeting.organizerId),
@@ -207,7 +215,7 @@ async function seedMeetings(meetings = []) {
         description: meeting.description,
         meetingDate: safeDate(meeting.meetingDate) ?? new Date(),
         duration: meeting.duration,
-        status: meeting.status,
+        status: normalizeStatus(meeting.status),
         meetingType: meeting.meetingType,
         projectId: meeting.projectId,
         organizerId: normalizeManager(meeting.organizerId),

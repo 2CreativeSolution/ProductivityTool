@@ -8,6 +8,7 @@
 - Seed now assigns a default `hoursAllocated` (8h) when JSON allocations omit hours, keeping hours/day from showing 0. (evidence: scripts/seed.js)
 - Added historical attendance (past year workdays), vacations, and exception requests for all seeded users. (evidence: scripts/seed.js; yarn rw prisma db seed)
 - Attendance, vacation, and exception seeds now clear existing rows before insert to prevent duplication on re-seed. (evidence: scripts/seed.js)
+- Status values are normalized on seed, and project/allocation queries now compare case-insensitively to avoid casing drift in data. (evidence: scripts/seed.js; api/src/services/projects/projects.js; api/src/services/projectAllocations/projectAllocations.js)
 
 ## 2026-01-30
 - Removed unused Capacitor dependencies and references. (evidence: package.json, web/package.json, yarn.lock, docs/PROJECT_NOTES.md)
