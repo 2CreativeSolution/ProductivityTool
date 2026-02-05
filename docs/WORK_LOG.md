@@ -61,6 +61,7 @@
 | 2026-02-05 | (untracked) | Separated SMTP auth vs From addressing for SendGrid and added reset URL base env + SMTP validation | api/src/lib/emailService.js; api/src/functions/auth.js |
 | 2026-02-05 | (untracked) | Branded forgot-password email with CTA link, dark CTA contrast, and expiry note; require WEB_APP_URL in prod | api/src/functions/auth.js; docs/ENVIRONMENT.md |
 | 2026-02-05 | (untracked) | Restyled reset password page to match branded auth layout | web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | (untracked) | Added welcome email on signup (flag-gated), reusing SMTP/brand templates | api/src/lib/emailService.js; api/src/functions/auth.js |
 | 2026-02-05 | (note) | Recorded TLS configurability gap (currently permissive STARTTLS for SendGrid) for future PT-043 work | docs/TECHNICAL_CHALLENGES.md; api/src/lib/emailService.js |
 | 2026-01-28 | PT-008 | Audited DbAuth flows; fixed signup username field and forgot-password email submission; re-verified `yarn rw build` | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
 | 2026-01-28 | PT-010 | Added feature inventory with evidence links to PLAN | docs/PLAN.md |

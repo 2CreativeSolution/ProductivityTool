@@ -4,6 +4,7 @@ import { DbAuthHandler } from '@redwoodjs/auth-dbauth-api'
 
 import { cookieName } from 'src/lib/auth'
 import { db } from 'src/lib/db'
+import { sendWelcomeEmail } from 'src/lib/emailService'
 
 export const handler = async (event, context) => {
   const smtpUser = process.env.SMTP_USERNAME || process.env.SMTP_USER
@@ -194,8 +195,8 @@ export const handler = async (event, context) => {
     //
     // If this returns anything else, it will be returned by the
     // `signUp()` function in the form of: `{ message: 'String here' }`.
-    handler: ({ username, hashedPassword, salt, userAttributes }) => {
-      return db.user.create({
+    handler: async ({ username, hashedPassword, salt, userAttributes }) => {
+      const user = await db.user.create({
         data: {
           email: username,
           hashedPassword: hashedPassword,
@@ -203,6 +204,13 @@ export const handler = async (event, context) => {
           name: userAttributes?.name,
         },
       })
+
+      // Non-blocking welcome email if enabled
+      sendWelcomeEmail(user).catch((err) => {
+        console.warn('Welcome email skipped/failed:', err?.message || err)
+      })
+
+      return user
     },
 
     // Include any format checks for password here. Return `true` if the

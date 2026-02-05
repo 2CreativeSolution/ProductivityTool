@@ -1171,3 +1171,73 @@ export const sendTestEmail = async (recipientEmail) => {
     }
   }
 }
+
+// Welcome email on successful signup (flag-gated)
+export const sendWelcomeEmail = async (user) => {
+  if (process.env.WELCOME_EMAIL_ENABLED !== 'true') {
+    return
+  }
+
+  // Ensure SMTP basics are present; otherwise skip silently
+  if (!smtpUser || !smtpPass || !smtpFrom) {
+    console.warn('Skipping welcome email: SMTP env missing')
+    return
+  }
+
+  const baseUrl = (process.env.WEB_APP_URL || 'http://localhost:8910').replace(/\/$/, '')
+  const dashboardUrl = `${baseUrl}/`
+
+  const subject = 'Welcome to 2Creative Productivity Tool'
+  const displayName = user.name || user.email
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+          body { margin:0; padding:0; background:#f3f4f6; font-family:'Inter','Segoe UI',system-ui,sans-serif; color:#0f172a; }
+          .card { max-width:560px; margin:28px auto; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 18px 45px rgba(15,23,42,0.12); }
+          .header { padding:22px 24px; background:linear-gradient(135deg,#111827 0%,#1f2937 100%); color:#f8fafc; }
+          .title { font-size:20px; font-weight:800; letter-spacing:0.01em; }
+          .sub { opacity:0.85; font-size:13px; padding-top:4px; }
+          .body { padding:26px 28px 10px; }
+          .muted { color:#475569; font-size:14px; line-height:1.65; }
+          .cta { display:inline-block; margin:18px 0 10px; padding:13px 22px; background:#4f46e5; color:#fff !important; text-decoration:none; border-radius:10px; font-weight:700; letter-spacing:0.01em; }
+          .cta:hover { background:#4338ca; }
+          .footer { padding:18px 24px 22px; background:#f8fafc; color:#6b7280; font-size:12px; line-height:1.5; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="header">
+            <div class="title">Welcome aboard, ${displayName}!</div>
+            <div class="sub">Your account is ready.</div>
+          </div>
+          <div class="body">
+            <p class="muted" style="margin-top:0;">Thanks for joining the 2Creative Productivity Tool.</p>
+            <p class="muted">You can head straight to your dashboard to start booking rooms, tracking projects, or requesting assets.</p>
+            <a class="cta" href="${dashboardUrl}" target="_blank" rel="noopener">Go to Dashboard</a>
+            <p class="muted" style="margin-bottom:14px;">If you didn’t create this account, ignore this email.</p>
+          </div>
+          <div class="footer">
+            © 2025 2Creative Solutions — This is an automated message; replies aren’t monitored.
+          </div>
+        </div>
+      </body>
+    </html>
+  `
+
+  const text = `Welcome aboard, ${displayName}!\n\nYour account is ready. Go to your dashboard: ${dashboardUrl}\n\nIf you didn’t create this account, ignore this email.\n\n— 2Creative Productivity Tool`
+
+  const transporter = createTransporter()
+
+  await transporter.sendMail({
+    from: `"2Creative Productivity Tool" <${smtpFrom}>`,
+    to: user.email,
+    subject,
+    text,
+    html,
+  })
+}

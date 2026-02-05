@@ -23,6 +23,7 @@
 | SMTP_USERNAME | Optional SMTP auth user when different from SMTP_USER (e.g., SendGrid `apikey`). | api/src/lib/emailService.js |
 | SMTP_FROM | From/Reply-To address used in all outbound emails (must be verified with your provider). | api/src/lib/emailService.js |
 | WEB_APP_URL | Base URL used in password reset emails (required in production; otherwise links point to localhost). | api/src/functions/auth.js |
+| WELCOME_EMAIL_ENABLED | If `true`, send a welcome email on successful signup (works in any env). | api/src/lib/emailService.js |
 
 ## Optional / Tooling
 

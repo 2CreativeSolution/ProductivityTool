@@ -5,6 +5,7 @@
 - Improved forgot-password email template with branded HTML, plain-text fallback, and 24h expiry note. (evidence: api/src/functions/auth.js)
 - Enforced WEB_APP_URL requirement in production to avoid localhost reset links; documented SMTP/WEB_APP_URL envs. (evidence: api/src/functions/auth.js; docs/ENVIRONMENT.md)
 - Restyled reset password page to match branded auth layout with illustration and CTA. (evidence: web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Added optional welcome email after signup, gated by WELCOME_EMAIL_ENABLED flag. (evidence: api/src/functions/auth.js; api/src/lib/emailService.js; docs/ENVIRONMENT.md)
 - Created root `.env` with required DB URL, session secret, SMTP placeholders, and seed defaults to match ENVIRONMENT.md guidance for local development. (evidence: .env, docs/ENVIRONMENT.md)
 
 ## 2026-02-04
