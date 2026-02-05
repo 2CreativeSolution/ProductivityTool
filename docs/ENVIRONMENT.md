@@ -20,6 +20,9 @@
 | SMTP_PORT | SMTP port for password reset emails. | api/src/functions/auth.js#L29-L36, .env.example#L7-L12 |
 | SMTP_USER | SMTP username for password reset emails. | api/src/functions/auth.js#L29-L36, .env.example#L7-L12 |
 | SMTP_PASS | SMTP password for password reset emails. | api/src/functions/auth.js#L29-L36, .env.example#L7-L12 |
+| SMTP_USERNAME | Optional SMTP auth user when different from SMTP_USER (e.g., SendGrid `apikey`). | api/src/lib/emailService.js |
+| SMTP_FROM | From/Reply-To address used in all outbound emails (must be verified with your provider). | api/src/lib/emailService.js |
+| WEB_APP_URL | Base URL used in password reset emails (required in production; otherwise links point to localhost). | api/src/functions/auth.js |
 
 ## Optional / Tooling
 

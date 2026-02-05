@@ -105,3 +105,20 @@
 - Dependencies: PT-002
 - Evidence: web/src/pages/DashboardPage/DashboardPage.jsx; web/src/components/Attendance/Attendance.jsx; web/src/components/VacationPlanner/VacationPlanner.jsx; api/src/services/attendances/attendances.js; api/src/services/attendanceBreaks/attendanceBreaks.js; api/src/services/overtimeAttendances/overtimeAttendances.js; api/src/services/vacationRequests/vacationRequests.js; api/src/services/exceptionRequests/exceptionRequests.js; api/db/schema.prisma
 - Size: M
+
+## PT-043 ⬜ Harden SMTP/email delivery for production
+- Owner: Sarath
+- Scope: API/Infra/Docs
+- Problem: Email delivery relies on SMTP settings that can break in production (From vs auth user mismatch, reset URL hardcoded, lax TLS).
+- Acceptance Criteria:
+  - [ ] API email transport supports distinct auth user and From with required env validation.
+  - [ ] Password reset links use env-configured base URL (no localhost in prod).
+  - [ ] TLS mode is configurable with secure default for 465 or documented STARTTLS setting.
+  - [ ] SendGrid (or chosen provider) tested end-to-end with evidence in WORK_LOG and logged message ID.
+- Tech Notes:
+  - Add `WEB_APP_URL` for reset links; consider `SMTP_SECURE`/port guard.
+  - Keep `SMTP_FROM` required when `SMTP_USERNAME=apikey`.
+- Notes:
+  - TLS remains permissive for SendGrid STARTTLS; see TECHNICAL_CHALLENGES.md for follow-up.
+- Dependencies: None
+- Size: M

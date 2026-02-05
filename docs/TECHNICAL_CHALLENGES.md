@@ -19,3 +19,4 @@
 | 2026-02-04 | `remixicon` package not found on npm registry | Tried versions `^4.6.0`, `^4.5.0`, and `^4.9.1`; all failed | Switched to non-jsdelivr CDN stylesheet import (temporary) | web/src/index.css |
 | 2026-02-04 | `yarn rw build` initially failed reporting missing @2c/pd-root in lockfile | Ran `yarn install` to recreate workspace root entry and dependencies | Build now succeeds | yarn rw build |
 | 2026-02-04 | `yarn rw prisma db seed` failed: table public.User missing (empty DB) | Ran `yarn rw prisma migrate deploy` to apply all migrations, then reran seed | Seed succeeded | yarn rw prisma migrate deploy; yarn rw prisma db seed |
+| 2026-02-05 | TLS configuration for SMTP is permissive (secure:false/STARTTLS with rejectUnauthorized:false) | Intentional for SendGrid 587 STARTTLS; need configurable secure mode and stricter default for port 465 | Pending; track under PT-043 | api/src/lib/emailService.js |
