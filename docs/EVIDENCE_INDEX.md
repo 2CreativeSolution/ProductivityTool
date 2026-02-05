@@ -86,3 +86,6 @@
 | E-082 | web/src/pages/LoginPage/LoginPage.jsx | Restored inline login validation errors using NXA error styling | web/src/pages/LoginPage/LoginPage.jsx |
 | E-083 | web/src/styles/brand-nxa.css | Adjusted auth error spacing and color to sit closer to inputs | web/src/styles/brand-nxa.css |
 | E-084 | web/src/Routes.jsx | Normalized auth routes to /signin and /signup; kept legacy reset/forgot routes | web/src/Routes.jsx |
+| E-085 | web/src/pages/LoginPage/LoginPage.jsx | Remember me stores and restores sign-in email locally | web/src/pages/LoginPage/LoginPage.jsx |
+| E-086 | web/src/pages/LoginPage/LoginPage.jsx | Remember-email storage key standardized with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
+| E-087 | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |

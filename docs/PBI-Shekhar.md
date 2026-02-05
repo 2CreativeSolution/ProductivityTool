@@ -382,3 +382,16 @@
   - Keep route names intact so existing `routes.*` helpers remain valid.
 - Estimation: S
 - Evidence: web/src/Routes.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-042 ✅ Remember email on sign-in (local storage)
+- Owner: Shekhar
+- Scope: Web/Auth UX
+- Problem: “Remember me” checkbox did nothing.
+- Acceptance Criteria:
+  - [ ] Checkbox stores email locally when enabled.
+  - [ ] Stored email pre-fills the sign-in field on next visit.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use `localStorage` only; no server-side changes.
+- Estimation: S
+- Evidence: web/src/pages/LoginPage/LoginPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md

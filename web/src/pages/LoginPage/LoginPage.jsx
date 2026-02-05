@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   Form,
@@ -12,10 +12,13 @@ import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
+import { STORAGE_KEYS } from 'src/lib/storageKeys'
 import 'src/styles/brand-nxa.css'
 
 const LoginPage = () => {
   const { isAuthenticated, logIn } = useAuth()
+  const [rememberEmail, setRememberEmail] = useState(false)
+  const [savedEmail, setSavedEmail] = useState('')
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -25,10 +28,20 @@ const LoginPage = () => {
 
   const usernameRef = useRef(null)
   useEffect(() => {
+    const storedEmail = localStorage.getItem(STORAGE_KEYS.authEmail)
+    if (storedEmail) {
+      setSavedEmail(storedEmail)
+      setRememberEmail(true)
+    }
     usernameRef.current?.focus()
   }, [])
 
   const onSubmit = async (data) => {
+    if (rememberEmail) {
+      localStorage.setItem(STORAGE_KEYS.authEmail, data.username)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.authEmail)
+    }
     const response = await logIn({
       username: data.username,
       password: data.password,
@@ -69,6 +82,7 @@ const LoginPage = () => {
                 name="username"
                 className="nxa-input"
                 ref={usernameRef}
+                defaultValue={savedEmail}
                 placeholder="Email address"
                 validation={{
                   required: {
@@ -95,7 +109,12 @@ const LoginPage = () => {
 
               <div className="nxa-row">
                 <label className="nxa-checkbox">
-                  <input type="checkbox" className="h-4 w-4" />
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={rememberEmail}
+                    onChange={(event) => setRememberEmail(event.target.checked)}
+                  />
                   <span>Remember me</span>
                 </label>
                 <Link to={routes.forgotPassword()} className="nxa-link">

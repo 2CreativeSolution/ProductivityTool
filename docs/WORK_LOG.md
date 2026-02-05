@@ -48,6 +48,9 @@
 | 2026-02-05 | PT-040 | Restored inline login validation errors using NXA error styling | web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-040 | Tuned auth error spacing and color to sit closer to inputs | web/src/styles/brand-nxa.css |
 | 2026-02-05 | PT-041 | Normalized auth routes to /signin and /signup; kept legacy reset/forgot routes | web/src/Routes.jsx |
+| 2026-02-05 | PT-042 | Wired “Remember me” to store and restore sign-in email locally | web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-042 | Standardized remember-email storage key with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-042 | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
 
 ## Sarath
 
