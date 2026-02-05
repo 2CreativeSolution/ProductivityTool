@@ -1,0 +1,680 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Isabella Davis",
+      "email": "isabella.davis@2creative.com",
+      "department": "HR",
+      "designation": "SENIOR_DEVELOPER",
+      "employeeId": "E001",
+      "dateOfJoining": "2025-01-07T23:35:31",
+      "reportingManager": null,
+      "roles": [
+        "TEAM_LEAD",
+        "ADMIN"
+      ],
+      "lastLogin": "2025-11-02T14:09:34"
+    },
+    {
+      "id": 2,
+      "name": "Manish Yadav",
+      "email": "manish.yadav@2creative.com",
+      "department": "SALES",
+      "designation": "SENIOR_DEVELOPER",
+      "employeeId": "E002",
+      "dateOfJoining": "2024-11-14T04:17:47",
+      "reportingManager": 0,
+      "roles": [
+        "TEAM_LEAD",
+        "USER"
+      ],
+      "lastLogin": "2025-02-12T09:21:43"
+    },
+    {
+      "id": 3,
+      "name": "Arjun Bhat",
+      "email": "arjun.bhat@2creative.com",
+      "department": "ENGINEERING",
+      "designation": "LEAD_DEVELOPER",
+      "employeeId": "E003",
+      "dateOfJoining": "2024-11-07T03:12:46",
+      "reportingManager": 1,
+      "roles": [
+        "MANAGER",
+        "ADMIN"
+      ],
+      "lastLogin": "2025-08-21T07:06:52"
+    },
+    {
+      "id": 4,
+      "name": "Aarav Sharma",
+      "email": "aarav.sharma@2creative.com",
+      "department": "HR",
+      "designation": "LEAD_DEVELOPER",
+      "employeeId": "E004",
+      "dateOfJoining": "2025-01-05T16:57:18",
+      "reportingManager": 2,
+      "roles": [
+        "USER",
+        "MANAGER"
+      ],
+      "lastLogin": "2025-12-09T08:16:00"
+    },
+    {
+      "id": 5,
+      "name": "Noah Wilson",
+      "email": "noah.wilson@2creative.com",
+      "department": "HR",
+      "designation": "MARKETING_SPECIALIST",
+      "employeeId": "E005",
+      "dateOfJoining": "2024-11-19T12:12:39",
+      "reportingManager": 3,
+      "roles": [
+        "USER",
+        "ADMIN"
+      ],
+      "lastLogin": "2025-11-10T09:48:56"
+    },
+    {
+      "id": 6,
+      "name": "Priya Patel",
+      "email": "priya.patel@2creative.com",
+      "department": "SALES",
+      "designation": "JUNIOR_DEVELOPER",
+      "employeeId": "E006",
+      "dateOfJoining": "2025-01-24T21:22:22",
+      "reportingManager": 4,
+      "roles": [
+        "ADMIN",
+        "MANAGER"
+      ],
+      "lastLogin": "2025-02-22T07:41:02"
+    },
+    {
+      "id": 7,
+      "name": "Devika Mehra",
+      "email": "devika.mehra@2creative.com",
+      "department": "MARKETING",
+      "designation": "HR_SPECIALIST",
+      "employeeId": "E007",
+      "dateOfJoining": "2024-12-22T12:49:08",
+      "reportingManager": null,
+      "roles": [
+        "TEAM_LEAD",
+        "MANAGER"
+      ],
+      "lastLogin": "2025-09-25T17:00:14"
+    },
+    {
+      "id": 8,
+      "name": "Rajesh Kumar",
+      "email": "rajesh.kumar@2creative.com",
+      "department": "OPERATIONS",
+      "designation": "PROJECT_MANAGER",
+      "employeeId": "E008",
+      "dateOfJoining": "2024-11-30T14:10:57",
+      "reportingManager": null,
+      "roles": [
+        "MANAGER",
+        "ADMIN"
+      ],
+      "lastLogin": "2025-06-16T22:52:16"
+    },
+    {
+      "id": 9,
+      "name": "Harper Lewis",
+      "email": "harper.lewis@2creative.com",
+      "department": "SALES",
+      "designation": "PROJECT_MANAGER",
+      "employeeId": "E009",
+      "dateOfJoining": "2024-11-05T05:07:06",
+      "reportingManager": null,
+      "roles": [
+        "ADMIN",
+        "MANAGER"
+      ],
+      "lastLogin": "2025-07-05T00:17:00"
+    },
+    {
+      "id": 10,
+      "name": "Kiran Joshi",
+      "email": "kiran.joshi@2creative.com",
+      "department": "FINANCE",
+      "designation": "SENIOR_DEVELOPER",
+      "employeeId": "E0010",
+      "dateOfJoining": "2024-11-05T09:10:43",
+      "reportingManager": null,
+      "roles": [
+        "ADMIN",
+        "MANAGER"
+      ],
+      "lastLogin": "2025-06-16T15:09:49"
+    }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "name": "Product Analytics Tool",
+      "description": "Description for Product Analytics Tool.",
+      "status": "Cancelled",
+      "priority": "Low",
+      "startDate": "2024-11-03T00:47:44",
+      "endDate": "2025-06-03T09:38:00",
+      "managerId": 10,
+      "allocations": [
+        {
+          "userId": 2,
+          "role": "DESIGNER"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Salesforce Deployment",
+      "description": "Description for Salesforce Deployment.",
+      "status": "On Hold",
+      "priority": "Medium",
+      "startDate": "2024-12-28T00:37:16",
+      "endDate": "2025-01-02T16:00:19",
+      "managerId": 7,
+      "allocations": [
+        {
+          "userId": 8,
+          "role": "DESIGNER"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Cloud Migration",
+      "description": "Description for Cloud Migration.",
+      "status": "Completed",
+      "priority": "Critical",
+      "startDate": "2024-11-29T16:56:55",
+      "endDate": "2025-07-03T14:55:42",
+      "managerId": 6,
+      "allocations": [
+        {
+          "userId": 1,
+          "role": "DESIGNER"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Data Warehouse Integration",
+      "description": "Description for Data Warehouse Integration.",
+      "status": "Active",
+      "priority": "High",
+      "startDate": "2024-12-19T06:33:34",
+      "endDate": "2025-05-12T20:11:50",
+      "managerId": 10,
+      "allocations": [
+        {
+          "userId": 1,
+          "role": "ARCHITECT"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Project Phoenix",
+      "description": "Description for Project Phoenix.",
+      "status": "Cancelled",
+      "priority": "Low",
+      "startDate": "2024-12-29T06:00:19",
+      "endDate": "2025-02-11T17:30:41",
+      "managerId": 2,
+      "allocations": [
+        {
+          "userId": 8,
+          "role": "DESIGNER"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Salesforce Deployment",
+      "description": "Description for Salesforce Deployment.",
+      "status": "On Hold",
+      "priority": "Critical",
+      "startDate": "2024-11-21T10:25:20",
+      "endDate": "2025-11-20T09:51:34",
+      "managerId": 10,
+      "allocations": [
+        {
+          "userId": 7,
+          "role": "SALES_REPRESENTATIVE"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "CRM Optimization",
+      "description": "Description for CRM Optimization.",
+      "status": "Completed",
+      "priority": "Critical",
+      "startDate": "2024-11-25T14:40:10",
+      "endDate": "2025-04-17T22:28:15",
+      "managerId": 10,
+      "allocations": [
+        {
+          "userId": 10,
+          "role": "PROJECT_MANAGER"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Automation Pipeline",
+      "description": "Description for Automation Pipeline.",
+      "status": "Completed",
+      "priority": "High",
+      "startDate": "2024-12-27T08:45:53",
+      "endDate": "2025-06-26T16:28:29",
+      "managerId": 4,
+      "allocations": [
+        {
+          "userId": 7,
+          "role": "SALES_REPRESENTATIVE"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Client Portal Revamp",
+      "description": "Description for Client Portal Revamp.",
+      "status": "Active",
+      "priority": "Medium",
+      "startDate": "2024-12-10T01:40:00",
+      "endDate": "2025-06-09T19:00:17",
+      "managerId": 7,
+      "allocations": [
+        {
+          "userId": 8,
+          "role": "SENIOR_DEVELOPER"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Data Warehouse Integration",
+      "description": "Description for Data Warehouse Integration.",
+      "status": "Cancelled",
+      "priority": "Critical",
+      "startDate": "2024-12-23T15:06:49",
+      "endDate": "2025-04-25T07:04:58",
+      "managerId": 7,
+      "allocations": [
+        {
+          "userId": 4,
+          "role": "SENIOR_DEVELOPER"
+        }
+      ]
+    }
+  ],
+  "meetings": [
+    {
+      "id": 1,
+      "title": "Meeting 1",
+      "description": "Description for Meeting 1.",
+      "meetingDate": "2025-09-23T01:13:32",
+      "duration": 116,
+      "status": "Scheduled",
+      "meetingType": "Planning",
+      "projectId": 2,
+      "organizerId": 2,
+      "attendeeIds": [
+        5,
+        6,
+        9,
+        4,
+        7
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Meeting 2",
+      "description": "Description for Meeting 2.",
+      "meetingDate": "2025-08-15T21:37:47",
+      "duration": 42,
+      "status": "In Progress",
+      "meetingType": "Review",
+      "projectId": 3,
+      "organizerId": 10,
+      "attendeeIds": [
+        8,
+        2,
+        5,
+        1,
+        3
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Meeting 3",
+      "description": "Description for Meeting 3.",
+      "meetingDate": "2025-11-10T08:42:23",
+      "duration": 64,
+      "status": "Completed",
+      "meetingType": "Planning",
+      "projectId": 7,
+      "organizerId": 2,
+      "attendeeIds": [
+        2,
+        4,
+        10,
+        1,
+        6
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Meeting 4",
+      "description": "Description for Meeting 4.",
+      "meetingDate": "2025-02-03T13:09:11",
+      "duration": 88,
+      "status": "Cancelled",
+      "meetingType": "Planning",
+      "projectId": 4,
+      "organizerId": 2,
+      "attendeeIds": [
+        7,
+        3,
+        10,
+        8,
+        9
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Meeting 5",
+      "description": "Description for Meeting 5.",
+      "meetingDate": "2025-10-27T16:37:23",
+      "duration": 69,
+      "status": "In Progress",
+      "meetingType": "Standup",
+      "projectId": 6,
+      "organizerId": 2,
+      "attendeeIds": [
+        3,
+        10,
+        8,
+        1,
+        4
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Meeting 6",
+      "description": "Description for Meeting 6.",
+      "meetingDate": "2025-11-12T11:21:56",
+      "duration": 117,
+      "status": "Cancelled",
+      "meetingType": "Planning",
+      "projectId": 7,
+      "organizerId": 7,
+      "attendeeIds": [
+        4,
+        7,
+        2,
+        1,
+        9
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Meeting 7",
+      "description": "Description for Meeting 7.",
+      "meetingDate": "2025-09-26T20:03:41",
+      "duration": 118,
+      "status": "Scheduled",
+      "meetingType": "Review",
+      "projectId": 5,
+      "organizerId": 1,
+      "attendeeIds": [
+        6,
+        5,
+        3,
+        1,
+        4
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Meeting 8",
+      "description": "Description for Meeting 8.",
+      "meetingDate": "2025-08-23T06:11:47",
+      "duration": 35,
+      "status": "Cancelled",
+      "meetingType": "Planning",
+      "projectId": 8,
+      "organizerId": 9,
+      "attendeeIds": [
+        1,
+        10,
+        6,
+        3,
+        7
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Meeting 9",
+      "description": "Description for Meeting 9.",
+      "meetingDate": "2025-03-16T17:53:38",
+      "duration": 49,
+      "status": "Completed",
+      "meetingType": "Standup",
+      "projectId": 3,
+      "organizerId": 4,
+      "attendeeIds": [
+        3,
+        6,
+        5,
+        4,
+        1
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Meeting 10",
+      "description": "Description for Meeting 10.",
+      "meetingDate": "2025-03-18T16:02:43",
+      "duration": 112,
+      "status": "In Progress",
+      "meetingType": "Planning",
+      "projectId": 3,
+      "organizerId": 2,
+      "attendeeIds": [
+        10,
+        7,
+        8,
+        9,
+        4
+      ]
+    }
+  ],
+  "dailyProjectUpdates": [
+    {
+      "id": 1,
+      "allocationId": 2,
+      "projectId": 9,
+      "date": "2025-10-04T16:41:15",
+      "status": "BLOCKED",
+      "description": "Completed feature X, more tomorrow.",
+      "hoursWorked": 7,
+      "blockers": "Waiting on feedback.",
+      "nextDayPlan": "Will debug some issues.",
+      "completionPercentage": 47,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        4,
+        7,
+        8
+      ]
+    },
+    {
+      "id": 2,
+      "allocationId": 3,
+      "projectId": 10,
+      "date": "2025-11-09T13:24:39",
+      "status": "ON_TRACK",
+      "description": "Worked on bug fixes. Some tasks went over time.",
+      "hoursWorked": 4,
+      "blockers": "No blockers",
+      "nextDayPlan": "Will debug some issues.",
+      "completionPercentage": 64,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        1,
+        8,
+        5
+      ]
+    },
+    {
+      "id": 3,
+      "allocationId": 9,
+      "projectId": 5,
+      "date": "2025-08-16T08:04:26",
+      "status": "ON_TRACK",
+      "description": "Worked on bug fixes. Some tasks went over time.",
+      "hoursWorked": 4,
+      "blockers": "Waiting on feedback.",
+      "nextDayPlan": "Will debug some issues.",
+      "completionPercentage": 74,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        7,
+        6,
+        5
+      ]
+    },
+    {
+      "id": 4,
+      "allocationId": 5,
+      "projectId": 10,
+      "date": "2025-06-30T19:32:02",
+      "status": "BLOCKED",
+      "description": "Completed feature X, more tomorrow.",
+      "hoursWorked": 8,
+      "blockers": "Waiting on feedback.",
+      "nextDayPlan": "Continue working on tasks.",
+      "completionPercentage": 65,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        8,
+        2,
+        6
+      ]
+    },
+    {
+      "id": 5,
+      "allocationId": 6,
+      "projectId": 9,
+      "date": "2025-04-19T09:13:09",
+      "status": "ON_TRACK",
+      "description": "Worked on bug fixes. Some tasks went over time.",
+      "hoursWorked": 8,
+      "blockers": "No blockers",
+      "nextDayPlan": "Continue working on tasks.",
+      "completionPercentage": 66,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        5,
+        1,
+        9
+      ]
+    },
+    {
+      "id": 6,
+      "allocationId": 1,
+      "projectId": 8,
+      "date": "2025-06-28T19:37:54",
+      "status": "DELAYED",
+      "description": "Completed feature X, more tomorrow.",
+      "hoursWorked": 5,
+      "blockers": "Waiting on feedback.",
+      "nextDayPlan": "Will debug some issues.",
+      "completionPercentage": 50,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        10,
+        5,
+        9
+      ]
+    },
+    {
+      "id": 7,
+      "allocationId": 6,
+      "projectId": 8,
+      "date": "2025-12-02T19:53:29",
+      "status": "BLOCKED",
+      "description": "Completed feature X, more tomorrow.",
+      "hoursWorked": 8,
+      "blockers": "Waiting on feedback.",
+      "nextDayPlan": "Will debug some issues.",
+      "completionPercentage": 75,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        7,
+        1,
+        5
+      ]
+    },
+    {
+      "id": 8,
+      "allocationId": 5,
+      "projectId": 1,
+      "date": "2025-10-03T10:31:46",
+      "status": "BLOCKED",
+      "description": "Completed feature X, more tomorrow.",
+      "hoursWorked": 4,
+      "blockers": "No blockers",
+      "nextDayPlan": "Will debug some issues.",
+      "completionPercentage": 46,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        6,
+        3,
+        2
+      ]
+    },
+    {
+      "id": 9,
+      "allocationId": 9,
+      "projectId": 7,
+      "date": "2025-10-22T00:55:14",
+      "status": "COMPLETED",
+      "description": "Completed feature X, more tomorrow.",
+      "hoursWorked": 5,
+      "blockers": "No blockers",
+      "nextDayPlan": "Continue working on tasks.",
+      "completionPercentage": 41,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        2,
+        1,
+        3
+      ]
+    },
+    {
+      "id": 10,
+      "allocationId": 3,
+      "projectId": 1,
+      "date": "2025-08-30T17:15:35",
+      "status": "BLOCKED",
+      "description": "Worked on bug fixes. Some tasks went over time.",
+      "hoursWorked": 5,
+      "blockers": "Waiting on feedback.",
+      "nextDayPlan": "Continue working on tasks.",
+      "completionPercentage": 49,
+      "milestoneReached": "Initial version completed.",
+      "meetingsAttended": [
+        9,
+        7,
+        3
+      ]
+    }
+  ]
+}

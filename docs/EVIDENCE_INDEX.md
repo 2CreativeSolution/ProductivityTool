@@ -64,3 +64,13 @@
 | E-060 | scripts/seed.js | Added divider lines around admin seed log output | scripts/seed.js |
 | E-061 | scripts/seed.js | Removed unused variable in asset seed loop | scripts/seed.js |
 | E-062 | scripts/seed.js; scripts/seedOfficeSupplies.js | Added blank lines between seed sections for readability | scripts/seed.js; scripts/seedOfficeSupplies.js |
+| E-063 | scripts/seed.js | JSON-driven seed for users/projects/allocations/meetings/daily updates with sequence reset and default password env | scripts/seed.js |
+| E-064 | scripts/seed_data_2creative.json | Source JSON dataset for project-tracker seeding | scripts/seed_data_2creative.json |
+| E-065 | docs/TECHNICAL_CHALLENGES.md | Recorded Yarn build failure due to missing @2c/pd-root workspace package (resolved by yarn install) | docs/TECHNICAL_CHALLENGES.md |
+| E-066 | api/src/services/projects/projects.js | `activeProjects` filter uses Title Case statuses so seeded projects display | api/src/services/projects/projects.js |
+| E-067 | api/src/services/projectAllocations/projectAllocations.js | dailyAllocations accepts Title/upper-case statuses to return allocations for seeded projects | api/src/services/projectAllocations/projectAllocations.js |
+| E-068 | web/src/components/ProjectTracker/EmployeeManagement.jsx | Active project counts and hours/day calculated with case-insensitive status match | web/src/components/ProjectTracker/EmployeeManagement.jsx |
+| E-069 | scripts/seed.js | Seed assigns default `hoursAllocated` (8h) when JSON allocations omit hours | scripts/seed.js |
+| E-070 | scripts/seed.js | Attendance/vacation/exception seeding added (past-year workdays, 2 vacations, 3 exceptions per user) | scripts/seed.js |
+| E-071 | scripts/seed.js | Attendance/vacation/exception seeds delete existing rows before reseeding to avoid duplicates | scripts/seed.js |
+| E-072 | api/src/services/projectAllocations/projectAllocations.js; api/src/services/projects/projects.js | Status filters are case-insensitive; seed normalizes status casing | api/src/services/projectAllocations/projectAllocations.js; api/src/services/projects/projects.js |
