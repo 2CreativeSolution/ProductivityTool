@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## 2026-02-05
+- Split SMTP auth user from From address to support SendGrid; added config validation for missing SMTP_FROM; added WEB_APP_URL-based reset link. (evidence: api/src/lib/emailService.js; api/src/functions/auth.js)
 - Created root `.env` with required DB URL, session secret, SMTP placeholders, and seed defaults to match ENVIRONMENT.md guidance for local development. (evidence: .env, docs/ENVIRONMENT.md)
 
 ## 2026-02-04

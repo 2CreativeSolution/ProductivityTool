@@ -2,6 +2,13 @@ import nodemailer from 'nodemailer'
 
 import { db } from 'src/lib/db'
 
+// Centralize SMTP values so auth user and From address can differ (e.g., SendGrid)
+const smtpUser = process.env.SMTP_USERNAME || process.env.SMTP_USER
+const smtpPass = process.env.SMTP_PASS
+const smtpFrom = process.env.SMTP_FROM || process.env.SMTP_USER
+const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
+const smtpPort = Number(process.env.SMTP_PORT) || 587
+
 // Helper function to create enhanced email headers for better Outlook compatibility
 const createEmailHeaders = () => {
   return {
@@ -9,8 +16,8 @@ const createEmailHeaders = () => {
     'X-MSMail-Priority': 'Normal',
     Importance: 'Normal',
     'X-Mailer': '2Creative Productivity Tool',
-    'Reply-To': process.env.SMTP_USER,
-    'Return-Path': process.env.SMTP_USER,
+    'Reply-To': smtpFrom,
+    'Return-Path': smtpFrom,
     'Content-Type': 'text/html; charset=UTF-8',
     'MIME-Version': '1.0',
   }
@@ -34,26 +41,29 @@ const formatDateForEmail = (dateString) => {
 // Create reusable transporter using SMTP
 const createTransporter = () => {
   // Validate environment variables
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (!smtpUser || !smtpPass) {
     throw new Error(
-      'SMTP_USER and SMTP_PASS environment variables are required'
+      'SMTP_USERNAME/SMTP_USER and SMTP_PASS environment variables are required'
     )
+  }
+  if (!smtpFrom) {
+    throw new Error('SMTP_FROM (or SMTP_USER) is required for the From address')
   }
 
   console.log('📧 Creating email transporter with config:', {
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: Number(process.env.SMTP_PORT) || 587,
-    user: process.env.SMTP_USER ? '***configured***' : 'NOT_SET',
-    pass: process.env.SMTP_PASS ? '***configured***' : 'NOT_SET',
+    host: smtpHost,
+    port: smtpPort,
+    user: smtpUser ? '***configured***' : 'NOT_SET',
+    pass: smtpPass ? '***configured***' : 'NOT_SET',
   })
 
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: Number(process.env.SMTP_PORT) || 587,
+    host: smtpHost,
+    port: smtpPort,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: smtpUser,
+      pass: smtpPass,
     },
     // Enhanced settings for better Outlook compatibility
     tls: {
@@ -193,7 +203,7 @@ export const sendSupplyRequestApprovalEmail = async (
   `
 
   const mailOptions = {
-    from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+    from: `"2Creative Productivity Tool" <${smtpFrom}>`,
     to: user.email,
     subject: `✅ Supply Request Approved - ${request.supply.name}`,
     html: createEmailTemplate('Supply Request Approved', content, '#dcfce7'),
@@ -203,8 +213,8 @@ export const sendSupplyRequestApprovalEmail = async (
       'X-MSMail-Priority': 'Normal',
       Importance: 'Normal',
       'X-Mailer': '2Creative Productivity Tool',
-      'Reply-To': process.env.SMTP_USER,
-      'Return-Path': process.env.SMTP_USER,
+      'Reply-To': smtpFrom,
+      'Return-Path': smtpFrom,
     },
     // Add text version for better compatibility
     text: `Hi ${user.name},\n\nGreat news! Your supply request has been approved.\n\nRequest Details:\nItem: ${request.supply.name}\nQuantity: ${request.quantityRequested}\nCategory: ${request.supply.category?.name || 'N/A'}\nRequest Date: ${formatDateForEmail(request.createdAt)}\n\n${approverNotes ? `Admin Notes: "${approverNotes}"\n\n` : ''}Your approved items will be made available for pickup. You'll receive further instructions about collection details soon.\n\nIf you have any questions, please don't hesitate to reach out to the admin team.\n\nBest regards,\n2Creative Admin Team`,
@@ -279,7 +289,7 @@ export const sendSupplyRequestRejectionEmail = async (
   `
 
   const mailOptions = {
-    from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+    from: `"2Creative Productivity Tool" <${smtpFrom}>`,
     to: user.email,
     subject: `❌ Supply Request Update - ${request.supply.name}`,
     html: createEmailTemplate('Supply Request Status', content, '#fef2f2'),
@@ -372,7 +382,7 @@ export const sendAssetRequestApprovalEmail = async (
   `
 
   const mailOptions = {
-    from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+    from: `"2Creative Productivity Tool" <${smtpFrom}>`,
     to: user.email,
     subject: `✅ Asset Request Approved - ${asset?.name || request.assetCategory?.name}`,
     html: createEmailTemplate('Asset Request Approved', content, '#dcfce7'),
@@ -447,7 +457,7 @@ export const sendAssetRequestRejectionEmail = async (
   `
 
   const mailOptions = {
-    from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+      from: `"2Creative Productivity Tool" <${smtpFrom}>`,
     to: user.email,
     subject: `❌ Asset Request Update - ${request.assetCategory?.name}`,
     html: createEmailTemplate('Asset Request Status', content, '#fef2f2'),
@@ -530,7 +540,7 @@ export const sendVacationRequestApprovalEmail = async (user, request) => {
   `
 
   const mailOptions = {
-    from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+      from: `"2Creative Productivity Tool" <${smtpFrom}>`,
     to: user.email,
     subject: `🌴 Vacation Request Approved - ${formatDateForEmail(request.startDate)} to ${formatDateForEmail(request.endDate)}`,
     html: createEmailTemplate('Vacation Request Approved', content, '#dcfce7'),
@@ -615,7 +625,7 @@ export const sendVacationRequestRejectionEmail = async (
   `
 
   const mailOptions = {
-    from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+    from: `"2Creative Productivity Tool" <${smtpFrom}>`,
     to: user.email,
     subject: `❌ Vacation Request Update - ${formatDateForEmail(request.startDate)} to ${formatDateForEmail(request.endDate)}`,
     html: createEmailTemplate('Vacation Request Status', content, '#fef2f2'),
@@ -725,7 +735,7 @@ export const sendSupplyRequestNotificationToAdmins = async (
     // Send to all admins
     for (const admin of adminUsers) {
       const mailOptions = {
-        from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+        from: `"2Creative Productivity Tool" <${smtpFrom}>`,
         to: admin.email,
         subject: `📦 New Supply Request - ${supply.name} (${user.name})`,
         html: createEmailTemplate(
@@ -838,7 +848,7 @@ export const sendAssetRequestNotificationToAdmins = async (
     // Send to all admins
     for (const admin of adminUsers) {
       const mailOptions = {
-        from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+        from: `"2Creative Productivity Tool" <${smtpFrom}>`,
         to: admin.email,
         subject: `💻 New Asset Request - ${assetCategory.name} (${user.name})`,
         html: createEmailTemplate(
@@ -959,7 +969,7 @@ export const sendVacationRequestNotificationToAdmins = async (
     // Send to all admins
     for (const admin of adminUsers) {
       const mailOptions = {
-        from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+        from: `"2Creative Productivity Tool" <${smtpFrom}>`,
         to: admin.email,
         subject: `🌴 New Vacation Request - ${user.name} (${formatDateForEmail(request.startDate)} to ${formatDateForEmail(request.endDate)})`,
         html: createEmailTemplate(
@@ -1115,7 +1125,7 @@ export const sendTestEmail = async (recipientEmail) => {
     `
 
     const mailOptions = {
-      from: `"2Creative Productivity Tool" <${process.env.SMTP_USER}>`,
+      from: `"2Creative Productivity Tool" <${smtpFrom}>`,
       to: recipientEmail,
       subject: `${subjectPrefix} Email System Test - 2Creative Productivity Tool [Multi-Domain Compatible]`,
       html: createEmailTemplate('Email Configuration Test', content, '#dbeafe'),

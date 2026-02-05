@@ -6,6 +6,13 @@ import { cookieName } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 
 export const handler = async (event, context) => {
+  const smtpUser = process.env.SMTP_USERNAME || process.env.SMTP_USER
+  const smtpPass = process.env.SMTP_PASS
+  const smtpFrom = process.env.SMTP_FROM || process.env.SMTP_USER
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
+  const smtpPort = Number(process.env.SMTP_PORT) || 587
+  const resetBaseUrl = (process.env.WEB_APP_URL || 'http://localhost:8910').replace(/\/$/, '')
+
   const forgotPasswordOptions = {
     // handler() is invoked after verifying that a user was found with the given
     // username. This is where you can send the user an email with a link to
@@ -27,19 +34,19 @@ export const handler = async (event, context) => {
     handler: async (user, resetToken) => {
       // Use environment variables for credentials!
       const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT),
+        host: smtpHost,
+        port: smtpPort,
         secure: false,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
+          user: smtpUser,
+          pass: smtpPass,
         },
       })
 
-      const resetUrl = `http://localhost:8910/reset-password?resetToken=${resetToken}`
+      const resetUrl = `${resetBaseUrl}/reset-password?resetToken=${resetToken}`
 
       await transporter.sendMail({
-        from: `"Your App" <${process.env.SMTP_USER}>`,
+        from: `"Your App" <${smtpFrom}>`,
         to: user.email,
         subject: 'Reset your password',
         text: `Click this link to reset your password: ${resetUrl}`,
