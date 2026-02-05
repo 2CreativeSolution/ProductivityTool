@@ -227,3 +227,171 @@
   - Add empty log lines in seed scripts around section boundaries.
 - Estimation: S
 - Evidence: scripts/seed.js, scripts/seedOfficeSupplies.js, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-030 ✅ Upgrade Tailwind to v4.1 (Vite)
+- Owner: Shekhar
+- Scope: Web/Styling
+- Problem: Web uses Tailwind v3; upgrade needed to stay current with v4.
+- Acceptance Criteria:
+  - [ ] Tailwind upgraded to v4.1 with Vite plugin per official docs.
+  - [ ] CSS entry updated for v4 import style.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use `@tailwindcss/vite` and update `web/src/index.css`.
+- Estimation: M
+- Evidence: web/package.json, web/vite.config.js, web/src/index.css, web/src/scaffold.css, prettier.config.js, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-031 ✅ Fix AdminPanelPage gql import
+- Owner: Shekhar
+- Scope: Web
+- Problem: Admin panel page uses `gql` without importing it, causing runtime load failure.
+- Acceptance Criteria:
+  - [ ] AdminPanelPage imports `gql` from `@redwoodjs/web`.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep change minimal to avoid broader refactors.
+- Estimation: S
+- Evidence: web/src/pages/AdminPanelPage/AdminPanelPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md, docs/TECHNICAL_CHALLENGES.md
+
+## PT-032 ✅ Remove unused browserslist config
+- Owner: Shekhar
+- Scope: Web/Config
+- Problem: `browserslist` remains in web/package.json but no longer used after removing PostCSS/autoprefixer.
+- Acceptance Criteria:
+  - [ ] `browserslist` removed from web/package.json.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep change limited to web/package.json.
+- Estimation: S
+- Evidence: web/package.json, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-033 ✅ Improve user dropdown identity display
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: User dropdown shows only email; full name should be visible.
+- Acceptance Criteria:
+  - [ ] Dropdown shows full user name under “Signed in as”.
+  - [ ] Email displayed in smaller, muted text.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update header dropdown markup only.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-034 ✅ Simplify main nav layout and styles
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Main nav is centered with button-like styles; needs left alignment and plain styling.
+- Acceptance Criteria:
+  - [ ] Main nav items are positioned left with the logo.
+  - [ ] Main nav items have no hover/colorful button styles.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep dropdown menu styling unchanged.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-035 ✅ Simplify mobile nav styling
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Mobile nav uses colorful tiles and heavy styling; needs minimal list styling.
+- Acceptance Criteria:
+  - [ ] Remove colorful tile backgrounds in mobile nav.
+  - [ ] Reduce padding/radius and remove shadows.
+  - [ ] Use bottom borders as separators.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep structure intact; adjust classes only.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-036 ✅ Add chevrons to mobile submenu items
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Nested resource links lack visual affordance.
+- Acceptance Criteria:
+  - [ ] Add right chevron icon before nested resource item text.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use existing Remix icon class.
+- Estimation: S
+- Evidence: web/src/components/Header/Header.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-037 ✅ Restore Remix Icon styles
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Remix icon classes render as missing because the CSS is not loaded.
+- Acceptance Criteria:
+  - [ ] Remixicon package installed in web.
+  - [ ] Remixicon CSS imported in web entry stylesheet.
+- [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Import `remixicon/fonts/remixicon.css` from local package.
+- Estimation: S
+- Evidence: web/package.json, web/src/index.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-038 ✅ Move react-icons to web workspace
+- Owner: Shekhar
+- Scope: Web/Deps
+- Problem: `react-icons` is used in web but declared at root.
+- Acceptance Criteria:
+  - [ ] Remove `react-icons` from root package.json.
+  - [ ] Add `react-icons` to web/package.json.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Run yarn install to update lockfile.
+- Estimation: S
+- Evidence: package.json, web/package.json, yarn.lock, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-039 ✅ Redesign login page (NXA)
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Login page uses default scaffold; needs branded layout to match new design.
+- Acceptance Criteria:
+  - [ ] Login page matches NX-style layout with split form + illustration.
+  - [ ] Uses `brand-nxa.css` classes for inputs/buttons.
+  - [ ] Logo displayed without navigation menu.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Add `web/src/styles/brand-nxa.css` and use in LoginPage.
+- Estimation: M
+- Evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/styles/brand-nxa.css, web/public/login-illustration.svg, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-040 ✅ Apply NXA auth styling to signup/forgot pages
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth pages beyond login lack the new branded layout and show uppercase errors.
+- Acceptance Criteria:
+  - [ ] Signup and forgot-password pages use NXA layout and illustration.
+  - [ ] Auth field errors render in normal case.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Add shared error style in `brand-nxa.css` and update FieldError classes.
+- Estimation: S
+- Evidence: web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-041 ✅ Normalize auth routes to signin/signup with legacy reset/forgot paths
+- Owner: Shekhar
+- Scope: Web/Routes
+- Problem: Auth routes are inconsistent (`/login`, `/signup`, `/forgot-password`).
+- Acceptance Criteria:
+  - [ ] Auth routes use `/signin` and `/signup`.
+  - [ ] Forgot/reset routes remain `/forgot-password` and `/reset-password`.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep route names intact so existing `routes.*` helpers remain valid.
+- Estimation: S
+- Evidence: web/src/Routes.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-042 ✅ Remember email on sign-in (local storage)
+- Owner: Shekhar
+- Scope: Web/Auth UX
+- Problem: “Remember me” checkbox did nothing.
+- Acceptance Criteria:
+  - [ ] Checkbox stores email locally when enabled.
+  - [ ] Stored email pre-fills the sign-in field on next visit.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use `localStorage` only; no server-side changes.
+- Estimation: S
+- Evidence: web/src/pages/LoginPage/LoginPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md

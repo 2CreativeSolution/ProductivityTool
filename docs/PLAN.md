@@ -4,7 +4,7 @@
 - Redwood app configured with web title, ports, and Netlify functions API URL. (evidence: redwood.toml#L8-L14)
 - Netlify build uses `yarn rw build`, outputs `web/dist` and `api/dist/functions`, and pins Node 25; Netlify dev proxies web on 8910. (evidence: netlify.toml#L1-L26)
 - Workspace setup uses Node 25.x and Yarn 4.6.0 with Redwood 8.9.0 packages. (evidence: package.json#L1-L47, api/package.json#L1-L13, web/package.json#L1-L35)
-- Web routing covers login/signup/reset-password plus dashboard, bookings CRUD, asset tracker, project tracker, office supplies, and admin routes with role gating. (evidence: web/src/Routes.jsx#L18-L54)
+- Web routing covers signin/signup/forgot-password/reset-password plus dashboard, bookings CRUD, asset tracker, project tracker, office supplies, and admin routes with role gating. (evidence: web/src/Routes.jsx#L18-L54)
 - DbAuth is wired for web auth and used by the login form. (evidence: web/src/auth.js#L1-L5, web/src/pages/LoginPage/LoginPage.jsx#L15-L35)
 - API uses DbAuth handler and SMTP for password reset emails. (evidence: api/src/functions/auth.js#L1-L208)
 - Prisma schema targets PostgreSQL and defines models for users/roles, bookings, attendance, vacation, assets, projects, and office supplies. (evidence: api/db/schema.prisma#L7-L449)

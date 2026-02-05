@@ -27,6 +27,31 @@
 | 2026-01-31 | PT-027 | Added divider lines around admin seed log output | scripts/seed.js |
 | 2026-01-31 | PT-028 | Removed unused variable in asset seed loop | scripts/seed.js |
 | 2026-01-31 | PT-029 | Added blank lines between seed sections for readability | scripts/seed.js; scripts/seedOfficeSupplies.js |
+| 2026-02-04 | PT-030 | Upgraded Tailwind to v4.1 with Vite plugin, updated CSS import, removed PostCSS/autoprefixer, fixed scaffold Tailwind reference, and removed Prettier Tailwind config | web/package.json; web/vite.config.js; web/src/index.css; web/src/scaffold.css; prettier.config.js |
+| 2026-02-04 | PT-031 | Fixed AdminPanelPage gql import to prevent runtime load failure | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
+| 2026-02-04 | PT-032 | Removed unused browserslist from web package config | web/package.json |
+| 2026-02-04 | PT-033 | Updated user dropdown to show full name and email | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-034 | Left-aligned main nav and removed button-like styles | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-035 | Simplified mobile nav styling to plain list with separators | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-035 | Mobile nav now fills viewport height with root padding 4 | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-035 | Increased mobile nav item padding | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-035 | Reverted padding increase for nested resource items | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-036 | Added right chevron icons to nested resource items | web/src/components/Header/Header.jsx |
+| 2026-02-04 | PT-037 | Added Remixicon npm package and local stylesheet import | web/package.json; web/src/index.css |
+| 2026-02-04 | PT-038 | Moved react-icons dependency to web workspace | package.json; web/package.json; yarn.lock |
+| 2026-02-04 | PT-039 | Redesigned login page layout with reusable brand styles and illustration | web/src/pages/LoginPage/LoginPage.jsx; web/src/styles/brand-nxa.css; web/public/login-illustration.svg |
+| 2026-02-04 | PT-040 | Applied NXA auth styling to signup/forgot pages and added normal-case auth error styling | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-04 | PT-040 | Added reusable NXA link styling with dashed hover treatment for auth links | web/src/styles/brand-nxa.css; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
+| 2026-02-05 | PT-040 | Swapped auth illustration to auth-banner.webp and removed legacy SVG | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/public/auth-banner.webp |
+| 2026-02-05 | PT-040 | Updated auth illustration to fill panel using object-cover | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-040 | Prevented layout shift on NXA links by reserving underline space | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-040 | Restored inline login validation errors using NXA error styling | web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-040 | Tuned auth error spacing and color to sit closer to inputs | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-041 | Normalized auth routes to /signin and /signup; kept legacy reset/forgot routes | web/src/Routes.jsx |
+| 2026-02-05 | PT-042 | Wired “Remember me” to store and restore sign-in email locally | web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-042 | Standardized remember-email storage key with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-042 | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-042 | Made sign-in email field controlled to show remembered email | web/src/pages/LoginPage/LoginPage.jsx |
 
 ## Sarath
 
