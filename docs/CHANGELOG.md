@@ -44,6 +44,7 @@
 - Wired “Remember me” to store and restore the sign-in email locally. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
 - Updated remember-email storage key to `@2CPD/auth_email` using a shared prefix constant. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
 - Centralized localStorage key prefixing in a shared storage keys helper. (evidence: web/src/lib/storageKeys.js, web/src/pages/LoginPage/LoginPage.jsx)
+- Made the sign-in email field controlled so remembered email appears reliably. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)

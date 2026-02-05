@@ -18,7 +18,7 @@ import 'src/styles/brand-nxa.css'
 const LoginPage = () => {
   const { isAuthenticated, logIn } = useAuth()
   const [rememberEmail, setRememberEmail] = useState(false)
-  const [savedEmail, setSavedEmail] = useState('')
+  const [username, setUsername] = useState('')
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -30,7 +30,7 @@ const LoginPage = () => {
   useEffect(() => {
     const storedEmail = localStorage.getItem(STORAGE_KEYS.authEmail)
     if (storedEmail) {
-      setSavedEmail(storedEmail)
+      setUsername(storedEmail)
       setRememberEmail(true)
     }
     usernameRef.current?.focus()
@@ -38,7 +38,7 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     if (rememberEmail) {
-      localStorage.setItem(STORAGE_KEYS.authEmail, data.username)
+      localStorage.setItem(STORAGE_KEYS.authEmail, data.username || username)
     } else {
       localStorage.removeItem(STORAGE_KEYS.authEmail)
     }
@@ -82,7 +82,8 @@ const LoginPage = () => {
                 name="username"
                 className="nxa-input"
                 ref={usernameRef}
-                defaultValue={savedEmail}
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
                 placeholder="Email address"
                 validation={{
                   required: {

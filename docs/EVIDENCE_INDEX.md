@@ -99,3 +99,4 @@
 | E-095 | web/src/pages/LoginPage/LoginPage.jsx | Remember me stores and restores sign-in email locally | web/src/pages/LoginPage/LoginPage.jsx |
 | E-096 | web/src/pages/LoginPage/LoginPage.jsx | Remember-email storage key standardized with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
 | E-097 | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
+| E-098 | web/src/pages/LoginPage/LoginPage.jsx | Controlled sign-in email field to show remembered email reliably | web/src/pages/LoginPage/LoginPage.jsx |

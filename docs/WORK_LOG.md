@@ -51,6 +51,7 @@
 | 2026-02-05 | PT-042 | Wired “Remember me” to store and restore sign-in email locally | web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-042 | Standardized remember-email storage key with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-042 | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-042 | Made sign-in email field controlled to show remembered email | web/src/pages/LoginPage/LoginPage.jsx |
 
 ## Sarath
 
