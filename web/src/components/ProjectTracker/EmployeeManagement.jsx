@@ -102,15 +102,20 @@ const EmployeeManagement = () => {
   }
 
   const getActiveProjectsCount = (allocations) => {
-    return allocations.filter(
-      (allocation) =>
-        allocation.isActive && allocation.project.status === 'ACTIVE'
-    ).length
+    return allocations.filter((allocation) => {
+      if (!allocation.isActive) return false
+      const status = allocation.project.status?.toLowerCase()
+      return status === 'active' || status === 'on hold'
+    }).length
   }
 
   const getTotalHours = (allocations) => {
     return allocations
-      .filter((allocation) => allocation.isActive)
+      .filter((allocation) => {
+        if (!allocation.isActive) return false
+        const status = allocation.project.status?.toLowerCase()
+        return status === 'active' || status === 'on hold'
+      })
       .reduce(
         (total, allocation) => total + (allocation.hoursAllocated || 0),
         0

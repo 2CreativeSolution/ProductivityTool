@@ -1,0 +1,96 @@
+@reference "tailwindcss";
+
+:root {
+  --nxa-accent: #7c3aed;
+  --nxa-bg: #f0f0f0;
+}
+
+.nxa-page {
+  @apply min-h-screen flex items-center justify-center p-6;
+  background: var(--nxa-bg);
+}
+
+.nxa-card {
+  @apply w-full overflow-hidden rounded-[28px] bg-white shadow-xl;
+}
+
+.nxa-card-split {
+  @apply grid grid-cols-1 lg:grid-cols-2;
+}
+
+.nxa-section {
+  @apply p-10 lg:p-12;
+}
+
+.nxa-brand {
+  @apply flex items-center gap-3 mb-10;
+}
+
+.nxa-brand img {
+  @apply h-8 w-auto;
+}
+
+.nxa-brand-title {
+  @apply text-sm font-semibold text-gray-900;
+}
+
+.nxa-title {
+  @apply text-4xl font-bold text-gray-900 leading-tight;
+}
+
+.nxa-subtitle {
+  @apply mt-2 text-sm text-gray-500;
+}
+
+.nxa-form {
+  @apply mt-8 space-y-4;
+}
+
+.nxa-input {
+  @apply w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-800;
+  @apply focus:outline-none focus:ring-2 focus:ring-violet-500;
+}
+
+.nxa-row {
+  @apply flex items-center justify-between text-xs text-gray-500;
+}
+
+.nxa-checkbox {
+  @apply flex items-center gap-2;
+}
+
+.nxa-button {
+  @apply mt-4 inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white;
+  background: var(--nxa-accent);
+}
+
+.nxa-footer {
+  @apply mt-8 text-xs text-gray-500;
+}
+
+.nxa-footer a {
+  color: var(--nxa-accent);
+}
+
+.nxa-link {
+  display: inline-block;
+  color: var(--nxa-accent);
+  border-bottom: 1px dotted transparent;
+}
+
+.nxa-link:hover {
+  border-bottom-color: var(--nxa-accent);
+  text-decoration: none;
+}
+
+.nxa-error {
+  @apply mt-0.5 mb-4 block text-xs font-normal text-red-700 normal-case;
+}
+
+.auth-illustration {
+  @apply hidden lg:block;
+}
+
+.auth-illustration img {
+  @apply h-full w-full object-cover;
+}

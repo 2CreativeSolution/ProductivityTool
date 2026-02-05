@@ -11,19 +11,18 @@ export const handler = async (event) => {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.substring(7)
     console.log('Token found in Authorization header')
-  } else if (event.headers['supabase-auth-token']) {
-    token = event.headers['supabase-auth-token']
-    console.log('Token found in supabase-auth-token header')
   } else if (event.headers.cookie) {
-    // NEW: Extract token from cookies
     const cookies = event.headers.cookie.split(';')
     const tokenCookie = cookies.find((c) =>
-      c.trim().startsWith('supabase-auth-token=')
+      c.trim().startsWith('Authorization=')
     )
 
     if (tokenCookie) {
-      token = tokenCookie.split('=')[1].trim()
-      console.log('Token found in cookies')
+      const value = tokenCookie.split('=')[1].trim()
+      if (value.startsWith('Bearer ')) {
+        token = value.substring(7)
+        console.log('Token found in Authorization cookie')
+      }
     }
   }
 

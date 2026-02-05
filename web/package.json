@@ -1,37 +1,26 @@
 {
-  "name": "web",
-  "version": "0.0.0",
+  "name": "@2c/pd-web",
+  "version": "0.2.1",
   "private": true,
-  "browserslist": {
-    "development": [
-      "last 1 version"
-    ],
-    "production": [
-      "defaults"
-    ]
-  },
   "dependencies": {
-    "@capacitor/ios": "^7.4.0",
     "@heroicons/react": "^2.2.0",
-    "@redwoodjs/auth-dbauth-web": "8.6.1",
-    "@redwoodjs/auth-supabase-web": "8.6.1",
-    "@redwoodjs/forms": "8.6.1",
-    "@redwoodjs/router": "8.6.1",
-    "@redwoodjs/web": "8.6.1",
+    "@redwoodjs/auth-dbauth-web": "8.9.0",
+    "@redwoodjs/forms": "8.9.0",
+    "@redwoodjs/router": "8.9.0",
+    "@redwoodjs/web": "8.9.0",
     "@simplewebauthn/browser": "^7",
-    "@supabase/supabase-js": "2.45.4",
     "humanize-string": "2.1.0",
+    "remixicon": "4.9.1",
+    "react-icons": "^5.5.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "^7.6.2"
   },
   "devDependencies": {
-    "@redwoodjs/vite": "8.6.1",
+    "@redwoodjs/vite": "8.9.0",
+    "@tailwindcss/vite": "^4.1.0",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.4",
-    "postcss-loader": "^8.1.1",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^4.1.0"
   }
 }

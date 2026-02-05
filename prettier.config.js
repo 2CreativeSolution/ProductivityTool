@@ -15,6 +15,5 @@ module.exports = {
       },
     },
   ],
-  tailwindConfig: './web/config/tailwind.config.js',
   plugins: ['prettier-plugin-tailwindcss'],
 }

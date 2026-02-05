@@ -94,11 +94,11 @@ const ProjectManagement = ({
   const [projectDialog, setProjectDialog] = useState({ isOpen: false })
   const [allocationDialog, setAllocationDialog] = useState({
     isOpen: false,
-    project: null,
+    projectId: null,
   })
   const [detailsDialog, setDetailsDialog] = useState({
     isOpen: false,
-    project: null,
+    projectId: null,
   })
   const [deleteDialog, setDeleteDialog] = useState({
     isOpen: false,
@@ -382,14 +382,18 @@ const ProjectManagement = ({
             {/* Enhanced Action Buttons */}
             <div className="flex gap-2">
               <button
-                onClick={() => setAllocationDialog({ isOpen: true, project })}
+                onClick={() =>
+                  setAllocationDialog({ isOpen: true, projectId: project.id })
+                }
                 className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-green-600 hover:to-emerald-700 hover:shadow-lg"
               >
                 <i className="ri-team-line text-sm transition-transform group-hover:scale-110"></i>
                 Team
               </button>
               <button
-                onClick={() => setDetailsDialog({ isOpen: true, project })}
+                onClick={() =>
+                  setDetailsDialog({ isOpen: true, projectId: project.id })
+                }
                 className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-3 py-2.5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:from-blue-600 hover:to-indigo-700 hover:shadow-lg"
               >
                 <i className="ri-eye-line text-sm transition-transform group-hover:scale-110"></i>
@@ -442,17 +446,20 @@ const ProjectManagement = ({
       {/* Allocation Dialog */}
       <AllocationDialog
         isOpen={allocationDialog.isOpen}
-        onClose={() => setAllocationDialog({ isOpen: false, project: null })}
+        onClose={() =>setAllocationDialog({ isOpen: false, projectId: null })}
         onSubmit={handleCreateAllocation}
-        project={allocationDialog.project}
+        project={
+          projects.find((p) => p.id === allocationDialog.projectId) || null
+        }
         users={usersData?.users || []}
       />
 
       {/* Project Details Dialog */}
       <ProjectDetailsDialog
         isOpen={detailsDialog.isOpen}
-        onClose={() => setDetailsDialog({ isOpen: false, project: null })}
-        project={detailsDialog.project}
+        key={detailsDialog.projectId || 'no-project'}
+        onClose={() => setDetailsDialog({ isOpen: false, projectId: null })}
+        project={projects.find((p) => p.id === detailsDialog.projectId) || null}
         onRefresh={onRefresh}
       />
 

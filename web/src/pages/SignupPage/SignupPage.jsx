@@ -1,18 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 
-import {
-  Form,
-  Label,
-  TextField,
-  PasswordField,
-  FieldError,
-  Submit,
-} from '@redwoodjs/forms'
+import { Form, TextField, PasswordField, FieldError, Submit } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
+import 'src/styles/brand-nxa.css'
 
 const SignupPage = () => {
   const { isAuthenticated, signUp } = useAuth()
@@ -24,15 +18,15 @@ const SignupPage = () => {
     }
   }, [isAuthenticated])
 
-  // focus on usename box on page load
-  const usenameRef = useRef(null)
+  // focus on username box on page load
+  const usernameRef = useRef(null)
   useEffect(() => {
-    usenameRef.current?.focus()
+    usernameRef.current?.focus()
   }, [])
 
   const onSubmit = async (data) => {
     const response = await signUp({
-      username: data.usename,
+      username: data.username,
       password: data.password,
       name: data.name, // <-- add this line
     })
@@ -51,100 +45,94 @@ const SignupPage = () => {
     <>
       <Metadata title="Signup" />
 
-      <main className="rw-main">
+      <main className="nxa-page">
         <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-        <div className="rw-scaffold rw-login-container">
-          <div className="rw-segment">
-            <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">Signup</h2>
-            </header>
-
-            <div className="rw-segment-main">
-              <div className="rw-form-wrapper">
-                <Form onSubmit={onSubmit} className="rw-form-wrapper">
-                  <Label
-                    name="usename"
-                    className="rw-label"
-                    errorClassName="rw-label rw-label-error"
-                  >
-                    Email
-                  </Label>
-                  <TextField
-                    name="usename"
-                    className="rw-input"
-                    errorClassName="rw-input rw-input-error"
-                    ref={usenameRef}
-                    validation={{
-                      required: {
-                        value: true,
-                        message: 'email is required',
-                      },
-                    }}
-                  />
-
-                  <FieldError name="username" className="rw-field-error" />
-
-                  <Label
-                    name="name"
-                    className="rw-label"
-                    errorClassName="rw-label rw-label-error"
-                  >
-                    Full Name
-                  </Label>
-                  <TextField
-                    name="name"
-                    className="rw-input"
-                    errorClassName="rw-input rw-input-error"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Full Name"
-                    validation={{
-                      required: {
-                        value: true,
-                        message: 'Full Name is required',
-                      },
-                    }}
-                  />
-
-                  <FieldError name="name" className="rw-field-error" />
-
-                  <Label
-                    name="password"
-                    className="rw-label"
-                    errorClassName="rw-label rw-label-error"
-                  >
-                    Password
-                  </Label>
-                  <PasswordField
-                    name="password"
-                    className="rw-input"
-                    errorClassName="rw-input rw-input-error"
-                    autoComplete="current-password"
-                    validation={{
-                      required: {
-                        value: true,
-                        message: 'Password is required',
-                      },
-                    }}
-                  />
-
-                  <FieldError name="password" className="rw-field-error" />
-
-                  <div className="rw-button-group">
-                    <Submit className="rw-button rw-button-blue">
-                      Sign Up
-                    </Submit>
-                  </div>
-                </Form>
+        <div className="nxa-card nxa-card-split max-w-5xl">
+          <section className="nxa-section">
+            <div className="nxa-brand">
+              <img src="/logo.jpg" alt="2Creative Logo" loading="lazy" />
+              <div>
+                <div className="nxa-brand-title">Productivity Tool</div>
+                <div className="text-xs text-gray-500">
+                  2Creative Solutions
+                </div>
               </div>
             </div>
-          </div>
-          <div className="rw-login-link">
-            <span>Already have an account?</span>{' '}
-            <Link to={routes.login()} className="rw-link">
-              Log in!
-            </Link>
-          </div>
+
+            <h1 className="nxa-title">
+              Create
+              <br />
+              Your Account
+            </h1>
+            <p className="nxa-subtitle">
+              Join your team workspace in a few steps
+            </p>
+
+            <Form onSubmit={onSubmit} className="nxa-form">
+              <TextField
+                name="username"
+                className="nxa-input"
+                ref={usernameRef}
+                placeholder="Email address"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Email is required',
+                  },
+                }}
+              />
+
+              <FieldError name="username" className="nxa-error" />
+
+              <TextField
+                name="name"
+                className="nxa-input"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Full name"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Full name is required',
+                  },
+                }}
+              />
+
+              <FieldError name="name" className="nxa-error" />
+
+              <PasswordField
+                name="password"
+                className="nxa-input"
+                placeholder="Password"
+                autoComplete="current-password"
+                validation={{
+                  required: {
+                    value: true,
+                    message: 'Password is required',
+                  },
+                }}
+              />
+
+              <FieldError name="password" className="nxa-error" />
+
+              <Submit className="nxa-button">Sign Up</Submit>
+            </Form>
+
+            <div className="nxa-footer">
+              Already have an account?{' '}
+              <Link to={routes.login()} className="nxa-link">
+                Log in
+              </Link>
+            </div>
+          </section>
+
+          <section className="auth-illustration">
+            <img
+              src="/auth-banner.webp"
+              alt="Signup illustration"
+              loading="lazy"
+            />
+          </section>
         </div>
       </main>
     </>

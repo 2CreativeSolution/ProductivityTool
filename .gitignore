@@ -6,7 +6,10 @@
 .netlify
 .redwood/*
 !.redwood/README.md
+.home/
+.prisma/
 dev.db*
+.vscode/*
 dist
 dist-babel
 node_modules
@@ -23,4 +26,3 @@ api/src/lib/generateGraphiQLHeader.*
 !.yarn/sdks
 !.yarn/versions
 package-lock.json
-

@@ -1,0 +1,21 @@
+# TECHNICAL_CHALLENGES
+
+| Date | Uncertainty | Options Tried | Result | Evidence |
+| --- | --- | --- | --- | --- |
+| 2026-01-27 | SMTP availability for password reset | Not verified (credentials not provided) | Pending verification; tracked in TODO | docs/TODO.md |
+| 2026-01-27 | `yarn rw build` failed due to Node version mismatch (expected 20.x, got 25.4.0) | Ran `yarn rw build` | Build failed; requires Node 20.x | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-27 | `yarn rw dev` failed to determine a free API port | Checked port 8911 (no listener) and retried `yarn rw dev` | Still fails with "Could not determine a free port for the api server" | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-27 | Prisma client generation failed to download engine binaries | Reran `yarn rw build` with network permission and HOME override | Build succeeded | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-27 | GraphQL codegen failed due to duplicate operation names in office supplies components | Renamed duplicate operations in office supply queries/mutations | Codegen error resolved on next dev run | web/src/components/OfficeSupply/CategoryManager/CategoryManager.jsx; web/src/components/OfficeSupply/OfficeSupplyForm/OfficeSupplyForm.jsx; web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx; web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx |
+| 2026-01-27 | GraphQL codegen failed: `checkAvailability` query missing in schema | Replaced query with `meetingRoom` bookings and client-side date filter | Codegen error resolved on next dev run | web/src/components/Booking/BookingForm/BookingForm.jsx |
+| 2026-01-27 | `yarn rw check` failed due to unimplemented SDL fields and env var warnings | Removed unused SDL fields; added NODE_ENV default and exposed SMTP_USER | `yarn rw check` blockers resolved | api/src/graphql/bookings.sdl.js; api/src/graphql/supplyRequests.sdl.js; .env.defaults; redwood.toml |
+| 2026-01-27 | `yarn rw check` status after fixes | Reran `yarn rw check` | No errors or warnings | docs/TECHNICAL_CHALLENGES.md |
+| 2026-01-28 | `yarn rw build` failed (Corepack unable to download Yarn 4.6.0 in sandbox) | Tried `HOME=./.home yarn rw build` (blocked); then `corepack prepare yarn@4.6.0 --activate` and reran `yarn rw build` | Build now succeeds | build logs |
+| 2026-01-31 | Seed failed: SupplyRequest requires `quantityRequested`/`justification` | Updated office supplies seed to use current schema fields | Seed now aligns with SupplyRequest schema | scripts/seedOfficeSupplies.js |
+| 2026-02-04 | `yarn rw build` failed after Tailwind v4 upgrade: `@tailwindcss/vite` ESM load error | Switched Vite config to dynamic import of `@tailwindcss/vite` | Build progressed past config load on re-run | web/vite.config.js |
+| 2026-02-04 | `yarn rw build` failed: `@apply` utilities unknown in `scaffold.css` | Added `@reference "tailwindcss";` and replaced theme() usage | Build now succeeds | web/src/scaffold.css |
+| 2026-02-04 | Admin panel failed to load: missing `gql` import | Added `gql` import in AdminPanelPage | Pending `yarn rw dev` re-run | web/src/pages/AdminPanelPage/AdminPanelPage.jsx |
+| 2026-02-04 | `yarn rw dev` failed due to busy ports (8910/8911) | No change yet; requires freeing ports or updating redwood.toml | Pending user decision | redwood.toml |
+| 2026-02-04 | `remixicon` package not found on npm registry | Tried versions `^4.6.0`, `^4.5.0`, and `^4.9.1`; all failed | Switched to non-jsdelivr CDN stylesheet import (temporary) | web/src/index.css |
+| 2026-02-04 | `yarn rw build` initially failed reporting missing @2c/pd-root in lockfile | Ran `yarn install` to recreate workspace root entry and dependencies | Build now succeeds | yarn rw build |
+| 2026-02-04 | `yarn rw prisma db seed` failed: table public.User missing (empty DB) | Ran `yarn rw prisma migrate deploy` to apply all migrations, then reran seed | Seed succeeded | yarn rw prisma migrate deploy; yarn rw prisma db seed |
