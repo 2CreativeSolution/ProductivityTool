@@ -5,18 +5,10 @@ import { DbAuthHandler } from '@redwoodjs/auth-dbauth-api'
 import { cookieName } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 import { sendWelcomeEmail } from 'src/lib/emailService'
+import { getSmtpConfig } from 'src/lib/smtpConfig'
 
 export const handler = async (event, context) => {
-  const smtpUser = process.env.SMTP_USERNAME || process.env.SMTP_USER
-  const smtpPass = process.env.SMTP_PASS
-  const smtpFrom = process.env.SMTP_FROM || process.env.SMTP_USER
-  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com'
-  const smtpPort = Number(process.env.SMTP_PORT) || 587
-  const resetBaseUrl = (process.env.WEB_APP_URL || 'http://localhost:8910').replace(/\/$/, '')
-
-  if (process.env.NODE_ENV === 'production' && !process.env.WEB_APP_URL) {
-    throw new Error('WEB_APP_URL is required in production for password reset links')
-  }
+  const smtp = getSmtpConfig()
 
   const forgotPasswordOptions = {
     // handler() is invoked after verifying that a user was found with the given
@@ -37,14 +29,20 @@ export const handler = async (event, context) => {
     // `user` here has been sanitized to only include the fields listed in
     // `allowedUserFields` so it should be safe to return as-is.
     handler: async (user, resetToken) => {
+      const resetBaseUrl = process.env.WEB_APP_URL
+        ? process.env.WEB_APP_URL.replace(/\/$/, '')
+        : undefined
+      if (!resetBaseUrl) {
+        throw new Error('WEB_APP_URL is required for password reset links')
+      }
       // Use environment variables for credentials!
       const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
+        host: smtp.smtpHost,
+        port: smtp.smtpPort,
         secure: false,
         auth: {
-          user: smtpUser,
-          pass: smtpPass,
+          user: smtp.smtpUser,
+          pass: smtp.smtpPass,
         },
       })
 
@@ -102,7 +100,7 @@ export const handler = async (event, context) => {
       const text = `We received a request to reset your password.\n\nReset link: ${resetUrl}\n\nThis link expires in 24 hours. If you did not request this, you can ignore this email.`
 
       await transporter.sendMail({
-        from: `"2Creative Productivity Tool" <${smtpFrom}>`,
+        from: `"${smtp.smtpFromName}" <${smtp.smtpFromEmail}>`,
         to: user.email,
         subject,
         text,
