@@ -13,15 +13,19 @@ import { useAuth } from 'src/auth'
 import { buttonVariants } from 'src/components/ui/button'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const ROLE_OPTIONS = ['USER', 'ADMIN']
+const ROLE_OPTIONS = ['USER', 'ADMIN', 'MANAGER', 'TEAM_LEAD']
 
 const normalizeRoleList = (roles = []) => [...roles].sort().join(',')
 
 const UserForm = (props) => {
+  const isAccountForm =
+    props.formVariant === 'account' || props.formVariant === 'accountCreate'
   const { hasRole } = useAuth()
   const isAdmin = Boolean(hasRole && hasRole('ADMIN'))
   const userRoleSignature = normalizeRoleList(props.user?.roles ?? [])
-  const [showAccountEditor, setShowAccountEditor] = useState(false)
+  const [showAccountEditor, setShowAccountEditor] = useState(
+    Boolean(props.startInEditMode || props.editorOnly)
+  )
   const [accountInitialValues, setAccountInitialValues] = useState({
     name: '',
     email: '',
@@ -34,7 +38,7 @@ const UserForm = (props) => {
   })
 
   useEffect(() => {
-    if (props.formVariant !== 'account') {
+    if (!isAccountForm) {
       return
     }
 
@@ -46,7 +50,7 @@ const UserForm = (props) => {
     setAccountInitialValues(nextValues)
     setAccountDraftValues(nextValues)
   }, [
-    props.formVariant,
+    isAccountForm,
     props.user?.id,
     props.user?.name,
     props.user?.email,
@@ -55,14 +59,22 @@ const UserForm = (props) => {
   ])
 
   useEffect(() => {
-    if (props.formVariant !== 'account') {
+    if (!isAccountForm) {
       return
     }
 
     if (props.saveSuccessToken > 0) {
       setShowAccountEditor(false)
     }
-  }, [props.formVariant, props.saveSuccessToken])
+  }, [isAccountForm, props.saveSuccessToken])
+
+  useEffect(() => {
+    if (!isAccountForm) {
+      return
+    }
+
+    setShowAccountEditor(Boolean(props.startInEditMode || props.editorOnly))
+  }, [isAccountForm, props.startInEditMode, props.editorOnly, props.user?.id])
 
   const onSubmit = (data) => {
     const normalizedRoles = [
@@ -73,21 +85,23 @@ const UserForm = (props) => {
       ),
     ]
 
-    const normalizedData =
-      props.formVariant === 'account'
-        ? {
-            ...data,
-            name: data?.name?.trim(),
-            email: data?.email?.trim(),
-            ...(isAdmin ? { roles: normalizedRoles } : {}),
-          }
-        : data
+    const normalizedData = isAccountForm
+      ? {
+          name: accountDraftValues.name.trim(),
+          email: accountDraftValues.email.trim(),
+          ...(isAdmin ? { roles: normalizedRoles } : {}),
+        }
+      : data
 
     props.onSave(normalizedData, props?.user?.id)
   }
 
-  if (props.formVariant === 'account') {
+  if (isAccountForm) {
+    const accountTitle = props.formTitle || 'Account Settings'
+    const submitLabel = props.submitLabel || 'Save Changes'
     const isEmailVerified = Boolean(props.user?.microsoftId)
+    const summaryRolePillValues = props.user?.roles ?? []
+    const rolePillValues = accountDraftValues.roles || []
     const hasValidAccountEmail = EMAIL_PATTERN.test(
       accountDraftValues.email.trim()
     )
@@ -96,6 +110,9 @@ const UserForm = (props) => {
       normalizeRoleList(accountInitialValues.roles)
     const hasAtLeastOneRoleSelected =
       (accountDraftValues.roles || []).length > 0
+    const hasRoleRequirementSatisfied = isAdmin
+      ? hasAtLeastOneRoleSelected
+      : true
     const hasAccountChanges =
       accountDraftValues.name !== accountInitialValues.name ||
       accountDraftValues.email !== accountInitialValues.email ||
@@ -104,18 +121,16 @@ const UserForm = (props) => {
       accountDraftValues.name.trim().length > 0 &&
       accountDraftValues.email.trim().length > 0 &&
       hasValidAccountEmail &&
-      hasAtLeastOneRoleSelected
+      hasRoleRequirementSatisfied
 
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Account Settings
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-900">{accountTitle}</h1>
         </div>
 
         <div>
-          {!showAccountEditor ? (
+          {!props.editorOnly && !showAccountEditor ? (
             <div className="flex items-start justify-between gap-6">
               <div className="space-y-8">
                 <div className="space-y-2">
@@ -151,23 +166,19 @@ const UserForm = (props) => {
                   <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
                     Roles
                   </h2>
-                  <div className="flex flex-wrap gap-4">
-                    {ROLE_OPTIONS.map((role) => (
-                      <label
+                  <div className="flex flex-wrap gap-2">
+                    {summaryRolePillValues.map((role) => (
+                      <span
                         key={role}
-                        className="inline-flex items-center gap-2 text-sm text-slate-900"
+                        className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700"
                       >
-                        <input
-                          type="checkbox"
-                          checked={(props.user?.roles ?? []).includes(role)}
-                          readOnly
-                          disabled
-                          className="h-4 w-4 accent-[#322e85]"
-                        />
-                        <span>{role}</span>
-                      </label>
+                        {role.replaceAll('_', ' ')}
+                      </span>
                     ))}
                   </div>
+                  {!summaryRolePillValues.length && (
+                    <p className="text-xs text-amber-700">Role is missing.</p>
+                  )}
                 </div>
               </div>
               <button
@@ -183,15 +194,17 @@ const UserForm = (props) => {
             </div>
           ) : (
             <Form onSubmit={onSubmit} error={props.error} className="space-y-5">
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowAccountEditor(false)}
-                  className="text-sm font-medium text-[#322e85] underline underline-offset-4 hover:text-[#2b2773]"
-                >
-                  Hide
-                </button>
-              </div>
+              {!props.editorOnly && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowAccountEditor(false)}
+                    className="text-sm font-medium text-[#322e85] underline underline-offset-4 hover:text-[#2b2773]"
+                  >
+                    Hide
+                  </button>
+                </div>
+              )}
 
               <FormError
                 error={props.error}
@@ -276,43 +289,56 @@ const UserForm = (props) => {
                 <p className="mb-2 block text-sm font-medium text-slate-800">
                   Roles
                 </p>
-                <div className="flex flex-wrap gap-4">
-                  {ROLE_OPTIONS.map((role) => (
-                    <label
-                      key={role}
-                      className="inline-flex items-center gap-2 text-sm text-slate-900"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={accountDraftValues.roles.includes(role)}
-                        disabled={!isAdmin || props.loading}
-                        onChange={(event) => {
-                          const isChecked = event.target.checked
-                          setAccountDraftValues((prev) => {
-                            const nextRoles = isChecked
-                              ? [...prev.roles, role]
-                              : prev.roles.filter((value) => value !== role)
+                {isAdmin ? (
+                  <div className="flex flex-wrap gap-4">
+                    {ROLE_OPTIONS.map((role) => (
+                      <label
+                        key={role}
+                        className="inline-flex items-center gap-2 text-sm text-slate-900"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={accountDraftValues.roles.includes(role)}
+                          disabled={props.loading}
+                          onChange={(event) => {
+                            const isChecked = event.target.checked
+                            setAccountDraftValues((prev) => {
+                              const nextRoles = isChecked
+                                ? [...prev.roles, role]
+                                : prev.roles.filter((value) => value !== role)
 
-                            return {
-                              ...prev,
-                              roles: nextRoles,
-                            }
-                          })
-                        }}
-                        className="h-4 w-4 accent-[#322e85]"
-                      />
-                      <span>{role}</span>
-                    </label>
-                  ))}
-                </div>
-                {!hasAtLeastOneRoleSelected && (
+                              return {
+                                ...prev,
+                                roles: nextRoles,
+                              }
+                            })
+                          }}
+                          className="h-4 w-4 accent-[#322e85]"
+                        />
+                        <span>{role}</span>
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {rolePillValues.map((role) => (
+                      <span
+                        key={role}
+                        className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700"
+                      >
+                        {role.replaceAll('_', ' ')}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {isAdmin && !hasAtLeastOneRoleSelected && (
                   <p className="mt-1 text-xs text-red-700">
                     Select at least one role.
                   </p>
                 )}
-                {!isAdmin && (
-                  <p className="mt-1 text-xs text-slate-500">
-                    Only admins can edit roles.
+                {!isAdmin && !hasAtLeastOneRoleSelected && (
+                  <p className="mt-1 text-xs text-amber-700">
+                    Role is missing. It will be set to USER when you save.
                   </p>
                 )}
               </div>
@@ -326,7 +352,7 @@ const UserForm = (props) => {
                   }
                   className={buttonVariants({ variant: 'primary' })}
                 >
-                  Save Changes
+                  {submitLabel}
                 </Submit>
               </div>
             </Form>

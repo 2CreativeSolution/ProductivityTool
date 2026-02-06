@@ -2,6 +2,7 @@ import { Link, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
+import { buttonVariants } from 'src/components/ui/button'
 import UsersCell from 'src/components/User/UsersCell'
 
 const UsersPage = () => {
@@ -19,7 +20,7 @@ const UsersPage = () => {
           </div>
           <Link
             to={routes.newUser()}
-            className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+            className={buttonVariants({ variant: 'primary', size: 'sm' })}
           >
             New User
           </Link>

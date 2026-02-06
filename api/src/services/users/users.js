@@ -84,7 +84,7 @@ export const createUser = ({ input }) => {
   })
 }
 
-export const updateUser = ({ id, input }) => {
+export const updateUser = async ({ id, input }) => {
   logger.info('Updating user:', { id, input })
 
   const normalizedInput = { ...input }
@@ -109,16 +109,26 @@ export const updateUser = ({ id, input }) => {
     }
   }
 
-  if (Object.hasOwn(normalizedInput, 'roles') && !isAdmin) {
-    throw new ValidationError('Only admins can update roles')
-  }
-
-  if (Object.hasOwn(normalizedInput, 'roles')) {
+  if (isAdmin && Object.hasOwn(normalizedInput, 'roles')) {
     const normalizedRoles = [...new Set(normalizedInput.roles || [])]
     if (normalizedRoles.length === 0) {
       throw new ValidationError('At least one role is required')
     }
     normalizedInput.roles = normalizedRoles
+  } else if (!isAdmin) {
+    delete normalizedInput.roles
+
+    const existingUser = await db.user.findUnique({
+      where: { id },
+      select: { roles: true },
+    })
+
+    if (
+      existingUser &&
+      (!existingUser.roles || existingUser.roles.length === 0)
+    ) {
+      normalizedInput.roles = ['USER']
+    }
   }
 
   return db.user.update({
