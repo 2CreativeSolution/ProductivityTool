@@ -35,7 +35,8 @@ const EditUserPage = ({ id }) => {
           successRoute={
             isAccountSettings ? routes.accountSettings() : routes.users()
           }
-          formVariant={isAccountSettings ? 'account' : 'default'}
+          formVariant="account"
+          startInEditMode={!isAccountSettings}
         />
       </main>
     </>

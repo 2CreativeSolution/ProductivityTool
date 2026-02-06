@@ -13,15 +13,19 @@ import { useAuth } from 'src/auth'
 import { buttonVariants } from 'src/components/ui/button'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const ROLE_OPTIONS = ['USER', 'ADMIN']
+const ROLE_OPTIONS = ['USER', 'ADMIN', 'MANAGER', 'TEAM_LEAD']
 
 const normalizeRoleList = (roles = []) => [...roles].sort().join(',')
 
 const UserForm = (props) => {
+  const isAccountForm =
+    props.formVariant === 'account' || props.formVariant === 'accountCreate'
   const { hasRole } = useAuth()
   const isAdmin = Boolean(hasRole && hasRole('ADMIN'))
   const userRoleSignature = normalizeRoleList(props.user?.roles ?? [])
-  const [showAccountEditor, setShowAccountEditor] = useState(false)
+  const [showAccountEditor, setShowAccountEditor] = useState(
+    Boolean(props.startInEditMode || props.editorOnly)
+  )
   const [accountInitialValues, setAccountInitialValues] = useState({
     name: '',
     email: '',
@@ -34,7 +38,7 @@ const UserForm = (props) => {
   })
 
   useEffect(() => {
-    if (props.formVariant !== 'account') {
+    if (!isAccountForm) {
       return
     }
 
@@ -46,7 +50,7 @@ const UserForm = (props) => {
     setAccountInitialValues(nextValues)
     setAccountDraftValues(nextValues)
   }, [
-    props.formVariant,
+    isAccountForm,
     props.user?.id,
     props.user?.name,
     props.user?.email,
@@ -55,14 +59,22 @@ const UserForm = (props) => {
   ])
 
   useEffect(() => {
-    if (props.formVariant !== 'account') {
+    if (!isAccountForm) {
       return
     }
 
     if (props.saveSuccessToken > 0) {
       setShowAccountEditor(false)
     }
-  }, [props.formVariant, props.saveSuccessToken])
+  }, [isAccountForm, props.saveSuccessToken])
+
+  useEffect(() => {
+    if (!isAccountForm) {
+      return
+    }
+
+    setShowAccountEditor(Boolean(props.startInEditMode || props.editorOnly))
+  }, [isAccountForm, props.startInEditMode, props.editorOnly, props.user?.id])
 
   const onSubmit = (data) => {
     const normalizedRoles = [
@@ -73,20 +85,21 @@ const UserForm = (props) => {
       ),
     ]
 
-    const normalizedData =
-      props.formVariant === 'account'
-        ? {
-            ...data,
-            name: data?.name?.trim(),
-            email: data?.email?.trim(),
-            ...(isAdmin ? { roles: normalizedRoles } : {}),
-          }
-        : data
+    const normalizedData = isAccountForm
+      ? {
+          ...data,
+          name: data?.name?.trim(),
+          email: data?.email?.trim(),
+          ...(isAdmin ? { roles: normalizedRoles } : {}),
+        }
+      : data
 
     props.onSave(normalizedData, props?.user?.id)
   }
 
-  if (props.formVariant === 'account') {
+  if (isAccountForm) {
+    const accountTitle = props.formTitle || 'Account Settings'
+    const submitLabel = props.submitLabel || 'Save Changes'
     const isEmailVerified = Boolean(props.user?.microsoftId)
     const hasValidAccountEmail = EMAIL_PATTERN.test(
       accountDraftValues.email.trim()
@@ -109,13 +122,11 @@ const UserForm = (props) => {
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Account Settings
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-900">{accountTitle}</h1>
         </div>
 
         <div>
-          {!showAccountEditor ? (
+          {!props.editorOnly && !showAccountEditor ? (
             <div className="flex items-start justify-between gap-6">
               <div className="space-y-8">
                 <div className="space-y-2">
@@ -183,15 +194,17 @@ const UserForm = (props) => {
             </div>
           ) : (
             <Form onSubmit={onSubmit} error={props.error} className="space-y-5">
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowAccountEditor(false)}
-                  className="text-sm font-medium text-[#322e85] underline underline-offset-4 hover:text-[#2b2773]"
-                >
-                  Hide
-                </button>
-              </div>
+              {!props.editorOnly && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowAccountEditor(false)}
+                    className="text-sm font-medium text-[#322e85] underline underline-offset-4 hover:text-[#2b2773]"
+                  >
+                    Hide
+                  </button>
+                </div>
+              )}
 
               <FormError
                 error={props.error}
@@ -326,7 +339,7 @@ const UserForm = (props) => {
                   }
                   className={buttonVariants({ variant: 'primary' })}
                 >
-                  Save Changes
+                  {submitLabel}
                 </Submit>
               </div>
             </Form>

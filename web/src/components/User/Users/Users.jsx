@@ -2,6 +2,7 @@ import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { DataTable } from 'src/components/ui'
 import { QUERY } from 'src/components/User/UsersCell'
 import { truncate } from 'src/lib/formatters'
 
@@ -14,6 +15,9 @@ const DELETE_USER_MUTATION = gql`
 `
 
 const UsersList = ({ users }) => {
+  const actionTextClass =
+    'text-sm font-medium text-[#322e85] transition hover:text-[#2b2773]'
+
   const [deleteUser] = useMutation(DELETE_USER_MUTATION, {
     onCompleted: () => {
       toast.success('User deleted')
@@ -34,53 +38,90 @@ const UsersList = ({ users }) => {
     }
   }
 
+  const renderSortLabel = (column, label) => {
+    const sorted = column.getIsSorted()
+    const indicator = sorted === 'asc' ? '↑' : sorted === 'desc' ? '↓' : '↕'
+
+    return (
+      <button
+        type="button"
+        className="inline-flex items-center gap-1 text-sm font-semibold text-white/90 hover:text-white"
+        onClick={() => column.toggleSorting(sorted === 'asc')}
+      >
+        <span>{label}</span>
+        <span className="text-xs text-white/70">{indicator}</span>
+      </button>
+    )
+  }
+
   return (
-    <div className="rw-segment rw-table-wrapper-responsive">
-      <table className="rw-table">
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{truncate(user.id)}</td>
-              <td>{truncate(user.name)}</td>
-              <td>{truncate(user.email)}</td>
-              <td>
-                <nav className="rw-table-actions">
-                  <Link
-                    to={routes.user({ id: user.id })}
-                    title={'Show user ' + user.id + ' detail'}
-                    className="rw-button rw-button-small"
-                  >
-                    Show
-                  </Link>
+    <div className="overflow-hidden rounded-md border bg-white">
+      <DataTable
+        className="[&_thead_[data-slot=table-row]:hover]:bg-gray-800 [&_thead_[data-slot=table-row]]:border-b-0 [&_thead_[data-slot=table-row]]:bg-gray-900 [&_thead_th]:font-semibold [&_thead_th]:text-white"
+        columns={[
+          {
+            accessorKey: 'id',
+            header: ({ column }) => renderSortLabel(column, 'Id'),
+            cell: ({ row }) => truncate(row.original.id),
+          },
+          {
+            accessorKey: 'name',
+            header: ({ column }) => renderSortLabel(column, 'Name'),
+            cell: ({ row }) => {
+              const user = row.original
+
+              return (
+                <Link
+                  to={routes.user({ id: user.id })}
+                  title={'Show user ' + user.id + ' detail'}
+                  className={actionTextClass}
+                >
+                  {truncate(user.name) || 'Not set'}
+                </Link>
+              )
+            },
+          },
+          {
+            accessorKey: 'email',
+            header: 'Email',
+            enableSorting: false,
+            cell: ({ row }) => truncate(row.original.email),
+          },
+          {
+            id: 'actions',
+            header: () => <div className="text-right">Actions</div>,
+            enableSorting: false,
+            cell: ({ row }) => {
+              const user = row.original
+
+              return (
+                <nav className="flex w-full items-center justify-end gap-3">
                   <Link
                     to={routes.editUser({ id: user.id })}
                     title={'Edit user ' + user.id}
-                    className="rw-button rw-button-small rw-button-blue"
+                    className={actionTextClass}
                   >
                     Edit
                   </Link>
                   <button
                     type="button"
                     title={'Delete user ' + user.id}
-                    className="rw-button rw-button-small rw-button-red"
+                    aria-label={'Delete user ' + user.id}
+                    className="inline-flex items-center text-red-600 transition hover:text-red-700"
                     onClick={() => onDeleteClick(user.id)}
                   >
-                    Delete
+                    <i className="ri-delete-bin-line text-base"></i>
                   </button>
                 </nav>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              )
+            },
+          },
+        ]}
+        data={users}
+        pagination
+        pageSizeOptions={[10, 20, 50, 100]}
+        initialPageSize={10}
+      />
     </div>
   )
 }

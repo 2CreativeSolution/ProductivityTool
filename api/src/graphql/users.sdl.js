@@ -2,6 +2,8 @@ export const schema = gql`
   enum Role {
     USER
     ADMIN
+    MANAGER
+    TEAM_LEAD
   }
 
   enum Department {
