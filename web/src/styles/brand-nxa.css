@@ -6,8 +6,12 @@
 }
 
 .nxa-page {
-  @apply min-h-screen flex items-center justify-center p-6;
+  @apply min-h-screen flex flex-col p-6;
   background: var(--nxa-bg);
+}
+
+.nxa-center {
+  @apply flex-1 flex items-center justify-center;
 }
 
 .nxa-card {
@@ -19,7 +23,7 @@
 }
 
 .nxa-section {
-  @apply p-10 lg:p-12;
+  @apply flex flex-col p-10 lg:p-12;
 }
 
 .nxa-brand {
@@ -32,6 +36,18 @@
 
 .nxa-brand-title {
   @apply text-sm font-semibold text-gray-900;
+}
+
+.nxa-auth-nav {
+  @apply flex items-center justify-between mb-6;
+}
+
+.nxa-auth-logo img {
+  @apply h-7 w-auto rounded-sm;
+}
+
+.nxa-auth-actions {
+  @apply flex items-center gap-3;
 }
 
 .nxa-title {
@@ -51,6 +67,10 @@
   @apply focus:outline-none focus:ring-2 focus:ring-violet-500;
 }
 
+.nxa-input:disabled {
+  @apply cursor-not-allowed bg-gray-100 text-gray-400;
+}
+
 .nxa-row {
   @apply flex items-center justify-between text-xs text-gray-500;
 }
@@ -61,15 +81,51 @@
 
 .nxa-button {
   @apply mt-4 inline-flex items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold text-white;
+  @apply cursor-pointer transition-transform duration-150 ease-out;
   background: var(--nxa-accent);
 }
 
+.nxa-button--inline {
+  @apply mt-0;
+}
+
+.nxa-button--sm {
+  @apply rounded-md px-3 py-1.5 text-xs font-normal;
+}
+
+.nxa-button:not(:disabled) {
+  @apply hover:brightness-110 active:scale-[0.98];
+}
+
+.nxa-button:disabled {
+  @apply cursor-not-allowed opacity-60;
+}
+
 .nxa-footer {
-  @apply mt-8 text-xs text-gray-500;
+  @apply mt-auto pt-8 text-xs text-gray-500;
 }
 
 .nxa-footer a {
   color: var(--nxa-accent);
+}
+
+.nxa-legal {
+  @apply mt-10 text-center text-xs text-gray-400;
+}
+
+@media (max-width: 640px) {
+  .nxa-card {
+    border-radius: 8px;
+  }
+
+  .nxa-section {
+    padding: 20px;
+  }
+
+  .nxa-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
 }
 
 .nxa-link {

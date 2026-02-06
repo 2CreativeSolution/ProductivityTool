@@ -12,6 +12,9 @@ import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
+import AuthFooter from 'src/components/AuthFooter/AuthFooter'
+import AuthNav from 'src/components/AuthNav/AuthNav'
+import { buttonVariants } from 'src/components/ui/button'
 import { STORAGE_KEYS } from 'src/lib/storageKeys'
 import 'src/styles/brand-nxa.css'
 
@@ -62,86 +65,91 @@ const LoginPage = () => {
 
       <main className="nxa-page">
         <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-        <div className="nxa-card nxa-card-split max-w-5xl">
-          <section className="nxa-section">
-            <div className="nxa-brand">
-              <img src="/logo.jpg" alt="2Creative Logo" loading="lazy" />
-              <div>
-                <div className="nxa-brand-title">Productivity Tool</div>
-                <div className="text-xs text-gray-500">2Creative Solutions</div>
-              </div>
-            </div>
+        <AuthNav showSignUp />
+        <div className="nxa-center">
+          <div className="nxa-card nxa-card-split max-w-5xl">
+            <section className="nxa-section">
+              <h1 className="nxa-title">Welcome Back</h1>
+              <p className="nxa-subtitle">
+                Hey, please use valid credentials to proceed
+              </p>
 
-            <h1 className="nxa-title">Welcome Back</h1>
-            <p className="nxa-subtitle">
-              Hey, welcome back to your special place
-            </p>
+              <Form onSubmit={onSubmit} className="nxa-form">
+                <TextField
+                  name="username"
+                  className="nxa-input"
+                  ref={usernameRef}
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder="Email address"
+                  validation={{
+                    required: {
+                      value: true,
+                      message: 'Email is required',
+                    },
+                  }}
+                />
+                <FieldError name="username" className="nxa-error" />
 
-            <Form onSubmit={onSubmit} className="nxa-form">
-              <TextField
-                name="username"
-                className="nxa-input"
-                ref={usernameRef}
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                placeholder="Email address"
-                validation={{
-                  required: {
-                    value: true,
-                    message: 'Email is required',
-                  },
-                }}
-              />
-              <FieldError name="username" className="nxa-error" />
+                <PasswordField
+                  name="password"
+                  className="nxa-input"
+                  placeholder="Password"
+                  autoComplete="current-password"
+                  validation={{
+                    required: {
+                      value: true,
+                      message: 'Password is required',
+                    },
+                  }}
+                />
+                <FieldError name="password" className="nxa-error" />
 
-              <PasswordField
-                name="password"
-                className="nxa-input"
-                placeholder="Password"
-                autoComplete="current-password"
-                validation={{
-                  required: {
-                    value: true,
-                    message: 'Password is required',
-                  },
-                }}
-              />
-              <FieldError name="password" className="nxa-error" />
+                <div className="nxa-row">
+                  <label className="nxa-checkbox">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4"
+                      checked={rememberEmail}
+                      onChange={(event) =>
+                        setRememberEmail(event.target.checked)
+                      }
+                    />
+                    <span>Remember me</span>
+                  </label>
+                  <Link to={routes.forgotPassword()} className="nxa-link">
+                    Forgot Password?
+                  </Link>
+                </div>
 
-              <div className="nxa-row">
-                <label className="nxa-checkbox">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4"
-                    checked={rememberEmail}
-                    onChange={(event) => setRememberEmail(event.target.checked)}
-                  />
-                  <span>Remember me</span>
-                </label>
-                <Link to={routes.forgotPassword()} className="nxa-link">
-                  Forgot Password?
+                <Submit
+                  className={buttonVariants({
+                    variant: 'primary',
+                    className: 'mt-4',
+                  })}
+                >
+                  Sign In
+                </Submit>
+              </Form>
+
+              <div className="nxa-footer">
+                Don&apos;t have an account?{' '}
+                <Link to={routes.signup()} className="nxa-link">
+                  Sign Up
                 </Link>
               </div>
+            </section>
 
-              <Submit className="nxa-button">Sign In</Submit>
-            </Form>
-
-            <div className="nxa-footer">
-              Don&apos;t have an account?{' '}
-              <Link to={routes.signup()} className="nxa-link">
-                Sign Up
-              </Link>
-            </div>
-          </section>
-
-          <section className="auth-illustration">
-            <img
-              src="/auth-banner.webp"
-              alt="Login illustration"
-              loading="lazy"
-            />
-          </section>
+            <section className="auth-illustration">
+              <img
+                src="/auth-banner.webp"
+                alt="Login illustration"
+                loading="lazy"
+              />
+            </section>
+          </div>
         </div>
+        <AuthFooter />
       </main>
     </>
   )

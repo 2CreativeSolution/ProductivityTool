@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { navigate, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
@@ -10,6 +12,8 @@ export const QUERY = gql`
       id
       name
       email
+      microsoftId
+      roles
     }
   }
 `
@@ -20,6 +24,7 @@ const UPDATE_USER_MUTATION = gql`
       id
       name
       email
+      roles
     }
   }
 `
@@ -30,11 +35,18 @@ export const Failure = ({ error }) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
-export const Success = ({ user }) => {
+export const Success = ({
+  user,
+  successRoute = routes.users(),
+  formVariant = 'default',
+}) => {
+  const [saveSuccessToken, setSaveSuccessToken] = useState(0)
+
   const [updateUser, { loading, error }] = useMutation(UPDATE_USER_MUTATION, {
     onCompleted: () => {
       toast.success('User updated')
-      navigate(routes.users())
+      setSaveSuccessToken((value) => value + 1)
+      navigate(successRoute)
     },
     onError: (error) => {
       toast.error(error.message)
@@ -45,12 +57,23 @@ export const Success = ({ user }) => {
     updateUser({ variables: { id, input } })
   }
 
+  if (formVariant === 'account') {
+    return (
+      <UserForm
+        user={user}
+        onSave={onSave}
+        error={error}
+        loading={loading}
+        formVariant="account"
+        saveSuccessToken={saveSuccessToken}
+      />
+    )
+  }
+
   return (
     <div className="rw-segment">
       <header className="rw-segment-header">
-        <h2 className="rw-heading rw-heading-secondary">
-          Edit User {user?.id}
-        </h2>
+        <h2 className="rw-heading rw-heading-secondary">Edit User</h2>
       </header>
       <div className="rw-segment-main">
         <UserForm user={user} onSave={onSave} error={error} loading={loading} />

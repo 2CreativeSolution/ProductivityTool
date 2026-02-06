@@ -5,48 +5,15 @@
 Add the following environment variables to your `.env` file:
 
 ```bash
-# SMTP Email Configuration
+# SMTP Email Configuration - sign up with any mail service provider eg. sendgrid
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
+FROM_EMAIL=your-email@gmail.com
+FROM_NAME=2Creative Productivity Tool
+WEB_APP_URL=http://localhost:8910
 ```
-
-## Gmail Setup Instructions
-
-1. **Enable 2-Factor Authentication** on your Gmail account
-2. **Generate App Password**:
-   - Go to Google Account settings
-   - Select "Security" → "2-Step Verification" → "App passwords"
-   - Generate a new app password for "Mail"
-   - Use this password as `SMTP_PASS`
-
-## Other Email Providers
-
-### Outlook/Hotmail
-```bash
-SMTP_HOST=smtp-mail.outlook.com
-SMTP_PORT=587
-SMTP_USER=your-email@outlook.com
-SMTP_PASS=your-password
-```
-
-### Yahoo Mail
-```bash
-SMTP_HOST=smtp.mail.yahoo.com
-SMTP_PORT=587
-SMTP_USER=your-email@yahoo.com
-SMTP_PASS=your-app-password
-```
-
-### Custom SMTP Server
-```bash
-SMTP_HOST=mail.yourdomain.com
-SMTP_PORT=587
-SMTP_USER=noreply@yourdomain.com
-SMTP_PASS=your-password
-```
-
 ## Testing Email Configuration
 
 ### Method 1: Admin Panel Testing (Recommended)
@@ -162,7 +129,7 @@ The system will automatically send emails when:
 
 All emails include:
 - Professional HTML templates
-- Company branding 
+- Company branding
 - Request details and status
 - Admin notes/reasons for rejection
 - Clear call-to-action information
@@ -209,8 +176,8 @@ All emails include:
 
 ### Email Delivery Checklist:
 
-✅ **Gmail Working**: Emails deliver successfully to Gmail accounts  
-❌ **Outlook Issues**: Emails not reaching Outlook/Hotmail accounts  
+✅ **Gmail Working**: Emails deliver successfully to Gmail accounts
+❌ **Outlook Issues**: Emails not reaching Outlook/Hotmail accounts
 
 **Quick Fixes to Try:**
 1. Check Outlook spam/junk folder
