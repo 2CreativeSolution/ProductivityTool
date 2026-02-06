@@ -395,3 +395,27 @@
   - Use `localStorage` only; no server-side changes.
 - Estimation: S
 - Evidence: web/src/pages/LoginPage/LoginPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-045 ✅ Document Yarn 4.12.0 setup steps
+- Owner: Shekhar
+- Scope: Docs
+- Problem: New contributors hit corepack/Yarn version mismatch after upgrading to Yarn 4.12.0.
+- Acceptance Criteria:
+  - [ ] Getting started includes Corepack install/enable and Yarn 4.12.0 pin steps.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep steps short; include shell reload and version verification.
+- Estimation: S
+- Evidence: docs/GETTING_STARTED.md, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-046 ✅ Link setup guide from README
+- Owner: Shekhar
+- Scope: Docs
+- Problem: Setup steps were duplicated and easy to miss in README.
+- Acceptance Criteria:
+  - [ ] README local setup points to `docs/GETTING_STARTED.md` and `docs/ENVIRONMENT.md`.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep README short and factual.
+- Estimation: S
+- Evidence: README.md, docs/CHANGELOG.md, docs/WORK_LOG.md

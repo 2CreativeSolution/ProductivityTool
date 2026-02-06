@@ -52,6 +52,8 @@
 | 2026-02-05 | PT-042 | Standardized remember-email storage key with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-042 | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-042 | Made sign-in email field controlled to show remembered email | web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-045 | Documented Corepack/Yarn 4.12.0 setup in getting started | docs/GETTING_STARTED.md |
+| 2026-02-05 | PT-046 | Simplified README local setup to link the single setup guide | README.md |
 
 ## Sarath
 

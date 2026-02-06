@@ -27,48 +27,9 @@ Confirmed functional areas (based on codebase):
 ---
 
 ## Local setup (reproducible)
-
-### Prerequisites
-- Node.js **25.x** (project standard; Redwood quick start lists 20.x).
-- Yarn
-- PostgreSQL running locally
-
-## Getting Started (Production Review)
-See the full setup guide: `docs/GETTING_STARTED.md`.
-
-### Install
-```bash
-yarn install
-```
-
-### Environment
-Create `.env` in repo root:
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/productivity_db"
-```
-
-(Other auth-related env vars only if confirmed in code.)
-Full environment variable list: `docs/ENVIRONMENT.md`.
-
-### Database
-```bash
-yarn rw prisma migrate dev
-yarn rw prisma generate
-yarn rw prisma db seed   # only if a seed script exists
-```
-
-### Run
-```bash
-yarn rw dev
-```
-
-- Web: http://localhost:8910
-- API (GraphQL): http://localhost:8911/graphql
-
-### Build check (must pass)
-```bash
-yarn rw build
-```
+Use the single source of truth setup guide:
+- [GETTING STARTED](docs/GETTING_STARTED.md)
+- [ENVIRONMENT](docs/ENVIRONMENT.md) (all required env vars)
 
 ---
 

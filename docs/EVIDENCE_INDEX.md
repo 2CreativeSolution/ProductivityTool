@@ -100,3 +100,5 @@
 | E-096 | web/src/pages/LoginPage/LoginPage.jsx | Remember-email storage key standardized with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
 | E-097 | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
 | E-098 | web/src/pages/LoginPage/LoginPage.jsx | Controlled sign-in email field to show remembered email reliably | web/src/pages/LoginPage/LoginPage.jsx |
+| E-099 | docs/GETTING_STARTED.md | Added Corepack + Yarn 4.12.0 setup steps | docs/GETTING_STARTED.md |
+| E-100 | README.md | README points to single setup guide and environment docs | README.md |

@@ -45,6 +45,8 @@
 - Updated remember-email storage key to `@2CPD/auth_email` using a shared prefix constant. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
 - Centralized localStorage key prefixing in a shared storage keys helper. (evidence: web/src/lib/storageKeys.js, web/src/pages/LoginPage/LoginPage.jsx)
 - Made the sign-in email field controlled so remembered email appears reliably. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
+- Documented Corepack + Yarn 4.12.0 setup steps in getting started. (evidence: docs/GETTING_STARTED.md)
+- Simplified README local setup section to point to the single setup guide. (evidence: README.md)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)
