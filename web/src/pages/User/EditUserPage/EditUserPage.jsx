@@ -19,20 +19,23 @@ const EditUserPage = ({ id }) => {
         description="Edit user"
       />
       <AppSidebar />
-      <main className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
-        <div className="mb-6">
-          <Link
-            to={isAccountSettings ? routes.home() : routes.users()}
-            className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
-          >
-            {isAccountSettings ? 'Back to Home' : 'Back to Users'}
-          </Link>
-        </div>
+      <main className="app-content-shell mb-8 mr-8 mt-20 lg:my-8 lg:ml-[calc(var(--app-sidebar-width)+1.25rem)]">
+        {!isAccountSettings && (
+          <div className="mb-6">
+            <Link
+              to={routes.users()}
+              className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
+            >
+              Back to Users
+            </Link>
+          </div>
+        )}
         <EditUserCell
           id={resolvedId}
           successRoute={
             isAccountSettings ? routes.accountSettings() : routes.users()
           }
+          formVariant={isAccountSettings ? 'account' : 'default'}
         />
       </main>
     </>

@@ -12,7 +12,7 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
 ## Non-Negotiables
 - Do NOT break production (`yarn rw build` must pass)
 - No large refactors without explicit approval
-- Every change must update PBIs + CHANGELOG
+- Do not modify any `docs/` files during in-progress work; update `docs/` once per commit only, with one concise consolidated summary of what changed.
 - Do not invent history. All timeline/challenges must come from repo evidence or explicit user input.
 - Every “claim” must link to evidence (commit hash, file path, screenshot, ticket).
 - Do not complain about dependency warnings; only report them if explicitly asked.
@@ -27,7 +27,7 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
 
 ## Workflow
 1. Read key config + schema files
-2. Produce/maintain docs/PLAN.md, docs/PBI-Shekhar.md, docs/PBI-Sarath.md, docs/CHANGELOG.md
+2. Prepare concise docs updates for docs/PLAN.md, docs/PBI-Shekhar.md, docs/PBI-Sarath.md, docs/CHANGELOG.md, but apply them once per commit only.
 3. Execute PBIs one by one
 4. Mark status with symbols
 5. New findings, if any future improvements must be appended in TODO.md (with reason why this is a TODO)

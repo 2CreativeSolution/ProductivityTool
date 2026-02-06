@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { navigate, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
@@ -10,6 +12,8 @@ export const QUERY = gql`
       id
       name
       email
+      microsoftId
+      roles
     }
   }
 `
@@ -20,6 +24,7 @@ const UPDATE_USER_MUTATION = gql`
       id
       name
       email
+      roles
     }
   }
 `
@@ -30,10 +35,17 @@ export const Failure = ({ error }) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
-export const Success = ({ user, successRoute = routes.users() }) => {
+export const Success = ({
+  user,
+  successRoute = routes.users(),
+  formVariant = 'default',
+}) => {
+  const [saveSuccessToken, setSaveSuccessToken] = useState(0)
+
   const [updateUser, { loading, error }] = useMutation(UPDATE_USER_MUTATION, {
     onCompleted: () => {
       toast.success('User updated')
+      setSaveSuccessToken((value) => value + 1)
       navigate(successRoute)
     },
     onError: (error) => {
@@ -43,6 +55,19 @@ export const Success = ({ user, successRoute = routes.users() }) => {
 
   const onSave = (input, id) => {
     updateUser({ variables: { id, input } })
+  }
+
+  if (formVariant === 'account') {
+    return (
+      <UserForm
+        user={user}
+        onSave={onSave}
+        error={error}
+        loading={loading}
+        formVariant="account"
+        saveSuccessToken={saveSuccessToken}
+      />
+    )
   }
 
   return (

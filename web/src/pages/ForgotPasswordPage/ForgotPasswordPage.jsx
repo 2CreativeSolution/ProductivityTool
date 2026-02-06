@@ -8,6 +8,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 import { useAuth } from 'src/auth'
 import AuthFooter from 'src/components/AuthFooter/AuthFooter'
 import AuthNav from 'src/components/AuthNav/AuthNav'
+import { buttonVariants } from 'src/components/ui/button'
 import 'src/styles/brand-nxa.css'
 
 const ForgotPasswordPage = () => {
@@ -68,7 +69,14 @@ const ForgotPasswordPage = () => {
                   }}
                 />
                 <FieldError name="email" className="nxa-error" />
-                <Submit className="nxa-button">Send Reset Link</Submit>
+                <Submit
+                  className={buttonVariants({
+                    variant: 'primary',
+                    className: 'mt-4',
+                  })}
+                >
+                  Send Reset Link
+                </Submit>
               </Form>
 
               <div className="nxa-footer">
