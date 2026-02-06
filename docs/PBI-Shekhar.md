@@ -1,5 +1,17 @@
 # PBI-Shekhar
 
+## PT-065 ✅ Refactor admin user management UI
+- Owner: Shekhar
+- Scope: Web/API
+- Problem: Admin user pages (`/admin/users*`) had mixed scaffold patterns and inconsistent role handling.
+- Acceptance Criteria:
+  - [x] User list uses shadcn DataTable with sorting/pagination/page-size and aligned action styling.
+  - [x] Show/Edit/New user pages share account-style UI with name/email/roles patterns.
+  - [x] Role handling hardened for account saves (draft-based payload, non-admin read-only roles, missing-role warning/auto-heal path).
+- Tech Notes: Consolidated into existing user components and shared table utility to avoid one-off page-specific implementations.
+- Estimation: M
+- Evidence: web/src/components/User/UserForm/UserForm.jsx, web/src/components/User/Users/Users.jsx, web/src/components/User/UsersCell/UsersCell.jsx, web/src/components/User/User/User.jsx, web/src/components/User/UserCell/UserCell.jsx, web/src/components/User/NewUser/NewUser.jsx, web/src/components/User/EditUserCell/EditUserCell.jsx, web/src/components/ui/data-table.jsx, web/src/pages/User/NewUserPage/NewUserPage.jsx, web/src/pages/User/EditUserPage/EditUserPage.jsx, api/src/services/users/users.js, api/src/graphql/users.sdl.js
+
 ## PT-001 ✅ Documentation split (REDWOOD_NOTES -> docs)
 - Owner: Shekhar
 - Scope: Docs
