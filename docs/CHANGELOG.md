@@ -12,6 +12,9 @@
 - Renamed Resources submenu label `Supplies` to `Office Supplies` in the shared sidebar menu model. (evidence: web/src/components/AppSidebar/AppSidebar.jsx)
 - Ran per-file lint autofix on all changed web files and verified `yarn rw build` passes. (evidence: web/src/components/AppSidebar/AppSidebar.jsx, web/src/pages/DashboardPage/DashboardPage.jsx, web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx, web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/pages/AdminPanelPage/AdminPanelPage.jsx, web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx, web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx)
 
+## 2026-02-05
+- Created root `.env` with required DB URL, session secret, SMTP placeholders, and seed defaults to match ENVIRONMENT.md guidance for local development. (evidence: .env, docs/ENVIRONMENT.md)
+
 ## 2026-02-04
 - Added JSON-driven seed flow importing users, projects, allocations, meetings, and daily updates with sequence resets and configurable seeded-user password. (evidence: scripts/seed.js, scripts/seed_data_2creative.json)
 - `yarn rw build` initially failed due to missing `@2c/pd-root` in lockfile; resolved with `yarn install` and build now passes. (evidence: docs/TECHNICAL_CHALLENGES.md)
