@@ -20,9 +20,8 @@
 | SMTP_PORT | SMTP port (required). | api/src/functions/auth.js; api/src/lib/emailService.js |
 | SMTP_USER | SMTP username (required). | api/src/functions/auth.js; api/src/lib/emailService.js |
 | SMTP_PASS | SMTP password (required). | api/src/functions/auth.js; api/src/lib/emailService.js |
-| SMTP_FROM | Fallback From/Reply-To address if FROM_EMAIL is not set. | api/src/lib/emailService.js |
-| FROM_NAME | Display name used in outbound emails. | api/src/functions/auth.js; api/src/lib/smtpConfig.js |
-| FROM_EMAIL | Primary From/Reply-To email used in outbound emails. | api/src/functions/auth.js; api/src/lib/smtpConfig.js |
+| FROM_EMAIL | From/Reply-To email used in outbound emails (required). | api/src/lib/smtpConfig.js |
+| FROM_NAME | Display name used in outbound emails (optional, default provided in code). | api/src/lib/smtpConfig.js |
 | WEB_APP_URL | Base URL used in password reset and welcome emails (required). | api/src/functions/auth.js |
 | WELCOME_EMAIL_ENABLED | If `true`, send a welcome email on successful signup (works in any env). | api/src/lib/emailService.js |
 
