@@ -100,7 +100,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
       },
       {
         key: 'users',
-        label: 'Users',
+        label: 'Manage Users',
         to: routes.users(),
         icon: 'ri-group-line',
         matchPrefix: '/admin/users',
@@ -118,6 +118,13 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         to: routes.adminSupplyCategories(),
         icon: 'ri-price-tag-3-line',
         matchPrefix: '/admin/supply-categories',
+      },
+      {
+        key: 'diagnosticsTools',
+        label: 'Diagnostics Tools',
+        to: routes.adminDiagnosticsTools(),
+        icon: 'ri-stethoscope-line',
+        matchPrefix: '/admin/diagnostics-tools',
       },
     ]
   }, [isAdmin])
