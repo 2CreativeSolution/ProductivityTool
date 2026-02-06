@@ -111,7 +111,7 @@
 - Scope: API/Infra/Docs
 - Problem: Email delivery relies on SMTP settings that can break in production (From vs auth user mismatch, reset URL hardcoded, lax TLS).
 - Acceptance Criteria:
-  - [ ] API email transport supports distinct auth user and From with required env validation.
+  - [x] API email transport supports distinct auth user and From with required env validation.
   - [ ] Password reset links use env-configured base URL (no localhost in prod).
   - [ ] TLS mode is configurable with secure default for 465 or documented STARTTLS setting.
   - [ ] SendGrid (or chosen provider) tested end-to-end with evidence in WORK_LOG and logged message ID.

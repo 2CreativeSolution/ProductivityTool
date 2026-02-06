@@ -101,3 +101,4 @@
 | E-096 | web/src/pages/LoginPage/LoginPage.jsx | Remember-email storage key standardized with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
 | E-097 | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
 | E-098 | web/src/pages/LoginPage/LoginPage.jsx | Controlled sign-in email field to show remembered email reliably | web/src/pages/LoginPage/LoginPage.jsx |
+| E-099 | api/src/lib/smtpConfig.js; api/src/lib/emailService.js | Centralized SMTP config and fixed test email sender to use configured From name/email | api/src/lib/smtpConfig.js; api/src/lib/emailService.js |

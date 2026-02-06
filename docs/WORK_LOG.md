@@ -84,3 +84,4 @@
 | 2026-02-05 | Seed | Clear attendance/vacation/exception tables before seeding to prevent duplicate inflation; reseeded successfully | scripts/seed.js; yarn rw prisma db seed |
 | 2026-02-05 | Bugfix | Normalized status casing in seeds and switched project/allocation queries to case-insensitive filters; build passing after yarn install | scripts/seed.js; api/src/services/projects/projects.js; api/src/services/projectAllocations/projectAllocations.js; yarn rw build |
 | 2026-02-05 | PT-012 | Added root `.env` with required DB, session, SMTP, and seed variables aligned to ENVIRONMENT.md | .env; docs/ENVIRONMENT.md; docs/CHANGELOG.md |
+| 2026-02-06 | PT-043 | Centralized SMTP config (auth user vs from), fixed test-email sender, and reran `yarn rw build` successfully | api/src/lib/smtpConfig.js; api/src/lib/emailService.js; docs/CHANGELOG.md; yarn rw build |

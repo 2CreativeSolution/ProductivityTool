@@ -1118,7 +1118,7 @@ export const sendTestEmail = async (recipientEmail) => {
     `
 
     const mailOptions = {
-      from: `"2Creative Productivity Tool" <${smtpFrom}>`,
+      from: `"${smtp.smtpFromName}" <${smtp.smtpFromEmail}>`,
       to: recipientEmail,
       subject: `${subjectPrefix} Email System Test - 2Creative Productivity Tool [Multi-Domain Compatible]`,
       html: createEmailTemplate('Email Configuration Test', content, '#dbeafe'),

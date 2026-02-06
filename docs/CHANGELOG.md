@@ -97,3 +97,4 @@
 - `yarn rw check` now passes without errors or warnings. (evidence: docs/TECHNICAL_CHALLENGES.md)
 - Added new hire setup guide and contributing guide; README now links to them. (evidence: docs/GETTING_STARTED.md, docs/CONTRIBUTING.md, README.md)
 - Added `.home/` and `.prisma/` to gitignore. (evidence: .gitignore)
+- Fixed test email sender to use centralized SMTP config (FROM_NAME/EMAIL) so multi-domain tests no longer reference undefined `smtpFrom`; `yarn rw build` verified. (evidence: api/src/lib/emailService.js, api/src/lib/smtpConfig.js)
