@@ -69,15 +69,34 @@ const UsersList = ({ users }) => {
             header: ({ column }) => renderSortLabel(column, 'Name'),
             cell: ({ row }) => {
               const user = row.original
+              const roles = Array.isArray(user.roles) ? user.roles : []
+              const isAdminRole = roles.includes('ADMIN')
+              const isRoleMissing = roles.length === 0
 
               return (
-                <Link
-                  to={routes.user({ id: user.id })}
-                  title={'Show user ' + user.id + ' detail'}
-                  className={actionTextClass}
-                >
-                  {truncate(user.name) || 'Not set'}
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    to={routes.user({ id: user.id })}
+                    title={'Show user ' + user.id + ' detail'}
+                    className={actionTextClass}
+                  >
+                    {truncate(user.name) || 'Not set'}
+                  </Link>
+                  {isAdminRole && (
+                    <span className="inline-flex items-center rounded-full bg-[#322e85]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#322e85]">
+                      Admin
+                    </span>
+                  )}
+                  {isRoleMissing && (
+                    <span
+                      title="Role is missing"
+                      aria-label="Role is missing"
+                      className="inline-flex items-center text-amber-600"
+                    >
+                      <i className="ri-error-warning-line text-sm"></i>
+                    </span>
+                  )}
+                </div>
               )
             },
           },

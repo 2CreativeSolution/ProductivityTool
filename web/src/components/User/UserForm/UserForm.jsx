@@ -87,9 +87,8 @@ const UserForm = (props) => {
 
     const normalizedData = isAccountForm
       ? {
-          ...data,
-          name: data?.name?.trim(),
-          email: data?.email?.trim(),
+          name: accountDraftValues.name.trim(),
+          email: accountDraftValues.email.trim(),
           ...(isAdmin ? { roles: normalizedRoles } : {}),
         }
       : data
@@ -101,6 +100,8 @@ const UserForm = (props) => {
     const accountTitle = props.formTitle || 'Account Settings'
     const submitLabel = props.submitLabel || 'Save Changes'
     const isEmailVerified = Boolean(props.user?.microsoftId)
+    const summaryRolePillValues = props.user?.roles ?? []
+    const rolePillValues = accountDraftValues.roles || []
     const hasValidAccountEmail = EMAIL_PATTERN.test(
       accountDraftValues.email.trim()
     )
@@ -109,6 +110,9 @@ const UserForm = (props) => {
       normalizeRoleList(accountInitialValues.roles)
     const hasAtLeastOneRoleSelected =
       (accountDraftValues.roles || []).length > 0
+    const hasRoleRequirementSatisfied = isAdmin
+      ? hasAtLeastOneRoleSelected
+      : true
     const hasAccountChanges =
       accountDraftValues.name !== accountInitialValues.name ||
       accountDraftValues.email !== accountInitialValues.email ||
@@ -117,7 +121,7 @@ const UserForm = (props) => {
       accountDraftValues.name.trim().length > 0 &&
       accountDraftValues.email.trim().length > 0 &&
       hasValidAccountEmail &&
-      hasAtLeastOneRoleSelected
+      hasRoleRequirementSatisfied
 
     return (
       <div>
@@ -162,23 +166,19 @@ const UserForm = (props) => {
                   <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
                     Roles
                   </h2>
-                  <div className="flex flex-wrap gap-4">
-                    {ROLE_OPTIONS.map((role) => (
-                      <label
+                  <div className="flex flex-wrap gap-2">
+                    {summaryRolePillValues.map((role) => (
+                      <span
                         key={role}
-                        className="inline-flex items-center gap-2 text-sm text-slate-900"
+                        className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700"
                       >
-                        <input
-                          type="checkbox"
-                          checked={(props.user?.roles ?? []).includes(role)}
-                          readOnly
-                          disabled
-                          className="h-4 w-4 accent-[#322e85]"
-                        />
-                        <span>{role}</span>
-                      </label>
+                        {role.replaceAll('_', ' ')}
+                      </span>
                     ))}
                   </div>
+                  {!summaryRolePillValues.length && (
+                    <p className="text-xs text-amber-700">Role is missing.</p>
+                  )}
                 </div>
               </div>
               <button
@@ -289,43 +289,56 @@ const UserForm = (props) => {
                 <p className="mb-2 block text-sm font-medium text-slate-800">
                   Roles
                 </p>
-                <div className="flex flex-wrap gap-4">
-                  {ROLE_OPTIONS.map((role) => (
-                    <label
-                      key={role}
-                      className="inline-flex items-center gap-2 text-sm text-slate-900"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={accountDraftValues.roles.includes(role)}
-                        disabled={!isAdmin || props.loading}
-                        onChange={(event) => {
-                          const isChecked = event.target.checked
-                          setAccountDraftValues((prev) => {
-                            const nextRoles = isChecked
-                              ? [...prev.roles, role]
-                              : prev.roles.filter((value) => value !== role)
+                {isAdmin ? (
+                  <div className="flex flex-wrap gap-4">
+                    {ROLE_OPTIONS.map((role) => (
+                      <label
+                        key={role}
+                        className="inline-flex items-center gap-2 text-sm text-slate-900"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={accountDraftValues.roles.includes(role)}
+                          disabled={props.loading}
+                          onChange={(event) => {
+                            const isChecked = event.target.checked
+                            setAccountDraftValues((prev) => {
+                              const nextRoles = isChecked
+                                ? [...prev.roles, role]
+                                : prev.roles.filter((value) => value !== role)
 
-                            return {
-                              ...prev,
-                              roles: nextRoles,
-                            }
-                          })
-                        }}
-                        className="h-4 w-4 accent-[#322e85]"
-                      />
-                      <span>{role}</span>
-                    </label>
-                  ))}
-                </div>
-                {!hasAtLeastOneRoleSelected && (
+                              return {
+                                ...prev,
+                                roles: nextRoles,
+                              }
+                            })
+                          }}
+                          className="h-4 w-4 accent-[#322e85]"
+                        />
+                        <span>{role}</span>
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {rolePillValues.map((role) => (
+                      <span
+                        key={role}
+                        className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700"
+                      >
+                        {role.replaceAll('_', ' ')}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {isAdmin && !hasAtLeastOneRoleSelected && (
                   <p className="mt-1 text-xs text-red-700">
                     Select at least one role.
                   </p>
                 )}
-                {!isAdmin && (
-                  <p className="mt-1 text-xs text-slate-500">
-                    Only admins can edit roles.
+                {!isAdmin && !hasAtLeastOneRoleSelected && (
+                  <p className="mt-1 text-xs text-amber-700">
+                    Role is missing. It will be set to USER when you save.
                   </p>
                 )}
               </div>
