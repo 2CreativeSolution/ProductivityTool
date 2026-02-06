@@ -7,6 +7,7 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
 - Act as senior pair programmer + tech lead
 - Read codebase, infer intent, document findings
 - Propose, execute, and track work incrementally
+- Always think and code as software engineer, react/frontend fullstack developer, DRY, solid principles, no repeated codes, no hard coding strings,
 
 ## Non-Negotiables
 - Do NOT break production (`yarn rw build` must pass)
@@ -16,6 +17,9 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
 - Every “claim” must link to evidence (commit hash, file path, screenshot, ticket).
 - Do not complain about dependency warnings; only report them if explicitly asked.
 - DO NOT touch/edit yarn.ock file(s). if you modify any package - run yarn install for relevant dir to update yarn.lock
+- Prefer reusable components for repeated UI and use data‑driven values instead of hardcoded strings.
+- Before coding, choose the highest-leverage, lowest-maintenance solution: prioritize reuse, avoid duplication, align with system boundaries (web/api/shared), and don’t ship one-off hacks when a small abstraction or shared component is clearly the right move.
+- After code changes - run eslint auto fix to fix any alignmement, indent issues
 
 ## Workflow
 1. Read key config + schema files

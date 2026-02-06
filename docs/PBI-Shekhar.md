@@ -419,3 +419,105 @@
   - Keep README short and factual.
 - Estimation: S
 - Evidence: README.md, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-047 ✅ Add global auth footer (sign-in/up/reset)
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth pages lack a consistent footer with company copyright.
+- Acceptance Criteria:
+  - [ ] Footer appears on sign-in, sign-up, forgot-password, and reset-password.
+  - [ ] Footer uses shared styling.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use shared class in `brand-nxa.css`.
+- Estimation: S
+- Evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-048 ✅ Factor auth footer into shared component
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Footer text duplicated across auth pages and not year-aware.
+- Acceptance Criteria:
+  - [ ] Shared AuthFooter component renders © 2024 - {currentYear}.
+  - [ ] Auth pages use the shared component.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use `new Date().getFullYear()` to render the current year.
+- Estimation: S
+- Evidence: web/src/components/AuthFooter/AuthFooter.jsx, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-049 ✅ Push auth footer to page bottom
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth footer was rendering inline with the card instead of bottom page edge.
+- Acceptance Criteria:
+  - [ ] Auth card stays centered.
+  - [ ] Footer sits at bottom without fixed positioning.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use flex column layout and a centered card wrapper.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-050 ✅ Match reset password styling to auth pages
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Reset password page still used scaffold styles.
+- Acceptance Criteria:
+  - [ ] Reset password page uses NXA auth layout and styles.
+  - [ ] Uses shared footer and illustration panel.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Align with ForgotPasswordPage layout.
+- Estimation: S
+- Evidence: web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-051 ✅ Centralize company links/config for web + api
+- Owner: Shekhar
+- Scope: Web/API/Config
+- Problem: Company links and names were hardcoded and duplicated.
+- Acceptance Criteria:
+  - [ ] Company site link and name stored in shared config files (not env).
+  - [ ] Auth footer links to the company site in a new tab.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Create matching config modules for web and api.
+- Estimation: S
+- Evidence: web/src/lib/appConfig.js, api/src/lib/appConfig.js, web/src/components/AuthFooter/AuthFooter.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-052 ✅ Add disabled styles for auth inputs/buttons
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Disabled fields and buttons had no visual affordance.
+- Acceptance Criteria:
+  - [ ] Disabled inputs show muted styling and not-allowed cursor.
+  - [ ] Disabled buttons show muted styling and not-allowed cursor.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update `brand-nxa.css` only.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-053 ✅ Add hover/active states for auth buttons
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth buttons lacked hover/pressed feedback.
+- Acceptance Criteria:
+  - [ ] Buttons show pointer cursor, hover, and pressed animation.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update `brand-nxa.css` only.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-054 ✅ Prevent hover effects on disabled auth buttons
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Disabled buttons still respond to hover/active styles.
+- Acceptance Criteria:
+  - [ ] Hover/active effects apply only when button is enabled.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Scope hover/active with `:not(:disabled)`.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md

@@ -47,6 +47,14 @@
 - Made the sign-in email field controlled so remembered email appears reliably. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
 - Documented Corepack + Yarn 4.12.0 setup steps in getting started. (evidence: docs/GETTING_STARTED.md)
 - Simplified README local setup section to point to the single setup guide. (evidence: README.md)
+- Added a global auth footer across sign-in/up/reset pages. (evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, web/src/styles/brand-nxa.css)
+- Replaced inline auth footer text with a shared component and dynamic year. (evidence: web/src/components/AuthFooter/AuthFooter.jsx, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Pushed auth footer to the bottom by centering cards within a flex column layout. (evidence: web/src/styles/brand-nxa.css, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Restyled reset password page to match other auth pages. (evidence: web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Centralized company link config and linked footer name to the company site. (evidence: web/src/lib/appConfig.js, api/src/lib/appConfig.js, web/src/components/AuthFooter/AuthFooter.jsx)
+- Added disabled styling for auth inputs and buttons. (evidence: web/src/styles/brand-nxa.css)
+- Added hover, active, and pointer cursor states for auth buttons. (evidence: web/src/styles/brand-nxa.css)
+- Disabled buttons no longer show hover/active effects. (evidence: web/src/styles/brand-nxa.css)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)

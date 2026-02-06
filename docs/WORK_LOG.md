@@ -54,6 +54,14 @@
 | 2026-02-05 | PT-042 | Made sign-in email field controlled to show remembered email | web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-045 | Documented Corepack/Yarn 4.12.0 setup in getting started | docs/GETTING_STARTED.md |
 | 2026-02-05 | PT-046 | Simplified README local setup to link the single setup guide | README.md |
+| 2026-02-05 | PT-047 | Added global auth footer across sign-in/up/reset pages | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-048 | Factored auth footer into shared component with dynamic year | web/src/components/AuthFooter/AuthFooter.jsx; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | PT-049 | Centered auth cards within flex column so footer sits at bottom | web/src/styles/brand-nxa.css; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | PT-050 | Restyled reset password page to match auth layout | web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | PT-051 | Centralized company site link/name config and linked footer | web/src/lib/appConfig.js; api/src/lib/appConfig.js; web/src/components/AuthFooter/AuthFooter.jsx |
+| 2026-02-05 | PT-052 | Added disabled styling for auth inputs/buttons | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-053 | Added hover/active states for auth buttons | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-054 | Scoped hover/active effects to enabled auth buttons only | web/src/styles/brand-nxa.css |
 
 ## Sarath
 
