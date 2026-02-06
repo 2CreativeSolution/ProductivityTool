@@ -83,6 +83,11 @@
 | Date | Work Item | Summary | Evidence |
 | --- | --- | --- | --- |
 | 2026-01-28 | PT-006 | Wired office supplies seed into standard seed flow; documented destructive warning; installed Yarn 4.6.0 via Corepack and `yarn rw build` now passes | scripts/seed.js; docs/GETTING_STARTED.md; docs/TECHNICAL_CHALLENGES.md |
+| 2026-02-05 | (untracked) | Separated SMTP auth vs From addressing for SendGrid and added reset URL base env + SMTP validation | api/src/lib/emailService.js; api/src/functions/auth.js |
+| 2026-02-05 | (untracked) | Branded forgot-password email with CTA link, dark CTA contrast, and expiry note; require WEB_APP_URL in prod | api/src/functions/auth.js; docs/ENVIRONMENT.md |
+| 2026-02-05 | (untracked) | Restyled reset password page to match branded auth layout | web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | (untracked) | Added welcome email on signup (flag-gated), reusing SMTP/brand templates | api/src/lib/emailService.js; api/src/functions/auth.js |
+| 2026-02-05 | (note) | Recorded TLS configurability gap (currently permissive STARTTLS for SendGrid) for future PT-043 work | docs/TECHNICAL_CHALLENGES.md; api/src/lib/emailService.js |
 | 2026-01-28 | PT-008 | Audited DbAuth flows; fixed signup username field and forgot-password email submission; re-verified `yarn rw build` | web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx |
 | 2026-01-28 | PT-010 | Added feature inventory with evidence links to PLAN | docs/PLAN.md |
 | 2026-01-28 | PT-011 | Reviewed Prisma schema vs migrations; no drift identified; migrations cover current models | api/db/schema.prisma; api/db/migrations |
@@ -104,3 +109,4 @@
 | 2026-02-05 | Seed | Clear attendance/vacation/exception tables before seeding to prevent duplicate inflation; reseeded successfully | scripts/seed.js; yarn rw prisma db seed |
 | 2026-02-05 | Bugfix | Normalized status casing in seeds and switched project/allocation queries to case-insensitive filters; build passing after yarn install | scripts/seed.js; api/src/services/projects/projects.js; api/src/services/projectAllocations/projectAllocations.js; yarn rw build |
 | 2026-02-05 | PT-012 | Added root `.env` with required DB, session, SMTP, and seed variables aligned to ENVIRONMENT.md | .env; docs/ENVIRONMENT.md; docs/CHANGELOG.md |
+| 2026-02-06 | PT-043 | Centralized SMTP config (auth user vs from), fixed test-email sender, and reran `yarn rw build` successfully | api/src/lib/smtpConfig.js; api/src/lib/emailService.js; docs/CHANGELOG.md; yarn rw build |

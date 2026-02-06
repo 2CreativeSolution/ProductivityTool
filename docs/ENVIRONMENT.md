@@ -16,10 +16,14 @@
 
 | Variable | Purpose | Evidence |
 | --- | --- | --- |
-| SMTP_HOST | SMTP host for password reset emails. | api/src/functions/auth.js#L29-L36, .env.example#L7-L12 |
-| SMTP_PORT | SMTP port for password reset emails. | api/src/functions/auth.js#L29-L36, .env.example#L7-L12 |
-| SMTP_USER | SMTP username for password reset emails. | api/src/functions/auth.js#L29-L36, .env.example#L7-L12 |
-| SMTP_PASS | SMTP password for password reset emails. | api/src/functions/auth.js#L29-L36, .env.example#L7-L12 |
+| SMTP_HOST | SMTP host (required). | api/src/functions/auth.js; api/src/lib/emailService.js |
+| SMTP_PORT | SMTP port (required). | api/src/functions/auth.js; api/src/lib/emailService.js |
+| SMTP_USER | SMTP username (required). | api/src/functions/auth.js; api/src/lib/emailService.js |
+| SMTP_PASS | SMTP password (required). | api/src/functions/auth.js; api/src/lib/emailService.js |
+| FROM_EMAIL | From/Reply-To email used in outbound emails (required). | api/src/lib/smtpConfig.js |
+| FROM_NAME | Display name used in outbound emails (optional, default provided in code). | api/src/lib/smtpConfig.js |
+| WEB_APP_URL | Base URL used in password reset and welcome emails (required). | api/src/functions/auth.js |
+| WELCOME_EMAIL_ENABLED | If `true`, send a welcome email on successful signup (works in any env). | api/src/lib/emailService.js |
 
 ## Optional / Tooling
 
