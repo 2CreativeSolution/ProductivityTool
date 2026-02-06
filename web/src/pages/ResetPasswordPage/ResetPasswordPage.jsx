@@ -6,6 +6,8 @@ import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
+import AuthFooter from 'src/components/AuthFooter/AuthFooter'
+import AuthNav from 'src/components/AuthNav/AuthNav'
 import 'src/styles/brand-nxa.css'
 
 const ResetPasswordPage = ({ resetToken }) => {
@@ -58,62 +60,61 @@ const ResetPasswordPage = ({ resetToken }) => {
 
       <main className="nxa-page">
         <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-        <div className="nxa-card nxa-card-split max-w-5xl">
-          <section className="nxa-section">
-            <div className="nxa-brand">
-              <img src="/logo.jpg" alt="2Creative Logo" loading="lazy" />
-              <div>
-                <div className="nxa-brand-title">Productivity Tool</div>
-                <div className="text-xs text-gray-500">
-                  2Creative Solutions
-                </div>
+        <AuthNav showSignIn showSignUp />
+        <div className="nxa-center">
+          <div className="nxa-card nxa-card-split max-w-5xl">
+            <section className="nxa-section">
+              <h1 className="nxa-title">
+                Set
+                <br />
+                New Password
+              </h1>
+              <p className="nxa-subtitle">
+                Enter a new password to finish the reset process
+              </p>
+
+              <Form onSubmit={onSubmit} className="nxa-form">
+                <PasswordField
+                  name="password"
+                  autoComplete="new-password"
+                  className="nxa-input"
+                  errorClassName="nxa-input nxa-input-error"
+                  disabled={!enabled}
+                  ref={passwordRef}
+                  placeholder="New password"
+                  validation={{
+                    required: {
+                      value: true,
+                      message: 'New password is required',
+                    },
+                  }}
+                />
+
+                <FieldError name="password" className="nxa-error" />
+
+                <Submit className="nxa-button" disabled={!enabled}>
+                  Update Password
+                </Submit>
+              </Form>
+
+              <div className="nxa-footer">
+                Remembered your password?{' '}
+                <Link to={routes.login()} className="nxa-link">
+                  Back to sign in
+                </Link>
               </div>
-            </div>
+            </section>
 
-            <h1 className="nxa-title">Set a New Password</h1>
-            <p className="nxa-subtitle">
-              Create a strong password to secure your account
-            </p>
-
-            <Form onSubmit={onSubmit} className="nxa-form">
-              <PasswordField
-                name="password"
-                autoComplete="new-password"
-                className="nxa-input"
-                placeholder="New password"
-                errorClassName="nxa-input nxa-input-error"
-                disabled={!enabled}
-                ref={passwordRef}
-                validation={{
-                  required: {
-                    value: true,
-                    message: 'New password is required',
-                  },
-                }}
+            <section className="auth-illustration">
+              <img
+                src="/auth-banner.webp"
+                alt="Reset password illustration"
+                loading="lazy"
               />
-              <FieldError name="password" className="nxa-error" />
-
-              <Submit className="nxa-button" disabled={!enabled}>
-                Save Password
-              </Submit>
-            </Form>
-
-            <div className="nxa-footer">
-              Remembered your password?{' '}
-              <Link to={routes.login()} className="nxa-link">
-                Back to sign in
-              </Link>
-            </div>
-          </section>
-
-          <section className="auth-illustration">
-            <img
-              src="/auth-banner.webp"
-              alt="Secure account illustration"
-              loading="lazy"
-            />
-          </section>
+            </section>
+          </div>
         </div>
+        <AuthFooter />
       </main>
     </>
   )

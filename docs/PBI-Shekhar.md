@@ -395,3 +395,254 @@
   - Use `localStorage` only; no server-side changes.
 - Estimation: S
 - Evidence: web/src/pages/LoginPage/LoginPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-045 ✅ Document Yarn 4.12.0 setup steps
+- Owner: Shekhar
+- Scope: Docs
+- Problem: New contributors hit corepack/Yarn version mismatch after upgrading to Yarn 4.12.0.
+- Acceptance Criteria:
+  - [ ] Getting started includes Corepack install/enable and Yarn 4.12.0 pin steps.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep steps short; include shell reload and version verification.
+- Estimation: S
+- Evidence: docs/GETTING_STARTED.md, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-046 ✅ Link setup guide from README
+- Owner: Shekhar
+- Scope: Docs
+- Problem: Setup steps were duplicated and easy to miss in README.
+- Acceptance Criteria:
+  - [ ] README local setup points to `docs/GETTING_STARTED.md` and `docs/ENVIRONMENT.md`.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Keep README short and factual.
+- Estimation: S
+- Evidence: README.md, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-047 ✅ Add global auth footer (sign-in/up/reset)
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth pages lack a consistent footer with company copyright.
+- Acceptance Criteria:
+  - [ ] Footer appears on sign-in, sign-up, forgot-password, and reset-password.
+  - [ ] Footer uses shared styling.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use shared class in `brand-nxa.css`.
+- Estimation: S
+- Evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-048 ✅ Factor auth footer into shared component
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Footer text duplicated across auth pages and not year-aware.
+- Acceptance Criteria:
+  - [ ] Shared AuthFooter component renders © 2024 - {currentYear}.
+  - [ ] Auth pages use the shared component.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use `new Date().getFullYear()` to render the current year.
+- Estimation: S
+- Evidence: web/src/components/AuthFooter/AuthFooter.jsx, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-049 ✅ Push auth footer to page bottom
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth footer was rendering inline with the card instead of bottom page edge.
+- Acceptance Criteria:
+  - [ ] Auth card stays centered.
+  - [ ] Footer sits at bottom without fixed positioning.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use flex column layout and a centered card wrapper.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-050 ✅ Match reset password styling to auth pages
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Reset password page still used scaffold styles.
+- Acceptance Criteria:
+  - [ ] Reset password page uses NXA auth layout and styles.
+  - [ ] Uses shared footer and illustration panel.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Align with ForgotPasswordPage layout.
+- Estimation: S
+- Evidence: web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-051 ✅ Centralize company links/config for web + api
+- Owner: Shekhar
+- Scope: Web/API/Config
+- Problem: Company links and names were hardcoded and duplicated.
+- Acceptance Criteria:
+  - [ ] Company site link and name stored in shared config files (not env).
+  - [ ] Auth footer links to the company site in a new tab.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Create matching config modules for web and api.
+- Estimation: S
+- Evidence: web/src/lib/appConfig.js, api/src/lib/appConfig.js, web/src/components/AuthFooter/AuthFooter.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-052 ✅ Add disabled styles for auth inputs/buttons
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Disabled fields and buttons had no visual affordance.
+- Acceptance Criteria:
+  - [ ] Disabled inputs show muted styling and not-allowed cursor.
+  - [ ] Disabled buttons show muted styling and not-allowed cursor.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update `brand-nxa.css` only.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-055 ✅ Add auth nav to auth pages
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth pages lacked a consistent nav for sign-in/sign-up links.
+- Acceptance Criteria:
+  - [ ] Auth pages show logo at left and sign-in/sign-up links at right.
+  - [ ] Sign-in page shows only sign-up; sign-up page shows only sign-in.
+  - [ ] Forgot/reset pages show both links.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use a shared `AuthNav` component and brand styles.
+- Estimation: S
+- Evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-056 ✅ Place auth nav at top of page
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth nav was rendered inside the card instead of page header.
+- Acceptance Criteria:
+  - [ ] Auth nav appears at top of auth pages.
+  - [ ] Card content stays unchanged.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Place AuthNav inside `nxa-page` before the centered card.
+- Estimation: S
+- Evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-057 ✅ Pin auth card footer to bottom
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth card footer floats above bottom of the card.
+- Acceptance Criteria:
+  - [ ] Footer aligns to bottom edge of auth card.
+  - [ ] Section padding remains unchanged.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Make `nxa-section` a flex column and use `mt-auto` on footer.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-058 ✅ Add small button variant for auth actions
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth pages need a compact button variant for small actions.
+- Acceptance Criteria:
+  - [ ] Logo has a subtle 2px radius.
+  - [ ] Small button class uses reduced padding/radius and normal font weight.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update `brand-nxa.css` only.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-059 ✅ Use small button variant on auth nav links
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth nav links needed compact button styling.
+- Acceptance Criteria:
+  - [ ] Sign-in and sign-up links use the small button class.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Apply `nxa-button--sm` in `AuthNav`.
+- Estimation: S
+- Evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-060 ✅ Apply primary button styling to auth nav buttons
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth nav buttons were styled as plain text instead of primary.
+- Acceptance Criteria:
+  - [ ] Auth nav buttons use primary button styling with small variant.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Combine `nxa-button` with `nxa-button--sm` and `nxa-button--inline`.
+- Estimation: S
+- Evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-061 ✅ Mobile auth layout tweaks
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Mobile auth padding and radius were too large; unused auth link style remained.
+- Acceptance Criteria:
+  - [ ] Mobile padding for auth sections is reduced by ~50%.
+  - [ ] Mobile auth card radius set to 8px.
+  - [ ] Unused auth link style removed.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use a max-width media query (mobile) in `brand-nxa.css`.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-062 ✅ Reduce auth title size on mobile
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth titles were oversized on small screens.
+- Acceptance Criteria:
+  - [ ] Auth title renders at 2xl on mobile.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use a mobile media query in `brand-nxa.css`.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-053 ✅ Add hover/active states for auth buttons
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth buttons lacked hover/pressed feedback.
+- Acceptance Criteria:
+  - [ ] Buttons show pointer cursor, hover, and pressed animation.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update `brand-nxa.css` only.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-054 ✅ Prevent hover effects on disabled auth buttons
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Disabled buttons still respond to hover/active styles.
+- Acceptance Criteria:
+  - [ ] Hover/active effects apply only when button is enabled.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Scope hover/active with `:not(:disabled)`.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-063 ✅ Sidebar navigation redesign and hardening (consolidated)
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Top navigation no longer scaled with app scope; sidebar work was split into too many micro-PBIs and logs.
+- Acceptance Criteria:
+  - [ ] Single `AppSidebar` replaces runtime header nav and works across desktop/mobile.
+  - [ ] Navigation IA supports grouped sections, nested Home anchors, role-aware Settings/Admin, and quick Sign out.
+  - [ ] Admin Settings submenu includes admin-relevant UI routes (`/users`, `/users/new`, `/admin-panel`, `/admin/supply-requests`, `/admin/supply-categories`).
+  - [ ] Admin namespace is normalized under `/admin` (`/admin`, `/admin/users*`, `/admin/supply-*`) while self account settings stays on a non-admin route.
+  - [ ] Self account settings save flow redirects to an authorized non-admin route.
+  - [ ] Main content shell styling and layout offsets are consistent across sidebar-driven pages.
+  - [ ] Sidebar supports compact/collapsible mode with persisted state and accessible compact submenu popouts.
+  - [ ] Compact dropdowns render correctly (no clipping behind main content).
+  - [ ] Sidebar labels use clear business terminology (e.g., `Office Supplies`).
+  - [ ] Build passes after updates.
+  - [ ] Evidence captured in changelog, work log, and evidence index as a single consolidated sidebar entry.
+- Tech Notes:
+  - `AppSidebar` is the single source of nav behavior; compact mode uses popout menus and conditional overflow handling.
+  - Layout offset uses shared `--app-sidebar-width` with storage-backed state (`@2CPD/sidebar_expanded`).
+- Estimation: M
+- Evidence: web/src/components/AppSidebar/AppSidebar.jsx, web/src/components/Header/Header.jsx, web/src/components/Header/Header.test.jsx, web/src/components/Header/Header.stories.jsx, web/src/index.css, web/src/lib/storageKeys.js, web/src/pages/DashboardPage/DashboardPage.jsx, web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx, web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/pages/AdminPanelPage/AdminPanelPage.jsx, web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx, web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx, web/src/Routes.jsx, web/src/pages/User/EditUserPage/EditUserPage.jsx, web/src/components/User/EditUserCell/EditUserCell.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md, docs/EVIDENCE_INDEX.md

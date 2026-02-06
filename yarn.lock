@@ -12797,9 +12797,9 @@ __metadata:
   linkType: hard
 
 "isexe@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "isexe@npm:3.1.1"
-  checksum: 10c0/9ec257654093443eb0a528a9c8cbba9c0ca7616ccb40abd6dde7202734d96bb86e4ac0d764f0f8cd965856aacbff2f4ce23e730dc19dfb41e3b0d865ca6fdcc7
+  version: 3.1.2
+  resolution: "isexe@npm:3.1.2"
+  checksum: 10c0/1081adb0e9d8dd6d313916e39c81b683ab0e304bcec388b7bb400da988180dc576be7b298e6cd55d89fc5e98f32c1d73c2e04d2454c6115f58b28a8040d421ed
   languageName: node
   linkType: hard
 

@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-02-06
+- Consolidated top navigation into a single `AppSidebar` system across desktop and mobile, including grouped menu IA, Home anchor scrolling, account settings under Settings, admin routes under Admin submenu, header removal, shared content shell/background styling, collapsible icon mode with logo hover fold/unfold, compact popout submenus, and overflow fixes so collapsed dropdowns render correctly above main content. (evidence: web/src/components/AppSidebar/AppSidebar.jsx, web/src/components/Header/Header.jsx, web/src/components/Header/Header.test.jsx, web/src/components/Header/Header.stories.jsx, web/src/index.css, web/src/lib/storageKeys.js, web/src/pages/DashboardPage/DashboardPage.jsx, web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx, web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/pages/AdminPanelPage/AdminPanelPage.jsx, web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx, web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx)
+- Admin submenu now shows `Overview` (route `/admin-panel`) as the first item before `Users`. (evidence: web/src/components/AppSidebar/AppSidebar.jsx)
+- Added all admin-relevant UI routes to the Settings submenu for admins (`/users`, `/users/new`, `/admin-panel`, `/admin/supply-requests`, `/admin/supply-categories`) across desktop/mobile/compact menus. (evidence: web/src/components/AppSidebar/AppSidebar.jsx, web/src/Routes.jsx)
+- Removed Scaffold layout wrapping for `/users*` and moved Users/Admin Supply pages into the shared sidebar content shell so admin management screens match the new app frame. (evidence: web/src/Routes.jsx, web/src/pages/User/UsersPage/UsersPage.jsx, web/src/pages/User/NewUserPage/NewUserPage.jsx, web/src/pages/User/UserPage/UserPage.jsx, web/src/pages/User/EditUserPage/EditUserPage.jsx, web/src/pages/OfficeSupply/AdminSupplyRequestsPage/AdminSupplyRequestsPage.jsx, web/src/pages/OfficeSupply/SupplyCategoriesPage/SupplyCategoriesPage.jsx)
+- Renamed admin route namespace to `/admin` index (`Overview`) and moved user management under `/admin/users*`; added non-admin account settings route at `/settings/account`. (evidence: web/src/Routes.jsx, web/src/components/AppSidebar/AppSidebar.jsx, web/src/pages/User/EditUserPage/EditUserPage.jsx)
+- Fixed account-settings save redirect by making `EditUserCell` post-save target configurable and routing self-edits back to `/settings/account` instead of admin-only `/admin/users`. (evidence: web/src/components/User/EditUserCell/EditUserCell.jsx, web/src/pages/User/EditUserPage/EditUserPage.jsx)
+- Renamed admin submenu labels: `New User` -> `Add User`, `Admin Supply Requests` -> `Manage Supply Requests`, and `Admin Supply Categories` -> `Manage Supply Categories`. (evidence: web/src/components/AppSidebar/AppSidebar.jsx)
+- Updated active submenu item text color to black across sidebar variants for clearer selected-state contrast. (evidence: web/src/components/AppSidebar/AppSidebar.jsx)
+- Renamed Resources submenu label `Supplies` to `Office Supplies` in the shared sidebar menu model. (evidence: web/src/components/AppSidebar/AppSidebar.jsx)
+- Ran per-file lint autofix on all changed web files and verified `yarn rw build` passes. (evidence: web/src/components/AppSidebar/AppSidebar.jsx, web/src/pages/DashboardPage/DashboardPage.jsx, web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx, web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/pages/AdminPanelPage/AdminPanelPage.jsx, web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx, web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx)
+
 ## 2026-02-05
 - Split SMTP auth user from From address to support SendGrid; added config validation for missing SMTP_FROM; added WEB_APP_URL-based reset link. (evidence: api/src/lib/emailService.js; api/src/functions/auth.js)
 - Improved forgot-password email template with branded HTML, plain-text fallback, and 24h expiry note. (evidence: api/src/functions/auth.js)
@@ -53,6 +65,24 @@
 - Updated remember-email storage key to `@2CPD/auth_email` using a shared prefix constant. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
 - Centralized localStorage key prefixing in a shared storage keys helper. (evidence: web/src/lib/storageKeys.js, web/src/pages/LoginPage/LoginPage.jsx)
 - Made the sign-in email field controlled so remembered email appears reliably. (evidence: web/src/pages/LoginPage/LoginPage.jsx)
+- Documented Corepack + Yarn 4.12.0 setup steps in getting started. (evidence: docs/GETTING_STARTED.md)
+- Simplified README local setup section to point to the single setup guide. (evidence: README.md)
+- Added a global auth footer across sign-in/up/reset pages. (evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, web/src/styles/brand-nxa.css)
+- Replaced inline auth footer text with a shared component and dynamic year. (evidence: web/src/components/AuthFooter/AuthFooter.jsx, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Pushed auth footer to the bottom by centering cards within a flex column layout. (evidence: web/src/styles/brand-nxa.css, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Restyled reset password page to match other auth pages. (evidence: web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Centralized company link config and linked footer name to the company site. (evidence: web/src/lib/appConfig.js, api/src/lib/appConfig.js, web/src/components/AuthFooter/AuthFooter.jsx)
+- Added disabled styling for auth inputs and buttons. (evidence: web/src/styles/brand-nxa.css)
+- Added hover, active, and pointer cursor states for auth buttons. (evidence: web/src/styles/brand-nxa.css)
+- Disabled buttons no longer show hover/active effects. (evidence: web/src/styles/brand-nxa.css)
+- Added auth nav with logo-left and sign-in/sign-up links per page context. (evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, web/src/styles/brand-nxa.css)
+- Moved auth nav out of the card and into the top of auth pages. (evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Aligned auth card footer to the bottom using flex column layout. (evidence: web/src/styles/brand-nxa.css)
+- Added small button variant for auth buttons and kept auth nav links plain text. (evidence: web/src/styles/brand-nxa.css)
+- Applied small button variant to auth nav sign-in/sign-up links. (evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/styles/brand-nxa.css)
+- Auth nav buttons now use the primary button styling. (evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/styles/brand-nxa.css)
+- Removed unused auth link style and tightened mobile auth card padding/radius. (evidence: web/src/styles/brand-nxa.css)
+- Reduced auth title size to 2xl on mobile. (evidence: web/src/styles/brand-nxa.css)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)
