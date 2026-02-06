@@ -11,7 +11,6 @@ import { Metadata, useQuery, useMutation, gql } from '@redwoodjs/web'
 
 import AdminVacationManager from 'src/components/AdminVacationManager/AdminVacationManager'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
-import OutlookEmailTestComponent from 'src/components/OutlookEmailTestComponent/OutlookEmailTestComponent'
 
 import MeetingRoomsSection from './MeetingRoomsSection'
 
@@ -273,11 +272,6 @@ const AdminPanelPage = () => {
         <h1 className="mb-10 text-center text-4xl font-extrabold tracking-tight text-blue-800">
           Admin Panel
         </h1>
-
-        {/* Multi-Domain Email Testing System */}
-        <div className="mb-10">
-          <OutlookEmailTestComponent />
-        </div>
 
         {/* Admin Quick Access */}
         <div className="mb-10 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
