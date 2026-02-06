@@ -22,6 +22,8 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
 - If any requirement is ambiguous (placement, scope, or behavior), ask for clarification before changing existing UI.
 - After making code changes, run `yarn rw lint <file> --fix` for each changed file (js/ts/jsx/tsx) to keep lint aligned.
 - After code changes - run eslint auto fix to fix any alignmement, indent issues
+- Tracking docs must stay concise and outcome-focused: summarize the overall change, not step-by-step micro edits.
+- For related work in the same feature, prefer updating one consolidated entry in PBI/CHANGELOG/WORK_LOG/EVIDENCE_INDEX instead of adding many small repetitive entries.
 
 ## Workflow
 1. Read key config + schema files

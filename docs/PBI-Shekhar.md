@@ -624,3 +624,25 @@
   - Scope hover/active with `:not(:disabled)`.
 - Estimation: S
 - Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-063 ✅ Sidebar navigation redesign and hardening (consolidated)
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Top navigation no longer scaled with app scope; sidebar work was split into too many micro-PBIs and logs.
+- Acceptance Criteria:
+  - [ ] Single `AppSidebar` replaces runtime header nav and works across desktop/mobile.
+  - [ ] Navigation IA supports grouped sections, nested Home anchors, role-aware Settings/Admin, and quick Sign out.
+  - [ ] Admin Settings submenu includes admin-relevant UI routes (`/users`, `/users/new`, `/admin-panel`, `/admin/supply-requests`, `/admin/supply-categories`).
+  - [ ] Admin namespace is normalized under `/admin` (`/admin`, `/admin/users*`, `/admin/supply-*`) while self account settings stays on a non-admin route.
+  - [ ] Self account settings save flow redirects to an authorized non-admin route.
+  - [ ] Main content shell styling and layout offsets are consistent across sidebar-driven pages.
+  - [ ] Sidebar supports compact/collapsible mode with persisted state and accessible compact submenu popouts.
+  - [ ] Compact dropdowns render correctly (no clipping behind main content).
+  - [ ] Sidebar labels use clear business terminology (e.g., `Office Supplies`).
+  - [ ] Build passes after updates.
+  - [ ] Evidence captured in changelog, work log, and evidence index as a single consolidated sidebar entry.
+- Tech Notes:
+  - `AppSidebar` is the single source of nav behavior; compact mode uses popout menus and conditional overflow handling.
+  - Layout offset uses shared `--app-sidebar-width` with storage-backed state (`@2CPD/sidebar_expanded`).
+- Estimation: M
+- Evidence: web/src/components/AppSidebar/AppSidebar.jsx, web/src/components/Header/Header.jsx, web/src/components/Header/Header.test.jsx, web/src/components/Header/Header.stories.jsx, web/src/index.css, web/src/lib/storageKeys.js, web/src/pages/DashboardPage/DashboardPage.jsx, web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx, web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/pages/AdminPanelPage/AdminPanelPage.jsx, web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx, web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx, web/src/Routes.jsx, web/src/pages/User/EditUserPage/EditUserPage.jsx, web/src/components/User/EditUserCell/EditUserCell.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md, docs/EVIDENCE_INDEX.md

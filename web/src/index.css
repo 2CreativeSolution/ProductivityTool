@@ -11,6 +11,15 @@
  * END --- SETUP TAILWINDCSS EDIT
  */
 
+html,
+body {
+  background-color: #f6f6f6;
+}
+
+:root {
+  --app-sidebar-width: 22rem;
+}
+
 /* Custom animations for slide effects */
 @keyframes slide-in-right {
   from {
@@ -25,4 +34,20 @@
 
 .animate-slide-in-right {
   animation: slide-in-right 0.5s ease-out forwards;
+}
+
+.app-content-shell {
+  position: relative;
+  min-height: calc(100vh - 5.5rem);
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  background-color: #ffffff;
+  padding: 1rem;
+  box-shadow: 0 20px 40px -30px rgba(15, 23, 42, 0.45);
+}
+
+@media (min-width: 768px) {
+  .app-content-shell {
+    padding: 1.5rem;
+  }
 }

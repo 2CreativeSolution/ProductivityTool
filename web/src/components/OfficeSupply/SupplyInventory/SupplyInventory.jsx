@@ -17,7 +17,7 @@ import { useQuery, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
-import Header from 'src/components/Header/Header'
+import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 
 import OfficeSupplyForm from '../OfficeSupplyForm/OfficeSupplyForm'
 
@@ -61,7 +61,10 @@ const CREATE_OFFICE_SUPPLY = gql`
 `
 
 const UPDATE_OFFICE_SUPPLY = gql`
-  mutation UpdateOfficeSupplyFromInventory($id: Int!, $input: UpdateOfficeSupplyInput!) {
+  mutation UpdateOfficeSupplyFromInventory(
+    $id: Int!
+    $input: UpdateOfficeSupplyInput!
+  ) {
     updateOfficeSupply(id: $id, input: $input) {
       id
       name
@@ -94,7 +97,7 @@ const SupplyInventory = () => {
     },
   })
 
-  const [createSupply] = useMutation(CREATE_OFFICE_SUPPLY, {
+  const [_createSupply] = useMutation(CREATE_OFFICE_SUPPLY, {
     onCompleted: () => {
       toast.success('Supply created successfully!')
       refetch()
@@ -105,7 +108,7 @@ const SupplyInventory = () => {
     },
   })
 
-  const [updateSupply] = useMutation(UPDATE_OFFICE_SUPPLY, {
+  const [_updateSupply] = useMutation(UPDATE_OFFICE_SUPPLY, {
     onCompleted: () => {
       toast.success('Supply updated successfully!')
       refetch()
@@ -163,8 +166,8 @@ const SupplyInventory = () => {
 
   return (
     <>
-      <Header />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 pt-32">
+      <AppSidebar />
+      <div className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
         <div className="mx-auto max-w-7xl">
           {/* Header */}
           <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-lg md:p-8">

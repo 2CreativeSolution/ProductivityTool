@@ -4,10 +4,10 @@ import { Metadata } from '@redwoodjs/web'
 import { useQuery } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
+import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import AssetManagement from 'src/components/AssetTracker/AssetManagement'
 import AssetReports from 'src/components/AssetTracker/AssetReports'
 import AssetTracker from 'src/components/AssetTracker/AssetTracker'
-import Header from 'src/components/Header/Header'
 
 const ASSET_STATS_QUERY = gql`
   query AssetStatsQuery {
@@ -118,9 +118,9 @@ const AssetTrackerPage = () => {
         description="Track and manage company assets and assignments"
       />
 
-      <Header />
+      <AppSidebar />
 
-      <main className="min-h-screen bg-gray-50 px-4 pt-32 md:px-8 lg:px-12">
+      <main className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
         <div className="mx-auto max-w-7xl py-6">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Asset Tracker</h1>

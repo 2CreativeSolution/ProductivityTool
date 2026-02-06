@@ -39,16 +39,15 @@ const Routes = () => {
           <Route path="/bookings" page={BookingBookingsPage} name="bookings" />
         </Set>
 
-        <Set wrap={ScaffoldLayout} title="Users" titleTo="users" buttonLabel="New User" buttonTo="newUser">
-          <Route path="/users/new" page={UserNewUserPage} name="newUser" />
-          <Route path="/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
-          <Route path="/users/{id:Int}" page={UserUserPage} name="user" />
-          <Route path="/users" page={UserUsersPage} name="users" />
-        </Set>
+        <Route path="/settings/account" page={UserEditUserPage} name="accountSettings" />
       </PrivateSet>
 
       <PrivateSet unauthenticated="login" roles={['ADMIN']}>
-        <Route path="/admin-panel" page={AdminPanelPage} name="adminPanel" />
+        <Route path="/admin" page={AdminPanelPage} name="adminPanel" />
+        <Route path="/admin/users/new" page={UserNewUserPage} name="newUser" />
+        <Route path="/admin/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
+        <Route path="/admin/users/{id:Int}" page={UserUserPage} name="user" />
+        <Route path="/admin/users" page={UserUsersPage} name="users" />
         <Route path="/admin/supply-requests" page={OfficeSupplyAdminSupplyRequestsPage} name="adminSupplyRequests" />
         <Route path="/admin/supply-categories" page={OfficeSupplySupplyCategoriesPage} name="adminSupplyCategories" />
       </PrivateSet>

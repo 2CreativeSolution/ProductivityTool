@@ -1,17 +1,13 @@
 import React, { useState } from 'react'
 
-import { Link, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { useQuery, useMutation } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
+import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import Attendance from 'src/components/Attendance/Attendance'
 import AttendanceCard from 'src/components/AttendanceCard/AttendanceCard'
-import Booking, {
-  BookingForm,
-  BookingDetail,
-} from 'src/components/Booking/Booking'
-import Header from 'src/components/Header/Header'
+import { BookingForm } from 'src/components/Booking/Booking'
 import UpcomingBookings from 'src/components/UpcomingBookings/UpcomingBookings'
 import VacationPlanner from 'src/components/VacationPlanner/VacationPlanner'
 import WelcomeSection from 'src/components/WelcomeSection/WelcomeSection'
@@ -112,24 +108,14 @@ const weekStart = getStartOfWeekUTC(new Date())
 const weekEnd = new Date(weekStart)
 weekEnd.setUTCDate(weekStart.getUTCDate() + 6)
 weekEnd.setUTCHours(23, 59, 59, 999)
-const daysOfWeek = Array.from({ length: 7 }, (_, i) => {
-  const d = new Date(weekStart)
-  d.setUTCDate(weekStart.getUTCDate() + i)
-  return d.toISOString().slice(0, 10)
-})
 
 const DashboardPage = () => {
   const { currentUser, isAuthenticated, loading } = useAuth()
   const userId = currentUser.id
-  const [userName, setUserName] = useState('')
+  const [userName] = useState('')
 
   // For bookings and other attendance data
-  const {
-    data,
-    loading: bookingsLoading,
-    error,
-    refetch,
-  } = useQuery(BOOKINGS_QUERY, {
+  const { loading: bookingsLoading, refetch } = useQuery(BOOKINGS_QUERY, {
     variables: { userId },
     fetchPolicy: 'network-only',
   })
@@ -216,29 +202,23 @@ const DashboardPage = () => {
     }
   `
 
-  const [createBreakMutation, { loading: createBreakLoading }] = useMutation(
-    CREATE_BREAK_MUTATION,
-    {
-      onCompleted: () => {
-        refetch()
-        refetchWeekly()
-      },
-    }
-  )
+  const [createBreakMutation] = useMutation(CREATE_BREAK_MUTATION, {
+    onCompleted: () => {
+      refetch()
+      refetchWeekly()
+    },
+  })
 
-  const [updateBreakMutation, { loading: updateBreakLoading }] = useMutation(
-    UPDATE_BREAK_MUTATION,
-    {
-      onCompleted: () => {
-        refetch()
-        refetchWeekly()
-        refetchBreaks()
-      },
-      // Add event loader to ensure UI updates after mutation
-      awaitRefetchQueries: true,
-      refetchQueries: ['GetAttendanceBreaks'],
-    }
-  )
+  const [updateBreakMutation] = useMutation(UPDATE_BREAK_MUTATION, {
+    onCompleted: () => {
+      refetch()
+      refetchWeekly()
+      refetchBreaks()
+    },
+    // Add event loader to ensure UI updates after mutation
+    awaitRefetchQueries: true,
+    refetchQueries: ['GetAttendanceBreaks'],
+  })
 
   const [createOvertimeMutation] = useMutation(CREATE_OVERTIME_MUTATION, {
     onCompleted: () => {
@@ -310,17 +290,12 @@ const DashboardPage = () => {
     }
   )
 
-  const { data: overtimeData, refetch: refetchOvertime } = useQuery(
-    GET_OVERTIME_QUERY,
-    {
-      variables: { userId, date: localDateISO },
-      skip: !userId || !localDateISO,
-    }
-  )
+  const { data: overtimeData } = useQuery(GET_OVERTIME_QUERY, {
+    variables: { userId, date: localDateISO },
+    skip: !userId || !localDateISO,
+  })
 
-  const { data: officeHoursData, refetch: refetchOfficeHours } = useQuery(
-    GET_OFFICE_HOURS_QUERY
-  )
+  const { data: officeHoursData } = useQuery(GET_OFFICE_HOURS_QUERY)
 
   React.useEffect(() => {
     const handler = () => {
@@ -506,9 +481,9 @@ const DashboardPage = () => {
   return (
     <>
       <Metadata title="Dashboard" description="Dashboard page" />
-      <Header showQuickAccess={true} />
+      <AppSidebar showQuickAccess={true} />
 
-      <main className="relative h-screen px-4 pt-32 md:px-8 lg:px-12">
+      <main className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
         <WelcomeSection />
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">

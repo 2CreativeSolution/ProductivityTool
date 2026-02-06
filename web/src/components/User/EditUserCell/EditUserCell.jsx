@@ -30,11 +30,11 @@ export const Failure = ({ error }) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
-export const Success = ({ user }) => {
+export const Success = ({ user, successRoute = routes.users() }) => {
   const [updateUser, { loading, error }] = useMutation(UPDATE_USER_MUTATION, {
     onCompleted: () => {
       toast.success('User updated')
-      navigate(routes.users())
+      navigate(successRoute)
     },
     onError: (error) => {
       toast.error(error.message)
@@ -48,9 +48,7 @@ export const Success = ({ user }) => {
   return (
     <div className="rw-segment">
       <header className="rw-segment-header">
-        <h2 className="rw-heading rw-heading-secondary">
-          Edit User {user?.id}
-        </h2>
+        <h2 className="rw-heading rw-heading-secondary">Edit User</h2>
       </header>
       <div className="rw-segment-main">
         <UserForm user={user} onSave={onSave} error={error} loading={loading} />
