@@ -39,6 +39,7 @@ export const Success = ({
   user,
   successRoute = routes.users(),
   formVariant = 'default',
+  startInEditMode = false,
 }) => {
   const [saveSuccessToken, setSaveSuccessToken] = useState(0)
 
@@ -66,6 +67,7 @@ export const Success = ({
         loading={loading}
         formVariant="account"
         saveSuccessToken={saveSuccessToken}
+        startInEditMode={startInEditMode}
       />
     )
   }

@@ -3,6 +3,7 @@ import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import 'src/lib/formatters'
+import { buttonVariants } from 'src/components/ui/button'
 
 const DELETE_USER_MUTATION = gql`
   mutation DeleteUserMutation($id: Int!) {
@@ -13,6 +14,12 @@ const DELETE_USER_MUTATION = gql`
 `
 
 const User = ({ user }) => {
+  const allRoleOptions = ['USER', 'ADMIN', 'MANAGER', 'TEAM_LEAD']
+  const roleOptions = Array.from(
+    new Set([...allRoleOptions, ...(user.roles || [])])
+  )
+  const isEmailVerified = Boolean(user.microsoftId)
+
   const [deleteUser] = useMutation(DELETE_USER_MUTATION, {
     onCompleted: () => {
       toast.success('User deleted')
@@ -31,39 +38,76 @@ const User = ({ user }) => {
 
   return (
     <>
-      <div className="rw-segment">
-        <header className="rw-segment-header">
-          <h2 className="rw-heading rw-heading-secondary">
-            User {user.id} Detail
-          </h2>
-        </header>
-        <table className="rw-table">
-          <tbody>
-            <tr>
-              <th>Id</th>
-              <td>{user.id}</td>
-            </tr>
-            <tr>
-              <th>Name</th>
-              <td>{user.name}</td>
-            </tr>
-            <tr>
-              <th>Email</th>
-              <td>{user.email}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-slate-900">
+            Account Settings
+          </h1>
+        </div>
+
+        <div className="space-y-8">
+          <div className="space-y-2">
+            <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
+              Full Name
+            </h2>
+            <p className="text-sm font-medium text-slate-900">
+              {user.name || 'Not set'}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
+                Email Address
+              </h2>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  isEmailVerified
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-amber-100 text-amber-700'
+                }`}
+              >
+                {isEmailVerified ? 'Verified' : 'Unverified'}
+              </span>
+            </div>
+            <p className="text-sm font-medium text-slate-900">{user.email}</p>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
+              Roles
+            </h2>
+            <div className="flex flex-wrap gap-4">
+              {roleOptions.map((role) => (
+                <label
+                  key={role}
+                  className="inline-flex items-center gap-2 text-sm text-slate-900"
+                >
+                  <input
+                    type="checkbox"
+                    checked={(user.roles || []).includes(role)}
+                    readOnly
+                    disabled
+                    className="h-4 w-4 accent-[#322e85]"
+                  />
+                  <span>{role}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-      <nav className="rw-button-group">
+
+      <nav className="mt-8 flex items-center gap-3">
         <Link
           to={routes.editUser({ id: user.id })}
-          className="rw-button rw-button-blue"
+          className={buttonVariants({ variant: 'primary', size: 'sm' })}
         >
           Edit
         </Link>
         <button
           type="button"
-          className="rw-button rw-button-red"
+          className={buttonVariants({ variant: 'destructive', size: 'sm' })}
           onClick={() => onDeleteClick(user.id)}
         >
           Delete

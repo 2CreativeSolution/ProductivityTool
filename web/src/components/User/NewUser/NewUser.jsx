@@ -28,14 +28,17 @@ const NewUser = () => {
   }
 
   return (
-    <div className="rw-segment">
-      <header className="rw-segment-header">
-        <h2 className="rw-heading rw-heading-secondary">New User</h2>
-      </header>
-      <div className="rw-segment-main">
-        <UserForm onSave={onSave} loading={loading} error={error} />
-      </div>
-    </div>
+    <UserForm
+      user={{ name: '', email: '', roles: ['USER'] }}
+      onSave={onSave}
+      loading={loading}
+      error={error}
+      formVariant="accountCreate"
+      startInEditMode
+      editorOnly
+      formTitle="New User"
+      submitLabel="Create User"
+    />
   )
 }
 
