@@ -13,6 +13,11 @@
 - Ran per-file lint autofix on all changed web files and verified `yarn rw build` passes. (evidence: web/src/components/AppSidebar/AppSidebar.jsx, web/src/pages/DashboardPage/DashboardPage.jsx, web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx, web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/pages/AdminPanelPage/AdminPanelPage.jsx, web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx, web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx)
 
 ## 2026-02-05
+- Split SMTP auth user from From address to support SendGrid; added config validation for missing SMTP_FROM; added WEB_APP_URL-based reset link. (evidence: api/src/lib/emailService.js; api/src/functions/auth.js)
+- Improved forgot-password email template with branded HTML, plain-text fallback, and 24h expiry note. (evidence: api/src/functions/auth.js)
+- Enforced WEB_APP_URL requirement in production to avoid localhost reset links; documented SMTP/WEB_APP_URL envs. (evidence: api/src/functions/auth.js; docs/ENVIRONMENT.md)
+- Restyled reset password page to match branded auth layout with illustration and CTA. (evidence: web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Added optional welcome email after signup, gated by WELCOME_EMAIL_ENABLED flag. (evidence: api/src/functions/auth.js; api/src/lib/emailService.js; docs/ENVIRONMENT.md)
 - Created root `.env` with required DB URL, session secret, SMTP placeholders, and seed defaults to match ENVIRONMENT.md guidance for local development. (evidence: .env, docs/ENVIRONMENT.md)
 
 ## 2026-02-04
@@ -122,3 +127,4 @@
 - `yarn rw check` now passes without errors or warnings. (evidence: docs/TECHNICAL_CHALLENGES.md)
 - Added new hire setup guide and contributing guide; README now links to them. (evidence: docs/GETTING_STARTED.md, docs/CONTRIBUTING.md, README.md)
 - Added `.home/` and `.prisma/` to gitignore. (evidence: .gitignore)
+- Fixed test email sender to use centralized SMTP config (FROM_NAME/EMAIL) so multi-domain tests no longer reference undefined `smtpFrom`; `yarn rw build` verified. (evidence: api/src/lib/emailService.js, api/src/lib/smtpConfig.js)

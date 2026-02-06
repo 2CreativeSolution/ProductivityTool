@@ -78,13 +78,14 @@ const ResetPasswordPage = ({ resetToken }) => {
                   name="password"
                   autoComplete="new-password"
                   className="nxa-input"
+                  errorClassName="nxa-input nxa-input-error"
                   disabled={!enabled}
                   ref={passwordRef}
                   placeholder="New password"
                   validation={{
                     required: {
                       value: true,
-                      message: 'New Password is required',
+                      message: 'New password is required',
                     },
                   }}
                 />
@@ -99,7 +100,7 @@ const ResetPasswordPage = ({ resetToken }) => {
               <div className="nxa-footer">
                 Remembered your password?{' '}
                 <Link to={routes.login()} className="nxa-link">
-                  Log in
+                  Back to sign in
                 </Link>
               </div>
             </section>
