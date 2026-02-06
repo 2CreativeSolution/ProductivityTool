@@ -10,7 +10,7 @@ import { Link } from '@redwoodjs/router'
 import { Metadata, useQuery, useMutation, gql } from '@redwoodjs/web'
 
 import AdminVacationManager from 'src/components/AdminVacationManager/AdminVacationManager'
-import Header from 'src/components/Header/Header'
+import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import OutlookEmailTestComponent from 'src/components/OutlookEmailTestComponent/OutlookEmailTestComponent'
 
 import MeetingRoomsSection from './MeetingRoomsSection'
@@ -130,29 +130,29 @@ const AdminPanelPage = () => {
   })
 
   const {
-    data: officeHoursData,
-    loading: officeHoursLoading,
-    error: officeHoursError,
-    refetch: refetchOfficeHours,
+    data: _officeHoursData,
+    loading: _officeHoursLoading,
+    error: _officeHoursError,
+    refetch: _refetchOfficeHours,
   } = useQuery(OFFICE_HOURS_QUERY)
-  const [updateOfficeHours] = useMutation(UPDATE_OFFICE_HOURS, {
-    onCompleted: () => refetchOfficeHours(),
+  const [_updateOfficeHours] = useMutation(UPDATE_OFFICE_HOURS, {
+    onCompleted: () => _refetchOfficeHours(),
   })
 
   const [updateUserRoles] = useMutation(UPDATE_USER_ROLES, {
     onCompleted: () => refetchUsers(),
   })
 
-  const officeHours = officeHoursData?.officeHours || {
+  const _officeHours = _officeHoursData?.officeHours || {
     startTime: '09:00',
     endTime: '18:00',
   }
-  const [startTime, setStartTime] = useState(officeHours.startTime)
-  const [endTime, setEndTime] = useState(officeHours.endTime)
+  const [startTime] = useState(_officeHours.startTime)
+  const [endTime] = useState(_officeHours.endTime)
 
-  const handleSave = () => {
-    updateOfficeHours({
-      variables: { id: officeHours.id, input: { startTime, endTime } },
+  const _handleSave = () => {
+    _updateOfficeHours({
+      variables: { id: _officeHours.id, input: { startTime, endTime } },
     })
   }
 
@@ -168,7 +168,7 @@ const AdminPanelPage = () => {
   const [userPage, setUserPage] = useState(1)
   const itemsPerPage = 5
 
-  const paginatedExceptions = data?.exceptionRequests?.slice(
+  const _paginatedExceptions = data?.exceptionRequests?.slice(
     (exceptionPage - 1) * itemsPerPage,
     exceptionPage * itemsPerPage
   )
@@ -233,7 +233,7 @@ const AdminPanelPage = () => {
         title="Admin Panel"
         description="Manage users and exception requests"
       />
-      <Header />
+      <AppSidebar />
 
       {/* Delete User Dialog */}
       {showDeleteDialog && userToDelete && (
@@ -269,7 +269,7 @@ const AdminPanelPage = () => {
         </div>
       )}
 
-      <div className="mx-auto mt-32 max-w-7xl px-4">
+      <div className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
         <h1 className="mb-10 text-center text-4xl font-extrabold tracking-tight text-blue-800">
           Admin Panel
         </h1>

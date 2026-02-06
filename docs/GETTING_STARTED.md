@@ -8,12 +8,29 @@ This guide gets a new developer from zero to a running app on Node 25.x and loca
 nvm install
 nvm use
 node -v   # should be v25.x
+corepack enable
 ```
 
 Yarn is pinned via `packageManager` in `package.json`. Use:
 
 ```bash
 yarn --version
+```
+
+If `corepack` isn’t available (got error `command not found`?), install and enable it:
+
+```bash
+npm i -g corepack
+corepack enable
+corepack prepare yarn@4.12.0 --activate
+exec $SHELL -l // or simply restart your terminal
+yarn --version
+```
+
+If you see an older Yarn (e.g., 1.22), update the project pin:
+
+```bash
+yarn set version 4.12.0
 ```
 
 ## 2) Install dependencies

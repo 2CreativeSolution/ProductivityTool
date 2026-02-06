@@ -1,7 +1,7 @@
 import { Metadata } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
-import Header from 'src/components/Header/Header'
+import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import ProjectTracker from 'src/components/ProjectTracker/ProjectTracker'
 
 const ProjectTrackerPage = () => {
@@ -15,8 +15,8 @@ const ProjectTrackerPage = () => {
       />
 
       <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="mx-auto max-w-7xl px-4 py-8 pt-32 sm:px-6 lg:px-8">
+        <AppSidebar />
+        <div className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
               Project Tracker

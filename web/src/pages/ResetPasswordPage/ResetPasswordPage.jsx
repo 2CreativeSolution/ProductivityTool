@@ -1,17 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
-import {
-  Form,
-  Label,
-  PasswordField,
-  Submit,
-  FieldError,
-} from '@redwoodjs/forms'
-import { navigate, routes } from '@redwoodjs/router'
+import { Form, PasswordField, Submit, FieldError } from '@redwoodjs/forms'
+import { Link, navigate, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
+import AuthFooter from 'src/components/AuthFooter/AuthFooter'
+import AuthNav from 'src/components/AuthNav/AuthNav'
+import 'src/styles/brand-nxa.css'
 
 const ResetPasswordPage = ({ resetToken }) => {
   const { isAuthenticated, reauthenticate, validateResetToken, resetPassword } =
@@ -61,58 +58,62 @@ const ResetPasswordPage = ({ resetToken }) => {
     <>
       <Metadata title="Reset Password" />
 
-      <main className="rw-main">
+      <main className="nxa-page">
         <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-        <div className="rw-scaffold rw-login-container">
-          <div className="rw-segment">
-            <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">
-                Reset Password
-              </h2>
-            </header>
+        <AuthNav showSignIn showSignUp />
+        <div className="nxa-center">
+          <div className="nxa-card nxa-card-split max-w-5xl">
+            <section className="nxa-section">
+              <h1 className="nxa-title">
+                Set
+                <br />
+                New Password
+              </h1>
+              <p className="nxa-subtitle">
+                Enter a new password to finish the reset process
+              </p>
 
-            <div className="rw-segment-main">
-              <div className="rw-form-wrapper">
-                <Form onSubmit={onSubmit} className="rw-form-wrapper">
-                  <div className="text-left">
-                    <Label
-                      name="password"
-                      className="rw-label"
-                      errorClassName="rw-label rw-label-error"
-                    >
-                      New Password
-                    </Label>
-                    <PasswordField
-                      name="password"
-                      autoComplete="new-password"
-                      className="rw-input"
-                      errorClassName="rw-input rw-input-error"
-                      disabled={!enabled}
-                      ref={passwordRef}
-                      validation={{
-                        required: {
-                          value: true,
-                          message: 'New Password is required',
-                        },
-                      }}
-                    />
+              <Form onSubmit={onSubmit} className="nxa-form">
+                <PasswordField
+                  name="password"
+                  autoComplete="new-password"
+                  className="nxa-input"
+                  disabled={!enabled}
+                  ref={passwordRef}
+                  placeholder="New password"
+                  validation={{
+                    required: {
+                      value: true,
+                      message: 'New Password is required',
+                    },
+                  }}
+                />
 
-                    <FieldError name="password" className="rw-field-error" />
-                  </div>
+                <FieldError name="password" className="nxa-error" />
 
-                  <div className="rw-button-group">
-                    <Submit
-                      className="rw-button rw-button-blue"
-                      disabled={!enabled}
-                    >
-                      Submit
-                    </Submit>
-                  </div>
-                </Form>
+                <Submit className="nxa-button" disabled={!enabled}>
+                  Update Password
+                </Submit>
+              </Form>
+
+              <div className="nxa-footer">
+                Remembered your password?{' '}
+                <Link to={routes.login()} className="nxa-link">
+                  Log in
+                </Link>
               </div>
-            </div>
+            </section>
+
+            <section className="auth-illustration">
+              <img
+                src="/auth-banner.webp"
+                alt="Reset password illustration"
+                loading="lazy"
+              />
+            </section>
           </div>
         </div>
+        <AuthFooter />
       </main>
     </>
   )

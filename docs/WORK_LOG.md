@@ -52,6 +52,30 @@
 | 2026-02-05 | PT-042 | Standardized remember-email storage key with @2CPD prefix | web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-042 | Centralized storage key prefixing for reuse across web app | web/src/lib/storageKeys.js; web/src/pages/LoginPage/LoginPage.jsx |
 | 2026-02-05 | PT-042 | Made sign-in email field controlled to show remembered email | web/src/pages/LoginPage/LoginPage.jsx |
+| 2026-02-05 | PT-045 | Documented Corepack/Yarn 4.12.0 setup in getting started | docs/GETTING_STARTED.md |
+| 2026-02-05 | PT-046 | Simplified README local setup to link the single setup guide | README.md |
+| 2026-02-05 | PT-047 | Added global auth footer across sign-in/up/reset pages | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-048 | Factored auth footer into shared component with dynamic year | web/src/components/AuthFooter/AuthFooter.jsx; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | PT-049 | Centered auth cards within flex column so footer sits at bottom | web/src/styles/brand-nxa.css; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | PT-050 | Restyled reset password page to match auth layout | web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | PT-051 | Centralized company site link/name config and linked footer | web/src/lib/appConfig.js; api/src/lib/appConfig.js; web/src/components/AuthFooter/AuthFooter.jsx |
+| 2026-02-05 | PT-052 | Added disabled styling for auth inputs/buttons | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-053 | Added hover/active states for auth buttons | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-054 | Scoped hover/active effects to enabled auth buttons only | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-055 | Added shared auth nav with sign-in/up links per page | web/src/components/AuthNav/AuthNav.jsx; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-056 | Moved auth nav to top of page outside the card | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | PT-057 | Pinned auth card footer to the bottom using flex column layout | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-058 | Added small button variant and kept auth nav links plain | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-059 | Applied small button variant to auth nav links | web/src/components/AuthNav/AuthNav.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-060 | Applied primary button styling to auth nav buttons | web/src/components/AuthNav/AuthNav.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-061 | Reduced mobile auth padding/radius and removed unused auth link styles | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-062 | Reduced auth title size to 2xl on mobile | web/src/styles/brand-nxa.css |
+| 2026-02-06 | PT-063 (Consolidated) | Consolidated navigation refactor into one sidebar track: new `AppSidebar` IA and routing behavior, header removal, desktop/mobile parity, content shell/background styling, collapsible compact mode, popout submenu access, overflow/clipping fixes, admin route links under Admin submenu, and `Overview` (`/admin-panel`) ordered first in that submenu | web/src/components/AppSidebar/AppSidebar.jsx; web/src/components/Header/Header.jsx; web/src/components/Header/Header.test.jsx; web/src/components/Header/Header.stories.jsx; web/src/index.css; web/src/lib/storageKeys.js; web/src/pages/DashboardPage/DashboardPage.jsx; web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx; web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx; web/src/pages/AdminPanelPage/AdminPanelPage.jsx; web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx; web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx; web/src/Routes.jsx; docs/CHANGELOG.md |
+| 2026-02-06 | PT-063 (Follow-up) | Removed `/users*` Scaffold wrapping and applied shared sidebar shell to Users and Admin Supply pages for layout consistency | web/src/Routes.jsx; web/src/pages/User/UsersPage/UsersPage.jsx; web/src/pages/User/NewUserPage/NewUserPage.jsx; web/src/pages/User/UserPage/UserPage.jsx; web/src/pages/User/EditUserPage/EditUserPage.jsx; web/src/pages/OfficeSupply/AdminSupplyRequestsPage/AdminSupplyRequestsPage.jsx; web/src/pages/OfficeSupply/SupplyCategoriesPage/SupplyCategoriesPage.jsx; docs/CHANGELOG.md; docs/EVIDENCE_INDEX.md |
+| 2026-02-06 | PT-063 (Follow-up) | Renamed admin namespace to `/admin` index and moved user management to `/admin/users*`; added `/settings/account` for self account editing | web/src/Routes.jsx; web/src/components/AppSidebar/AppSidebar.jsx; web/src/pages/User/EditUserPage/EditUserPage.jsx; docs/CHANGELOG.md; docs/EVIDENCE_INDEX.md |
+| 2026-02-06 | PT-063 (Follow-up) | Fixed account settings post-save redirect so non-admin users stay on authorized routes (`/settings/account`) | web/src/components/User/EditUserCell/EditUserCell.jsx; web/src/pages/User/EditUserPage/EditUserPage.jsx; docs/CHANGELOG.md; docs/PBI-Shekhar.md |
+| 2026-02-06 | PT-063 (Follow-up) | Set active submenu text color to black across sidebar menus (desktop/mobile/compact) | web/src/components/AppSidebar/AppSidebar.jsx; docs/CHANGELOG.md |
+| 2026-02-06 | PT-063 (Follow-up) | Renamed sidebar Resources submenu label from `Supplies` to `Office Supplies` | web/src/components/AppSidebar/AppSidebar.jsx; docs/CHANGELOG.md |
 
 ## Sarath
 

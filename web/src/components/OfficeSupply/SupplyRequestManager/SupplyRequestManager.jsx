@@ -26,7 +26,7 @@ import { useQuery, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
-import Header from 'src/components/Header/Header'
+import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 
 const GET_MY_SUPPLY_REQUESTS = gql`
   query GetMySupplyRequests {
@@ -106,7 +106,7 @@ const DELETE_SUPPLY_REQUEST = gql`
 `
 
 const SupplyRequestManager = () => {
-  const { currentUser, hasRole } = useAuth()
+  const { currentUser: _currentUser, hasRole } = useAuth()
   const [showForm, setShowForm] = useState(false)
   const [editingRequest, setEditingRequest] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -235,8 +235,8 @@ const SupplyRequestManager = () => {
 
   return (
     <>
-      <Header />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 pt-32">
+      <AppSidebar />
+      <div className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
         <div className="mx-auto max-w-7xl">
           {/* Header */}
           <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
