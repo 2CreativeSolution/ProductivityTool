@@ -645,4 +645,22 @@
   - `AppSidebar` is the single source of nav behavior; compact mode uses popout menus and conditional overflow handling.
   - Layout offset uses shared `--app-sidebar-width` with storage-backed state (`@2CPD/sidebar_expanded`).
 - Estimation: M
-- Evidence: web/src/components/AppSidebar/AppSidebar.jsx, web/src/components/Header/Header.jsx, web/src/components/Header/Header.test.jsx, web/src/components/Header/Header.stories.jsx, web/src/index.css, web/src/lib/storageKeys.js, web/src/pages/DashboardPage/DashboardPage.jsx, web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx, web/src/pages/ProjectTrackerPage/ProjectTrackerPage.jsx, web/src/pages/AdminPanelPage/AdminPanelPage.jsx, web/src/components/OfficeSupply/SupplyInventory/SupplyInventory.jsx, web/src/components/OfficeSupply/SupplyRequestManager/SupplyRequestManager.jsx, web/src/Routes.jsx, web/src/pages/User/EditUserPage/EditUserPage.jsx, web/src/components/User/EditUserCell/EditUserCell.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md, docs/EVIDENCE_INDEX.md
+- Evidence: web files
+
+
+## PT-064 ✅ Introduce shadcn/ui baseline and starter component library
+- Owner: Shekhar
+- Scope: Web/UI/Deps
+- Problem: The web app lacked a standardized reusable UI component foundation for new feature work.
+- Acceptance Criteria:
+  - [ ] `shadcn/ui` is initialized for the Redwood web workspace with Tailwind v4-compatible config.
+  - [ ] Requested starter components are available under `web/src/components/ui` (`button`, `form`, `alert`, `dialog`, `checkbox`, `dropdown-menu`, `input`, `label`, `progress`).
+  - [ ] Data table and input-group primitives are available for immediate feature usage.
+  - [ ] Auth navigation actions use shadcn `Button` instead of legacy `nxa-button` styling.
+  - [ ] Dependency install, per-file lint autofix, and `yarn rw build` pass are recorded.
+  - [ ] Evidence is consolidated in changelog/work log/evidence index.
+- Tech Notes:
+  - `data-table` is not available as a direct shadcn v4 registry item; implemented reusable `DataTable` using `@tanstack/react-table` with shadcn table primitives.
+  - Added `InputGroup`, `InputGroupAddon`, and `InputGroupInput` wrappers to support grouped input patterns.
+- Estimation: M
+- Evidence: web/components.json, web/package.json, web/src/index.css, web/src/lib/utils.js, web/src/components/ui/button.jsx, web/src/components/ui/form.jsx, web/src/components/ui/alert.jsx, web/src/components/ui/dialog.jsx, web/src/components/ui/checkbox.jsx, web/src/components/ui/dropdown-menu.jsx, web/src/components/ui/input.jsx, web/src/components/ui/label.jsx, web/src/components/ui/progress.jsx, web/src/components/ui/table.jsx, web/src/components/ui/data-table.jsx, web/src/components/ui/input-group.jsx, web/src/components/ui/index.js, web/src/components/AuthNav/AuthNav.jsx, yarn.lock, docs/CHANGELOG.md, docs/WORK_LOG.md, docs/EVIDENCE_INDEX.md, docs/TECHNICAL_CHALLENGES.md

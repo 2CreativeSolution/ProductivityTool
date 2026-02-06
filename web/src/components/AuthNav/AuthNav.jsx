@@ -1,5 +1,7 @@
 import { Link, routes } from '@redwoodjs/router'
 
+import { Button } from 'src/components/ui/button'
+
 const AuthNav = ({ showSignIn, showSignUp }) => {
   return (
     <div className="nxa-auth-nav">
@@ -8,20 +10,14 @@ const AuthNav = ({ showSignIn, showSignUp }) => {
       </Link>
       <div className="nxa-auth-actions">
         {showSignIn && (
-          <Link
-            to={routes.login()}
-            className="nxa-button nxa-button--sm nxa-button--inline"
-          >
-            Sign In
-          </Link>
+          <Button asChild size="sm" variant="primary">
+            <Link to={routes.login()}>Sign In</Link>
+          </Button>
         )}
         {showSignUp && (
-          <Link
-            to={routes.signup()}
-            className="nxa-button nxa-button--sm nxa-button--inline"
-          >
-            Sign Up
-          </Link>
+          <Button asChild size="sm" variant="primary">
+            <Link to={routes.signup()}>Sign Up</Link>
+          </Button>
         )}
       </div>
     </div>

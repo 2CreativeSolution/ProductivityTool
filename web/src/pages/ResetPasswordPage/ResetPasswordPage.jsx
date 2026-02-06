@@ -8,6 +8,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 import { useAuth } from 'src/auth'
 import AuthFooter from 'src/components/AuthFooter/AuthFooter'
 import AuthNav from 'src/components/AuthNav/AuthNav'
+import { buttonVariants } from 'src/components/ui/button'
 import 'src/styles/brand-nxa.css'
 
 const ResetPasswordPage = ({ resetToken }) => {
@@ -91,7 +92,13 @@ const ResetPasswordPage = ({ resetToken }) => {
 
                 <FieldError name="password" className="nxa-error" />
 
-                <Submit className="nxa-button" disabled={!enabled}>
+                <Submit
+                  className={buttonVariants({
+                    variant: 'primary',
+                    className: 'mt-4',
+                  })}
+                  disabled={!enabled}
+                >
                   Update Password
                 </Submit>
               </Form>
