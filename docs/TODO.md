@@ -1,2 +1,3 @@
 1) Verify SMTP availability for password reset; credentials not confirmed yet. Reason: auth reset flow depends on SMTP env vars. (evidence: api/src/functions/auth.js#L27-L46, .env.example#L7-L27)
 2) Confirm whether `check-auth-config.md` URLs are still valid or should be archived. Reason: file contains production URLs but current validity unknown. (evidence: docs/archive/check-auth-config.md#L1-L49)
+3) Defer SMTP config validation to email-only auth flows. Reason: top-level `getSmtpConfig()` in DbAuth handler blocks non-email actions (`login`, `logout`, `signup`, `resetPassword`) when SMTP vars are unset. (evidence: api/src/functions/auth.js#L10-L13, api/src/functions/auth.js#L31-L112)
