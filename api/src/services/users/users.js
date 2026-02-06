@@ -1,7 +1,9 @@
-import { context } from '@redwoodjs/graphql-server'
+import { context, ValidationError } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
 import { logger } from 'src/lib/logger'
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export const users = () => {
   return db.user.findMany({
@@ -84,8 +86,43 @@ export const createUser = ({ input }) => {
 
 export const updateUser = ({ id, input }) => {
   logger.info('Updating user:', { id, input })
+
+  const normalizedInput = { ...input }
+  const isAdmin = context.currentUser?.roles?.includes('ADMIN')
+
+  if (Object.hasOwn(normalizedInput, 'name')) {
+    normalizedInput.name =
+      normalizedInput.name?.trim?.() ?? normalizedInput.name
+    if (!normalizedInput.name) {
+      throw new ValidationError('Name is required')
+    }
+  }
+
+  if (Object.hasOwn(normalizedInput, 'email')) {
+    normalizedInput.email =
+      normalizedInput.email?.trim?.() ?? normalizedInput.email
+    if (!normalizedInput.email) {
+      throw new ValidationError('Email is required')
+    }
+    if (!EMAIL_PATTERN.test(normalizedInput.email)) {
+      throw new ValidationError('Please enter a valid email address')
+    }
+  }
+
+  if (Object.hasOwn(normalizedInput, 'roles') && !isAdmin) {
+    throw new ValidationError('Only admins can update roles')
+  }
+
+  if (Object.hasOwn(normalizedInput, 'roles')) {
+    const normalizedRoles = [...new Set(normalizedInput.roles || [])]
+    if (normalizedRoles.length === 0) {
+      throw new ValidationError('At least one role is required')
+    }
+    normalizedInput.roles = normalizedRoles
+  }
+
   return db.user.update({
-    data: input,
+    data: normalizedInput,
     where: { id },
     include: {
       bookings: true,

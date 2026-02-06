@@ -70,18 +70,12 @@
 
 .app-content-shell {
   position: relative;
-  min-height: calc(100vh - 5.5rem);
+  min-height: calc(100vh - 4rem);
   border: 1px solid #e5e7eb;
   border-radius: 1rem;
   background-color: #ffffff;
-  padding: 1rem;
+  padding: 2rem;
   box-shadow: 0 20px 40px -30px rgba(15, 23, 42, 0.45);
-}
-
-@media (min-width: 768px) {
-  .app-content-shell {
-    padding: 1.5rem;
-  }
 }
 
 /*---break---
