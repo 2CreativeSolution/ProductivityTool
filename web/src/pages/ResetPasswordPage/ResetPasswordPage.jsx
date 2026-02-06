@@ -7,6 +7,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
 import AuthFooter from 'src/components/AuthFooter/AuthFooter'
+import AuthNav from 'src/components/AuthNav/AuthNav'
 import 'src/styles/brand-nxa.css'
 
 const ResetPasswordPage = ({ resetToken }) => {
@@ -59,17 +60,10 @@ const ResetPasswordPage = ({ resetToken }) => {
 
       <main className="nxa-page">
         <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
+        <AuthNav showSignIn showSignUp />
         <div className="nxa-center">
           <div className="nxa-card nxa-card-split max-w-5xl">
             <section className="nxa-section">
-              <div className="nxa-brand">
-                <img src="/logo.jpg" alt="2Creative Logo" loading="lazy" />
-                <div>
-                  <div className="nxa-brand-title">Productivity Tool</div>
-                  <div className="text-xs text-gray-500">2Creative Solutions</div>
-                </div>
-              </div>
-
               <h1 className="nxa-title">
                 Set
                 <br />

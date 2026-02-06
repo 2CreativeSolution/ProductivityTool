@@ -55,6 +55,14 @@
 - Added disabled styling for auth inputs and buttons. (evidence: web/src/styles/brand-nxa.css)
 - Added hover, active, and pointer cursor states for auth buttons. (evidence: web/src/styles/brand-nxa.css)
 - Disabled buttons no longer show hover/active effects. (evidence: web/src/styles/brand-nxa.css)
+- Added auth nav with logo-left and sign-in/sign-up links per page context. (evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, web/src/styles/brand-nxa.css)
+- Moved auth nav out of the card and into the top of auth pages. (evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx)
+- Aligned auth card footer to the bottom using flex column layout. (evidence: web/src/styles/brand-nxa.css)
+- Added small button variant for auth buttons and kept auth nav links plain text. (evidence: web/src/styles/brand-nxa.css)
+- Applied small button variant to auth nav sign-in/sign-up links. (evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/styles/brand-nxa.css)
+- Auth nav buttons now use the primary button styling. (evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/styles/brand-nxa.css)
+- Removed unused auth link style and tightened mobile auth card padding/radius. (evidence: web/src/styles/brand-nxa.css)
+- Reduced auth title size to 2xl on mobile. (evidence: web/src/styles/brand-nxa.css)
 
 ## 2026-01-28
 - Standard seed now also runs office supplies seeding. (evidence: scripts/seed.js)

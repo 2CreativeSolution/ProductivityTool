@@ -62,6 +62,14 @@
 | 2026-02-05 | PT-052 | Added disabled styling for auth inputs/buttons | web/src/styles/brand-nxa.css |
 | 2026-02-05 | PT-053 | Added hover/active states for auth buttons | web/src/styles/brand-nxa.css |
 | 2026-02-05 | PT-054 | Scoped hover/active effects to enabled auth buttons only | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-055 | Added shared auth nav with sign-in/up links per page | web/src/components/AuthNav/AuthNav.jsx; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-056 | Moved auth nav to top of page outside the card | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| 2026-02-05 | PT-057 | Pinned auth card footer to the bottom using flex column layout | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-058 | Added small button variant and kept auth nav links plain | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-059 | Applied small button variant to auth nav links | web/src/components/AuthNav/AuthNav.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-060 | Applied primary button styling to auth nav buttons | web/src/components/AuthNav/AuthNav.jsx; web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-061 | Reduced mobile auth padding/radius and removed unused auth link styles | web/src/styles/brand-nxa.css |
+| 2026-02-05 | PT-062 | Reduced auth title size to 2xl on mobile | web/src/styles/brand-nxa.css |
 
 ## Sarath
 

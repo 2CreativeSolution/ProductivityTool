@@ -110,3 +110,11 @@
 | E-106 | web/src/styles/brand-nxa.css | Disabled styling for auth inputs and buttons | web/src/styles/brand-nxa.css |
 | E-107 | web/src/styles/brand-nxa.css | Button hover/active states for auth pages | web/src/styles/brand-nxa.css |
 | E-108 | web/src/styles/brand-nxa.css | Disabled buttons ignore hover/active effects | web/src/styles/brand-nxa.css |
+| E-109 | web/src/components/AuthNav/AuthNav.jsx; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx; web/src/styles/brand-nxa.css | Auth nav with logo-left and sign-in/up links per page | web/src/components/AuthNav/AuthNav.jsx; web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx; web/src/styles/brand-nxa.css |
+| E-110 | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx | Auth nav moved to top of page (outside card) | web/src/pages/LoginPage/LoginPage.jsx; web/src/pages/SignupPage/SignupPage.jsx; web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx; web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx |
+| E-111 | web/src/styles/brand-nxa.css | Auth card footer pinned to bottom with flex column layout | web/src/styles/brand-nxa.css |
+| E-112 | web/src/styles/brand-nxa.css | Added small button variant and kept auth nav links plain | web/src/styles/brand-nxa.css |
+| E-113 | web/src/components/AuthNav/AuthNav.jsx; web/src/styles/brand-nxa.css | Auth nav links use small button variant | web/src/components/AuthNav/AuthNav.jsx; web/src/styles/brand-nxa.css |
+| E-114 | web/src/components/AuthNav/AuthNav.jsx; web/src/styles/brand-nxa.css | Auth nav uses primary button styling with small variant | web/src/components/AuthNav/AuthNav.jsx; web/src/styles/brand-nxa.css |
+| E-115 | web/src/styles/brand-nxa.css | Mobile auth padding/radius tightened and unused auth link styles removed | web/src/styles/brand-nxa.css |
+| E-116 | web/src/styles/brand-nxa.css | Auth title reduced to 2xl on mobile | web/src/styles/brand-nxa.css |

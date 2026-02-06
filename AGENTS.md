@@ -19,6 +19,8 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
 - DO NOT touch/edit yarn.ock file(s). if you modify any package - run yarn install for relevant dir to update yarn.lock
 - Prefer reusable components for repeated UI and use data‑driven values instead of hardcoded strings.
 - Before coding, choose the highest-leverage, lowest-maintenance solution: prioritize reuse, avoid duplication, align with system boundaries (web/api/shared), and don’t ship one-off hacks when a small abstraction or shared component is clearly the right move.
+- If any requirement is ambiguous (placement, scope, or behavior), ask for clarification before changing existing UI.
+- After making code changes, run `yarn rw lint <file> --fix` for each changed file (js/ts/jsx/tsx) to keep lint aligned.
 - After code changes - run eslint auto fix to fix any alignmement, indent issues
 
 ## Workflow

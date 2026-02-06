@@ -13,6 +13,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
 import AuthFooter from 'src/components/AuthFooter/AuthFooter'
+import AuthNav from 'src/components/AuthNav/AuthNav'
 import { STORAGE_KEYS } from 'src/lib/storageKeys'
 import 'src/styles/brand-nxa.css'
 
@@ -63,19 +64,10 @@ const LoginPage = () => {
 
       <main className="nxa-page">
         <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
+        <AuthNav showSignUp />
         <div className="nxa-center">
           <div className="nxa-card nxa-card-split max-w-5xl">
             <section className="nxa-section">
-              <div className="nxa-brand">
-                <img src="/logo.jpg" alt="2Creative Logo" loading="lazy" />
-                <div>
-                  <div className="nxa-brand-title">Productivity Tool</div>
-                  <div className="text-xs text-gray-500">
-                    2Creative Solutions
-                  </div>
-                </div>
-              </div>
-
               <h1 className="nxa-title">Welcome Back</h1>
               <p className="nxa-subtitle">
                 Hey, please use valid credentials to proceed

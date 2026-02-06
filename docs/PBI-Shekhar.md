@@ -498,6 +498,109 @@
 - Estimation: S
 - Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
 
+## PT-055 ✅ Add auth nav to auth pages
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth pages lacked a consistent nav for sign-in/sign-up links.
+- Acceptance Criteria:
+  - [ ] Auth pages show logo at left and sign-in/sign-up links at right.
+  - [ ] Sign-in page shows only sign-up; sign-up page shows only sign-in.
+  - [ ] Forgot/reset pages show both links.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use a shared `AuthNav` component and brand styles.
+- Estimation: S
+- Evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-056 ✅ Place auth nav at top of page
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth nav was rendered inside the card instead of page header.
+- Acceptance Criteria:
+  - [ ] Auth nav appears at top of auth pages.
+  - [ ] Card content stays unchanged.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Place AuthNav inside `nxa-page` before the centered card.
+- Estimation: S
+- Evidence: web/src/pages/LoginPage/LoginPage.jsx, web/src/pages/SignupPage/SignupPage.jsx, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx, web/src/pages/ResetPasswordPage/ResetPasswordPage.jsx, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-057 ✅ Pin auth card footer to bottom
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth card footer floats above bottom of the card.
+- Acceptance Criteria:
+  - [ ] Footer aligns to bottom edge of auth card.
+  - [ ] Section padding remains unchanged.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Make `nxa-section` a flex column and use `mt-auto` on footer.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-058 ✅ Add small button variant for auth actions
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth pages need a compact button variant for small actions.
+- Acceptance Criteria:
+  - [ ] Logo has a subtle 2px radius.
+  - [ ] Small button class uses reduced padding/radius and normal font weight.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Update `brand-nxa.css` only.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-059 ✅ Use small button variant on auth nav links
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth nav links needed compact button styling.
+- Acceptance Criteria:
+  - [ ] Sign-in and sign-up links use the small button class.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Apply `nxa-button--sm` in `AuthNav`.
+- Estimation: S
+- Evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-060 ✅ Apply primary button styling to auth nav buttons
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth nav buttons were styled as plain text instead of primary.
+- Acceptance Criteria:
+  - [ ] Auth nav buttons use primary button styling with small variant.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Combine `nxa-button` with `nxa-button--sm` and `nxa-button--inline`.
+- Estimation: S
+- Evidence: web/src/components/AuthNav/AuthNav.jsx, web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-061 ✅ Mobile auth layout tweaks
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Mobile auth padding and radius were too large; unused auth link style remained.
+- Acceptance Criteria:
+  - [ ] Mobile padding for auth sections is reduced by ~50%.
+  - [ ] Mobile auth card radius set to 8px.
+  - [ ] Unused auth link style removed.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use a max-width media query (mobile) in `brand-nxa.css`.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
+## PT-062 ✅ Reduce auth title size on mobile
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: Auth titles were oversized on small screens.
+- Acceptance Criteria:
+  - [ ] Auth title renders at 2xl on mobile.
+  - [ ] Evidence captured in changelog and work log.
+- Tech Notes:
+  - Use a mobile media query in `brand-nxa.css`.
+- Estimation: S
+- Evidence: web/src/styles/brand-nxa.css, docs/CHANGELOG.md, docs/WORK_LOG.md
+
 ## PT-053 ✅ Add hover/active states for auth buttons
 - Owner: Shekhar
 - Scope: Web/UI
