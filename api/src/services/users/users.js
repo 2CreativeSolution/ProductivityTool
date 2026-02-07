@@ -6,6 +6,7 @@ import {
 import { context, ValidationError } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
+import { sendPasswordChangedConfirmationEmail } from 'src/lib/emailService'
 import { logger } from 'src/lib/logger'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -255,6 +256,19 @@ export const changePassword = async ({ input }) => {
       hashedPassword: nextHashedPassword,
       salt: nextSalt,
     },
+  })
+
+  sendPasswordChangedConfirmationEmail({
+    email: context.currentUser?.email,
+    name: context.currentUser?.name,
+  }).catch((error) => {
+    logger.error(
+      {
+        error: error?.message || error,
+        userId: currentUserId,
+      },
+      'Failed to send password changed confirmation email'
+    )
   })
 
   return true
