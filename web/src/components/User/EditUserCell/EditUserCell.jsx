@@ -40,6 +40,7 @@ export const Success = ({
   successRoute = routes.users(),
   formVariant = 'default',
   startInEditMode = false,
+  showFormTitle = true,
 }) => {
   const [saveSuccessToken, setSaveSuccessToken] = useState(0)
 
@@ -68,6 +69,7 @@ export const Success = ({
         formVariant="account"
         saveSuccessToken={saveSuccessToken}
         startInEditMode={startInEditMode}
+        showFormTitle={showFormTitle}
       />
     )
   }

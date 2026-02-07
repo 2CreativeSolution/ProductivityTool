@@ -1,7 +1,9 @@
 import { Metadata } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
+import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
+import PageHeader from 'src/components/PageHeader/PageHeader'
 import ProjectTracker from 'src/components/ProjectTracker/ProjectTracker'
 
 const ProjectTrackerPage = () => {
@@ -16,18 +18,14 @@ const ProjectTrackerPage = () => {
 
       <div className="min-h-screen bg-gray-50">
         <AppSidebar />
-        <div className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Project Tracker
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Manage resource allocation and track daily project progress
-            </p>
-          </div>
+        <AppContentShell>
+          <PageHeader
+            title="Project Tracker"
+            description="Manage resource allocation and track daily project progress"
+          />
 
           <ProjectTracker currentUser={currentUser} />
-        </div>
+        </AppContentShell>
       </div>
     </>
   )

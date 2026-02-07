@@ -1,7 +1,9 @@
 import { Metadata } from '@redwoodjs/web'
 
+import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import OutlookEmailTestComponent from 'src/components/OutlookEmailTestComponent/OutlookEmailTestComponent'
+import PageHeader from 'src/components/PageHeader/PageHeader'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from 'src/components/ui'
 
 const DIAGNOSTIC_TABS = [
@@ -17,13 +19,11 @@ const AdminDiagnosticsToolsPage = () => {
         description="Admin diagnostics and system troubleshooting tools"
       />
       <AppSidebar />
-      <main className="app-content-shell mb-8 mr-8 mt-20 lg:my-8 lg:ml-[calc(var(--app-sidebar-width)+2rem)]">
+      <AppContentShell>
         <section>
-          <h2 className="text-3xl font-bold text-slate-900">
-            Diagnostics Tools
-          </h2>
+          <PageHeader title="Diagnostics Tools" />
 
-          <Tabs defaultValue={DIAGNOSTIC_TABS[0].id} className="mt-6">
+          <Tabs defaultValue={DIAGNOSTIC_TABS[0].id}>
             <TabsList className="h-auto w-full justify-start gap-2 rounded-none border-b border-slate-200 bg-transparent p-0 pb-3">
               {DIAGNOSTIC_TABS.map((tab) => (
                 <TabsTrigger
@@ -51,7 +51,7 @@ const AdminDiagnosticsToolsPage = () => {
             </TabsContent>
           </Tabs>
         </section>
-      </main>
+      </AppContentShell>
     </>
   )
 }

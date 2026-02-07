@@ -1,5 +1,18 @@
 # PBI-Shekhar
 
+## PT-066 ✅ Consolidate shell/header UX and admin/resource page consistency
+- Owner: Shekhar
+- Scope: Web/UI
+- Problem: App pages used duplicated shell/header structures and inconsistent action/active-state patterns, causing uneven UX across dashboard, admin, and resources pages.
+- Acceptance Criteria:
+  - [x] Shared `AppContentShell` + `PageHeader` used across target pages, with page descriptions/actions moved into header where applicable.
+  - [x] `/me` navigation split into dedicated bookings/attendance/vacation pages with consistent header framing.
+  - [x] Header action buttons standardized to small black variant; duplicate titles removed from admin users/supply pages.
+  - [x] Sidebar active sub-item state made clearly visible without heavy visual effects.
+- Tech Notes: Implemented with small reusable UI primitives and targeted page wiring to avoid large refactors.
+- Estimation: M
+- Evidence: web/src/components/AppContentShell/AppContentShell.jsx, web/src/components/PageHeader/PageHeader.jsx, web/src/components/AppSidebar/AppSidebar.jsx, web/src/Routes.jsx, web/src/pages/DashboardPage/DashboardPage.jsx, web/src/pages/MeBookingsPage/MeBookingsPage.jsx, web/src/pages/MeAttendancePage/MeAttendancePage.jsx, web/src/pages/MeVacationPage/MeVacationPage.jsx, web/src/pages/User/UsersPage/UsersPage.jsx, web/src/pages/OfficeSupply/AdminSupplyRequestsPage/AdminSupplyRequestsPage.jsx, web/src/pages/OfficeSupply/SupplyCategoriesPage/SupplyCategoriesPage.jsx, web/src/components/OfficeSupply/AdminSupplyRequestManager/AdminSupplyRequestManager.jsx, web/src/components/OfficeSupply/CategoryManager/CategoryManager.jsx, web/src/components/Attendance/Attendance.jsx, web/src/components/AttendanceCard/AttendanceCard.jsx, web/src/components/Booking/Booking/Booking.jsx, web/src/components/VacationPlanner/VacationPlanner.jsx
+
 ## PT-065 ✅ Refactor admin user management UI
 - Owner: Shekhar
 - Scope: Web/API

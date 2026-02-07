@@ -20,6 +20,6 @@ export const Failure = ({ error }) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
-export const Success = ({ user }) => {
-  return <User user={user} />
+export const Success = ({ user, ...props }) => {
+  return <User user={user} {...props} />
 }

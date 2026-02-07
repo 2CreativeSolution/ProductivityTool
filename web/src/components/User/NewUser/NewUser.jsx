@@ -12,7 +12,7 @@ const CREATE_USER_MUTATION = gql`
   }
 `
 
-const NewUser = () => {
+const NewUser = ({ hideFormTitle = false }) => {
   const [createUser, { loading, error }] = useMutation(CREATE_USER_MUTATION, {
     onCompleted: () => {
       toast.success('User created')
@@ -38,6 +38,7 @@ const NewUser = () => {
       editorOnly
       formTitle="New User"
       submitLabel="Create User"
+      showFormTitle={!hideFormTitle}
     />
   )
 }

@@ -13,7 +13,7 @@ const DELETE_USER_MUTATION = gql`
   }
 `
 
-const User = ({ user }) => {
+const User = ({ user, showTitle = true }) => {
   const allRoleOptions = ['USER', 'ADMIN', 'MANAGER', 'TEAM_LEAD']
   const roleOptions = Array.from(
     new Set([...allRoleOptions, ...(user.roles || [])])
@@ -39,11 +39,11 @@ const User = ({ user }) => {
   return (
     <>
       <div>
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Account Settings
-          </h1>
-        </div>
+        {showTitle && (
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-slate-900">User Details</h1>
+          </div>
+        )}
 
         <div className="space-y-8">
           <div className="space-y-2">

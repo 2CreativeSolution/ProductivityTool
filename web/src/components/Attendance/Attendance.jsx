@@ -1,16 +1,16 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
 
 import { useQuery, gql } from '@apollo/client'
-import jsPDF from 'jspdf'
+import JsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import Papa from 'papaparse'
 
-import { navigate, routes } from '@redwoodjs/router'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
 import ExceptionForm from 'src/components/ExceptionForm'
 import FormModal from 'src/components/FormModal'
+import { buttonVariants } from 'src/components/ui/button'
 
 const ATTENDANCE_QUERY = gql`
   query AttendanceQuery($userId: Int) {
@@ -123,7 +123,7 @@ const Attendance = ({ userId }) => {
       return
     }
 
-    const pdf = new jsPDF()
+    const pdf = new JsPDF()
     const title = `${currentUser?.name || 'User'}'s Attendance History`
     pdf.setFontSize(16)
     pdf.text(title, 14, 20)
@@ -246,7 +246,7 @@ const Attendance = ({ userId }) => {
   // Listen for attendance updates (from AttendanceCard)
   useEffect(() => {
     const handler = () => {
-      refetch().then((result) => {
+      refetch().then(() => {
         // Optionally handle after refetch
       })
     }
@@ -450,7 +450,10 @@ const Attendance = ({ userId }) => {
 
                 <div className="mt-4 flex items-center justify-between">
                   <button
-                    className="rounded bg-gray-200 px-4 py-2 transition hover:bg-gray-300"
+                    className={buttonVariants({
+                      variant: 'secondary',
+                      size: 'sm',
+                    })}
                     disabled={attendancePage === 1}
                     onClick={() => setAttendancePage((prev) => prev - 1)}
                   >
@@ -461,7 +464,10 @@ const Attendance = ({ userId }) => {
                     {Math.ceil(attendances.length / itemsPerPage)}
                   </span>
                   <button
-                    className="rounded bg-gray-200 px-4 py-2 transition hover:bg-gray-300"
+                    className={buttonVariants({
+                      variant: 'secondary',
+                      size: 'sm',
+                    })}
                     disabled={
                       attendancePage ===
                       Math.ceil(attendances.length / itemsPerPage)
@@ -482,7 +488,7 @@ const Attendance = ({ userId }) => {
             Exception Management
           </h2>
           <button
-            className="mb-4 w-full rounded bg-indigo-600 py-2 font-semibold text-white shadow transition-colors hover:bg-indigo-700"
+            className={`${buttonVariants({ variant: 'primary' })} mb-4 w-full`}
             onClick={() => setShowModal(true)}
           >
             Submit New Exception
@@ -534,7 +540,7 @@ const Attendance = ({ userId }) => {
           </div>
           <div className="mt-4 flex items-center justify-between">
             <button
-              className="rounded bg-gray-200 px-4 py-2 transition hover:bg-gray-300"
+              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
               disabled={exceptionPage === 1}
               onClick={() => setExceptionPage((prev) => prev - 1)}
             >
@@ -545,7 +551,7 @@ const Attendance = ({ userId }) => {
               {Math.ceil(exceptionRequests.length / itemsPerPage)}
             </span>
             <button
-              className="rounded bg-gray-200 px-4 py-2 transition hover:bg-gray-300"
+              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
               disabled={
                 exceptionPage ===
                 Math.ceil(exceptionRequests.length / itemsPerPage)
