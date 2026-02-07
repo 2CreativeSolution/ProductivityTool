@@ -1,15 +1,10 @@
-import nodemailer from 'nodemailer'
-
 import { DbAuthHandler } from '@redwoodjs/auth-dbauth-api'
 
 import { cookieName } from 'src/lib/auth'
 import { db } from 'src/lib/db'
-import { sendWelcomeEmail } from 'src/lib/emailService'
-import { getSmtpConfig } from 'src/lib/smtpConfig'
+import { sendPasswordResetEmail, sendWelcomeEmail } from 'src/lib/emailService'
 
 export const handler = async (event, context) => {
-  const smtp = getSmtpConfig()
-
   const forgotPasswordOptions = {
     // handler() is invoked after verifying that a user was found with the given
     // username. This is where you can send the user an email with a link to
@@ -35,76 +30,17 @@ export const handler = async (event, context) => {
       if (!resetBaseUrl) {
         throw new Error('WEB_APP_URL is required for password reset links')
       }
-      // Use environment variables for credentials!
-      const transporter = nodemailer.createTransport({
-        host: smtp.smtpHost,
-        port: smtp.smtpPort,
-        secure: false,
-        auth: {
-          user: smtp.smtpUser,
-          pass: smtp.smtpPass,
-        },
-      })
 
       const resetUrl = `${resetBaseUrl}/reset-password?resetToken=${resetToken}`
+      const account = await db.user.findUnique({
+        where: { email: user.email },
+        select: { name: true },
+      })
 
-      const subject = 'Reset your password - 2Creative Productivity Tool'
-
-      const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <style>
-              body { margin:0; padding:0; background:#f3f4f6; font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; color:#0f172a; }
-              .card { max-width: 560px; margin: 28px auto; background:#ffffff; border-radius:14px; overflow:hidden; box-shadow:0 18px 45px rgba(15,23,42,0.12); }
-              .header { padding:22px 24px; background:linear-gradient(135deg,#312e81 0%,#5b21b6 50%, #7c3aed 100%); color:#f8fafc; }
-              .name { font-size:18px; font-weight:700; letter-spacing:0.01em; }
-              .sub { opacity:0.82; font-size:13px; padding-top:4px; }
-              .body { padding:26px 28px 10px; }
-              .muted { color:#475569; font-size:14px; line-height:1.65; }
-              .cta { display:inline-block; margin:18px 0 10px; padding:13px 22px; background:#111827; color:#ffffff !important; text-decoration:none; border-radius:10px; font-weight:700; letter-spacing:0.01em; }
-              .cta:hover { background:#0b1220; }
-              .link { color:#4338ca; word-break:break-all; font-size:13px; }
-              .footer { padding:18px 24px 22px; background:#f8fafc; color:#6b7280; font-size:12px; line-height:1.5; }
-            </style>
-          </head>
-          <body>
-            <div class="card">
-              <div class="header">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-                  <tr>
-                    <td class="name">2Creative Productivity Tool</td>
-                  </tr>
-                  <tr>
-                    <td class="sub">Password reset request</td>
-                  </tr>
-                </table>
-              </div>
-              <div class="body">
-                <p class="muted" style="margin-top:0;">We received a request to reset the password for your account.</p>
-                <a class="cta" href="${resetUrl}" target="_blank" rel="noopener">Reset your password</a>
-                <p class="muted">If the button doesn’t work, copy and paste this link into your browser:</p>
-                <p class="link">${resetUrl}</p>
-                <p class="muted" style="margin-bottom:14px;">This link expires in 24 hours. If you didn’t request this, you can safely ignore this email.</p>
-              </div>
-              <div class="footer">
-                © 2025 2Creative Solutions — This is an automated message; replies aren’t monitored.
-              </div>
-            </div>
-          </body>
-        </html>
-      `
-
-      const text = `We received a request to reset your password.\n\nReset link: ${resetUrl}\n\nThis link expires in 24 hours. If you did not request this, you can ignore this email.`
-
-      await transporter.sendMail({
-        from: `"${smtp.smtpFromName}" <${smtp.smtpFromEmail}>`,
-        to: user.email,
-        subject,
-        text,
-        html,
+      await sendPasswordResetEmail({
+        email: user.email,
+        resetUrl,
+        name: account?.name || undefined,
       })
 
       // Optionally return the email for frontend toast
@@ -200,10 +136,11 @@ export const handler = async (event, context) => {
           hashedPassword: hashedPassword,
           salt: salt,
           name: userAttributes?.name,
+          roles: ['USER'],
         },
       })
 
-      // Non-blocking welcome email if enabled
+      // Non-blocking welcome email
       sendWelcomeEmail(user).catch((err) => {
         console.warn('Welcome email skipped/failed:', err?.message || err)
       })

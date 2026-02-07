@@ -1,5 +1,20 @@
 # PBI-Shekhar
 
+## PT-067 ✅ Account security settings + auth email template consolidation
+- Owner: Shekhar
+- Scope: Web/API/Auth/Email
+- Problem: Users had no in-app password-change screen, password-change notifications were missing, auth emails were duplicated/inconsistent, and new signup users were not guaranteed to receive a default role.
+- Acceptance Criteria:
+  - [x] New settings route/page exists for password change and is linked in sidebar below Account Settings.
+  - [x] Password-change form captures current password and double-entry new password; mismatch blocks submit while strength remains informational.
+  - [x] Backend mutation validates current password, rotates password hash and salt, and returns success/failure clearly.
+  - [x] Successful password changes send confirmation email to the account email.
+  - [x] Shared account email template is reused across password reset, welcome, and password-changed emails.
+  - [x] Signup always assigns default `USER` role.
+- Tech Notes: Implemented minimal-surface API additions (`ChangePasswordInput` + `changePassword`) and reused centralized SMTP/template helpers to avoid duplicated auth email HTML.
+- Estimation: M
+- Evidence: web/src/components/Settings/ChangePasswordForm/ChangePasswordForm.jsx, web/src/pages/User/ChangePasswordPage/ChangePasswordPage.jsx, web/src/components/AppSidebar/AppSidebar.jsx, web/src/Routes.jsx, api/src/graphql/users.sdl.js, api/src/services/users/users.js, api/src/functions/auth.js, api/src/lib/emailService.js
+
 ## PT-066 ✅ Consolidate shell/header UX and admin/resource page consistency
 - Owner: Shekhar
 - Scope: Web/UI
