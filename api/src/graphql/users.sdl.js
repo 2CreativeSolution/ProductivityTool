@@ -96,6 +96,11 @@ export const schema = gql`
     roles: [String]
   }
 
+  input ChangePasswordInput {
+    currentPassword: String!
+    newPassword: String!
+  }
+
   type Query {
     users: [User!]! @requireAuth
     user(id: Int!): User @requireAuth
@@ -110,5 +115,6 @@ export const schema = gql`
     deleteUser(id: Int!): User! @requireAuth
     upsertUser(input: UpsertUserInput!): User! @requireAuth
     updateUserRoles(id: Int!, roles: [Role!]!): User! @requireAuth
+    changePassword(input: ChangePasswordInput!): Boolean! @requireAuth
   }
 `

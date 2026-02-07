@@ -1,9 +1,30 @@
+import {
+  extractHashingOptions,
+  hashPassword,
+  legacyHashPassword,
+} from '@redwoodjs/auth-dbauth-api'
 import { context, ValidationError } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
+import { sendPasswordChangedConfirmationEmail } from 'src/lib/emailService'
 import { logger } from 'src/lib/logger'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const isPasswordValid = (hashedPassword, salt, plainTextPassword) => {
+  const hashOptions = extractHashingOptions(hashedPassword)
+
+  if (Object.keys(hashOptions).length > 0) {
+    const [computedHash] = hashPassword(plainTextPassword, {
+      salt,
+      options: hashOptions,
+    })
+    return computedHash === hashedPassword
+  }
+
+  const [legacyHash] = legacyHashPassword(plainTextPassword, salt)
+  return legacyHash === hashedPassword
+}
 
 export const users = () => {
   return db.user.findMany({
@@ -181,6 +202,76 @@ export const updateUserRoles = ({ id, roles }) => {
       attendances: true,
     },
   })
+}
+
+export const changePassword = async ({ input }) => {
+  const currentUserId = context.currentUser?.id
+
+  if (!currentUserId) {
+    throw new ValidationError('You must be logged in to change your password')
+  }
+
+  const currentPassword = input?.currentPassword?.toString?.() ?? ''
+  const newPassword = input?.newPassword?.toString?.() ?? ''
+
+  if (!currentPassword.trim()) {
+    throw new ValidationError('Current password is required')
+  }
+
+  if (!newPassword.trim()) {
+    throw new ValidationError('New password is required')
+  }
+
+  const userWithCredentials = await db.user.findUnique({
+    where: { id: currentUserId },
+    select: {
+      id: true,
+      hashedPassword: true,
+      salt: true,
+    },
+  })
+
+  if (!userWithCredentials?.hashedPassword || !userWithCredentials?.salt) {
+    throw new ValidationError('Password change is unavailable for this account')
+  }
+
+  const currentPasswordIsValid = isPasswordValid(
+    userWithCredentials.hashedPassword,
+    userWithCredentials.salt,
+    currentPassword
+  )
+
+  if (!currentPasswordIsValid) {
+    throw new ValidationError('Current password is incorrect')
+  }
+
+  const hashOptions = extractHashingOptions(userWithCredentials.hashedPassword)
+  const [nextHashedPassword, nextSalt] = hashPassword(newPassword, {
+    ...(Object.keys(hashOptions).length > 0 ? { options: hashOptions } : {}),
+  })
+
+  await db.user.update({
+    where: { id: currentUserId },
+    data: {
+      hashedPassword: nextHashedPassword,
+      salt: nextSalt,
+    },
+  })
+
+  sendPasswordChangedConfirmationEmail({
+    email: context.currentUser?.email,
+    name: context.currentUser?.name,
+  }).catch((error) => {
+    logger.error(
+      {
+        error: error?.message || error,
+        userId: currentUserId,
+      },
+      'Failed to send password changed confirmation email'
+    )
+  })
+
+  return true
 }
 
 export const currentUser = () => {

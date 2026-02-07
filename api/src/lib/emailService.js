@@ -94,12 +94,12 @@ const createEmailTemplate = (title, content, backgroundColor = '#f3f4f6') => {
                 <h1 style="color: white; margin: 0; font-size: 24px; font-weight: bold; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">2Creative Productivity Tool</h1>
                 <p style="color: rgba(255,255,255,0.9); margin: 5px 0 0 0; font-size: 14px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Request Status Update</p>
               </div>
-              
+
               <!-- Content -->
               <div style="padding: 30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
                 ${content}
               </div>
-              
+
               <!-- Footer -->
               <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
                 <p style="margin: 0; font-size: 12px; color: #6b7280; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
@@ -118,6 +118,136 @@ const createEmailTemplate = (title, content, backgroundColor = '#f3f4f6') => {
   `
 }
 
+const getCompanyName = (smtp) =>
+  smtp.smtpFromName || '2Creative Productivity Tool'
+
+const createAccountEmailTemplate = ({ smtp, title, bodyHtml }) => {
+  const logoUrl = `${smtp.baseUrl}/logo-full.jpg`
+  const currentYear = new Date().getUTCFullYear()
+  const companyName = getCompanyName(smtp)
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body style="margin:0; padding:0; background-color:#ffffff; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;">
+          <tr>
+            <td align="center" style="padding:32px 12px 20px;">
+              <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:640px; background-color:#ffffff; border-radius:12px; border:1px solid #e5e7eb;">
+                <tr>
+                  <td align="center" style="padding:30px 24px;">
+                    <img
+                      src="${logoUrl}"
+                      alt="${companyName} logo"
+                      width="170"
+                      style="display:block; margin:0 auto; width:170px; max-width:100%; height:auto;"
+                    />
+                    <h1 style="margin:16px 0 0; font-size:24px; line-height:1.2; font-weight:700; color:#111827;">
+                      ${title}
+                    </h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:24px 48px 32px; border-top:1px solid #e5e7eb; color:#1f2937; font-size:16px; line-height:1.65;">
+                    ${bodyHtml}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:12px 16px 34px;">
+              <p style="margin:0; color:#6b7280; font-size:13px;">
+                © ${currentYear} ${companyName}. All rights reserved.
+              </p>
+              <p style="margin:4px 0 0; color:#6b7280; font-size:13px;">
+                ${smtp.smtpFromEmail}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `
+}
+
+export const sendPasswordResetEmail = async ({ email, resetUrl, name }) => {
+  const smtp = getSmtpConfig({ requireBaseUrl: true })
+  const transporter = createTransporter(smtp)
+
+  const displayName = name || email
+  const currentYear = new Date().getUTCFullYear()
+  const companyName = getCompanyName(smtp)
+
+  const subject = 'Reset your password - 2Creative Productivity Tool'
+
+  const html = createAccountEmailTemplate({
+    smtp,
+    title: 'Reset your password',
+    bodyHtml: `
+      <p style="margin:0 0 12px 0; font-size:16px; font-weight:700; color:#111827;">Hey ${displayName},</p>
+      <p style="margin:0 0 26px 0; font-size:16px;">Need to reset your password? No problem. Click the button below and you’ll be on your way. If you did not make this request, ignore this email.</p>
+      <a href="${resetUrl}" target="_blank" rel="noopener" style="display:block; margin:0 0 20px; padding:16px 24px; border-radius:10px; background-color:#322e85; color:#ffffff; text-decoration:none; font-size:16px; font-weight:700; text-align:center;">
+        Reset your password
+      </a>
+      <p style="margin:0 0 6px 0; font-size:16px;">If the button doesn’t work, copy and paste this link into your browser:</p>
+      <p style="margin:0; word-break:break-all; color:#322e85; font-size:16px;">${resetUrl}</p>
+    `,
+  })
+
+  const text = `Hey ${displayName},\n\nNeed to reset your password? No problem. Click the link below and you'll be on your way. If you did not make this request, ignore this email.\n\nReset link: ${resetUrl}\n\n© ${currentYear} ${companyName}. All rights reserved.\n${smtp.smtpFromEmail}`
+
+  await transporter.sendMail({
+    from: `"${smtp.smtpFromName}" <${smtp.smtpFromEmail}>`,
+    to: email,
+    subject,
+    text,
+    html,
+    headers: createEmailHeaders(smtp.smtpFromEmail),
+  })
+}
+
+export const sendPasswordChangedConfirmationEmail = async ({ email, name }) => {
+  const smtp = getSmtpConfig({ requireBaseUrl: true })
+  const transporter = createTransporter(smtp)
+
+  const subject = 'Your password was changed - 2Creative Productivity Tool'
+  const displayName = name || email
+  const signInUrl = `${smtp.baseUrl}/signin`
+  const changedAt = new Date().toUTCString()
+  const currentYear = new Date().getUTCFullYear()
+  const companyName = getCompanyName(smtp)
+
+  const html = createAccountEmailTemplate({
+    smtp,
+    title: 'Password updated',
+    bodyHtml: `
+      <p style="margin:0 0 12px 0; font-size:16px; font-weight:700; color:#111827;">Hey ${displayName},</p>
+      <p style="margin:0 0 12px 0; font-size:16px;">This is a confirmation that your account password was changed successfully.</p>
+      <p style="margin:0 0 12px 0; font-size:16px;"><strong>Changed at (UTC):</strong> ${changedAt}</p>
+      <p style="margin:0 0 18px 0; font-size:16px;">If this wasn’t you, sign in immediately and contact an administrator.</p>
+      <a href="${signInUrl}" target="_blank" rel="noopener" style="display:block; margin:0 0 8px; padding:16px 24px; border-radius:10px; background-color:#322e85; color:#ffffff; text-decoration:none; font-size:16px; font-weight:700; text-align:center;">
+        Review account access
+      </a>
+    `,
+  })
+
+  const text = `Hey ${displayName},\n\nThis is a confirmation that your account password was changed successfully.\nChanged at (UTC): ${changedAt}\n\nIf this wasn't you, sign in immediately: ${signInUrl}\n\n© ${currentYear} ${companyName}. All rights reserved.\n${smtp.smtpFromEmail}`
+
+  await transporter.sendMail({
+    from: `"${smtp.smtpFromName}" <${smtp.smtpFromEmail}>`,
+    to: email,
+    subject,
+    text,
+    html,
+    headers: createEmailHeaders(smtp.smtpFromEmail),
+  })
+}
+
 // Supply Request Email Templates
 export const sendSupplyRequestApprovalEmail = async (
   user,
@@ -133,15 +263,15 @@ export const sendSupplyRequestApprovalEmail = async (
         <h2 style="margin: 0; font-size: 20px;">✅ Request Approved!</h2>
       </div>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Hi <strong>${user.name}</strong>,
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Great news! Your supply request has been <strong style="color: #059669;">approved</strong>.
     </p>
-    
+
     <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Request Details:</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -163,7 +293,7 @@ export const sendSupplyRequestApprovalEmail = async (
         </tr>
       </table>
     </div>
-    
+
     ${
       approverNotes
         ? `
@@ -174,15 +304,15 @@ export const sendSupplyRequestApprovalEmail = async (
     `
         : ''
     }
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Your approved items will be made available for pickup. You'll receive further instructions about collection details soon.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       If you have any questions, please don't hesitate to reach out to the admin team.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Best regards,<br>
       <strong>2Creative Admin Team</strong>
@@ -222,15 +352,15 @@ export const sendSupplyRequestRejectionEmail = async (
         <h2 style="margin: 0; font-size: 20px;">❌ Request Not Approved</h2>
       </div>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Hi <strong>${user.name}</strong>,
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       We regret to inform you that your supply request could not be approved at this time.
     </p>
-    
+
     <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Request Details:</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -248,20 +378,20 @@ export const sendSupplyRequestRejectionEmail = async (
         </tr>
       </table>
     </div>
-    
+
     <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 10px 0; color: #dc2626; font-size: 16px;">Reason for Rejection:</h3>
       <p style="margin: 0; color: #dc2626; font-weight: 500;">"${rejectionReason}"</p>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       If you believe this decision was made in error or if you'd like to discuss alternative options, please feel free to contact the admin team or submit a new request with additional justification.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Thank you for your understanding.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Best regards,<br>
       <strong>2Creative Admin Team</strong>
@@ -301,15 +431,15 @@ export const sendAssetRequestApprovalEmail = async (
         <h2 style="margin: 0; font-size: 20px;">✅ Asset Request Approved!</h2>
       </div>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Hi <strong>${user.name}</strong>,
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Excellent news! Your asset request has been <strong style="color: #059669;">approved</strong> and an asset has been assigned to you.
     </p>
-    
+
     <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Assigned Asset Details:</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -331,7 +461,7 @@ export const sendAssetRequestApprovalEmail = async (
         </tr>
       </table>
     </div>
-    
+
     ${
       approverNotes
         ? `
@@ -342,7 +472,7 @@ export const sendAssetRequestApprovalEmail = async (
     `
         : ''
     }
-    
+
     <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 10px 0; color: #92400e; font-size: 16px;">📋 Important Reminders:</h3>
       <ul style="margin: 0; padding-left: 20px; color: #92400e;">
@@ -352,11 +482,11 @@ export const sendAssetRequestApprovalEmail = async (
         <li>Contact the admin team if you need an extension</li>
       </ul>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Please coordinate with the admin team for asset pickup arrangements.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Best regards,<br>
       <strong>2Creative Admin Team</strong>
@@ -394,15 +524,15 @@ export const sendAssetRequestRejectionEmail = async (
         <h2 style="margin: 0; font-size: 20px;">❌ Asset Request Not Approved</h2>
       </div>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Hi <strong>${user.name}</strong>,
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       We regret to inform you that your asset request could not be approved at this time.
     </p>
-    
+
     <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Request Details:</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -420,20 +550,20 @@ export const sendAssetRequestRejectionEmail = async (
         </tr>
       </table>
     </div>
-    
+
     <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 10px 0; color: #dc2626; font-size: 16px;">Reason for Rejection:</h3>
       <p style="margin: 0; color: #dc2626; font-weight: 500;">"${rejectionReason}"</p>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       If you believe this decision needs to be reconsidered or if you'd like to discuss alternative options, please feel free to contact the admin team or submit a new request with additional justification.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Thank you for your understanding.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Best regards,<br>
       <strong>2Creative Admin Team</strong>
@@ -474,15 +604,15 @@ export const sendVacationRequestApprovalEmail = async (user, request) => {
         <h2 style="margin: 0; font-size: 20px;">🌴 Vacation Request Approved!</h2>
       </div>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Hi <strong>${user.name}</strong>,
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Great news! Your vacation request has been <strong style="color: #059669;">approved</strong>. Enjoy your time off!
     </p>
-    
+
     <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Vacation Details:</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -504,7 +634,7 @@ export const sendVacationRequestApprovalEmail = async (user, request) => {
         </tr>
       </table>
     </div>
-    
+
     <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">📝 Before You Go:</h3>
       <ul style="margin: 0; padding-left: 20px; color: #1e40af;">
@@ -514,11 +644,11 @@ export const sendVacationRequestApprovalEmail = async (user, request) => {
         <li>Update your calendar with your vacation dates</li>
       </ul>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       We hope you have a wonderful and refreshing time off. If you have any questions before your vacation, please don't hesitate to reach out.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Best regards,<br>
       <strong>2Creative Admin Team</strong>
@@ -562,15 +692,15 @@ export const sendVacationRequestRejectionEmail = async (
         <h2 style="margin: 0; font-size: 20px;">❌ Vacation Request Not Approved</h2>
       </div>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Hi <strong>${user.name}</strong>,
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       We regret to inform you that your vacation request could not be approved at this time.
     </p>
-    
+
     <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Request Details:</h3>
       <table style="width: 100%; border-collapse: collapse;">
@@ -592,20 +722,20 @@ export const sendVacationRequestRejectionEmail = async (
         </tr>
       </table>
     </div>
-    
+
     <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0;">
       <h3 style="margin: 0 0 10px 0; color: #dc2626; font-size: 16px;">Reason for Rejection:</h3>
       <p style="margin: 0; color: #dc2626; font-weight: 500;">"${rejectionReason}"</p>
     </div>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       If you'd like to discuss this decision or explore alternative dates, please feel free to reach out to your manager or the admin team. You can also submit a new request for different dates.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Thank you for your understanding.
     </p>
-    
+
     <p style="font-size: 16px; color: #374151; line-height: 1.6;">
       Best regards,<br>
       <strong>2Creative Admin Team</strong>
@@ -659,15 +789,15 @@ export const sendSupplyRequestNotificationToAdmins = async (
           <h2 style="margin: 0; font-size: 20px;">📦 New Supply Request</h2>
         </div>
       </div>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         Hello Admin,
       </p>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         A new supply request has been submitted and requires your review.
       </p>
-      
+
       <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Request Details:</h3>
         <table style="width: 100%; border-collapse: collapse;">
@@ -697,7 +827,7 @@ export const sendSupplyRequestNotificationToAdmins = async (
           </tr>
         </table>
       </div>
-      
+
       ${
         request.reason
           ? `
@@ -708,14 +838,14 @@ export const sendSupplyRequestNotificationToAdmins = async (
       `
           : ''
       }
-      
+
       <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #92400e; font-size: 16px;">⏰ Action Required:</h3>
         <p style="margin: 0; color: #92400e;">
           Please log in to the admin panel to review and approve or reject this supply request.
         </p>
       </div>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         Best regards,<br>
         <strong>2Creative Productivity Tool</strong>
@@ -738,7 +868,10 @@ export const sendSupplyRequestNotificationToAdmins = async (
 
       try {
         await transporter.sendMail(mailOptions)
-        console.log('Supply request notification email sent to admin:', admin.email)
+        console.log(
+          'Supply request notification email sent to admin:',
+          admin.email
+        )
       } catch (error) {
         console.error(
           'Error sending supply request notification to admin:',
@@ -781,15 +914,15 @@ export const sendAssetRequestNotificationToAdmins = async (
           <h2 style="margin: 0; font-size: 20px;">💻 New Asset Request</h2>
         </div>
       </div>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         Hello Admin,
       </p>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         A new asset request has been submitted and requires your review.
       </p>
-      
+
       <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Request Details:</h3>
         <table style="width: 100%; border-collapse: collapse;">
@@ -815,19 +948,19 @@ export const sendAssetRequestNotificationToAdmins = async (
           </tr>
         </table>
       </div>
-      
+
       <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">Request Reason:</h3>
         <p style="margin: 0; color: #1e40af; font-style: italic;">"${request.reason}"</p>
       </div>
-      
+
       <div style="background-color: #ddd6fe; border: 1px solid #c4b5fd; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #7c3aed; font-size: 16px;">⏰ Action Required:</h3>
         <p style="margin: 0; color: #7c3aed;">
           Please log in to the admin panel to review and approve or reject this asset request.
         </p>
       </div>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         Best regards,<br>
         <strong>2Creative Productivity Tool</strong>
@@ -900,15 +1033,15 @@ export const sendVacationRequestNotificationToAdmins = async (
           <h2 style="margin: 0; font-size: 20px;">🌴 New Vacation Request</h2>
         </div>
       </div>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         Hello Admin,
       </p>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         A new vacation request has been submitted and requires your review.
       </p>
-      
+
       <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 18px;">Request Details:</h3>
         <table style="width: 100%; border-collapse: collapse;">
@@ -938,19 +1071,19 @@ export const sendVacationRequestNotificationToAdmins = async (
           </tr>
         </table>
       </div>
-      
+
       <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">Vacation Reason:</h3>
         <p style="margin: 0; color: #1e40af; font-style: italic;">"${request.reason}"</p>
       </div>
-      
+
       <div style="background-color: #fce7f3; border: 1px solid #f9a8d4; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #be185d; font-size: 16px;">⏰ Action Required:</h3>
         <p style="margin: 0; color: #be185d;">
           Please log in to the admin panel to review and approve or reject this vacation request.
         </p>
       </div>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6;">
         Best regards,<br>
         <strong>2Creative Productivity Tool</strong>
@@ -1061,15 +1194,15 @@ export const sendTestEmail = async (recipientEmail) => {
           <h2 style="margin: 0; font-size: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">${subjectPrefix} Email Configuration Test</h2>
         </div>
       </div>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
         Hi there!
       </p>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
         This is a test email to verify that the email notification system for the 2Creative Productivity Tool is working correctly with your email provider.
       </p>
-      
+
       ${
         domainNote
           ? `
@@ -1081,14 +1214,14 @@ export const sendTestEmail = async (recipientEmail) => {
       `
           : ''
       }
-      
+
       <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #166534; font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">✅ Email System Status: Working!</h3>
         <p style="margin: 0; color: #166534; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
           If you're reading this in any email client, it means the email notification system has been successfully configured and is compatible with your email provider.
         </p>
       </div>
-      
+
       <div style="background-color: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 20px; margin: 20px 0;">
         <h3 style="margin: 0 0 10px 0; color: #92400e; font-size: 16px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">📨 Email Provider Notes:</h3>
         <ul style="margin: 0; padding-left: 20px; color: #92400e; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
@@ -1099,18 +1232,18 @@ export const sendTestEmail = async (recipientEmail) => {
           <li>Add sender to safe/trusted contacts for future emails</li>
         </ul>
       </div>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
         You can now expect to receive email notifications when:
       </p>
-      
+
       <ul style="font-size: 16px; color: #374151; line-height: 1.6; margin-left: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
         <li>Supply requests are approved or rejected</li>
         <li>Asset requests are approved or rejected</li>
         <li>Vacation requests are approved or rejected</li>
         <li>New requests need admin attention</li>
       </ul>
-      
+
       <p style="font-size: 16px; color: #374151; line-height: 1.6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
         Best regards,<br>
         <strong>2Creative Admin Team</strong>
@@ -1165,60 +1298,32 @@ export const sendTestEmail = async (recipientEmail) => {
   }
 }
 
-// Welcome email on successful signup (flag-gated)
+// Welcome email on successful signup
 export const sendWelcomeEmail = async (user) => {
-  if (process.env.WELCOME_EMAIL_ENABLED !== 'true') {
-    return
-  }
-
   const smtp = getSmtpConfig({ requireBaseUrl: true })
 
   const baseUrl = smtp.baseUrl
   const dashboardUrl = `${baseUrl}/`
+  const currentYear = new Date().getUTCFullYear()
+  const companyName = getCompanyName(smtp)
 
   const subject = 'Welcome to 2Creative Productivity Tool'
   const displayName = user.name || user.email
 
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <style>
-          body { margin:0; padding:0; background:#f3f4f6; font-family:'Inter','Segoe UI',system-ui,sans-serif; color:#0f172a; }
-          .card { max-width:560px; margin:28px auto; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 18px 45px rgba(15,23,42,0.12); }
-          .header { padding:22px 24px; background:linear-gradient(135deg,#111827 0%,#1f2937 100%); color:#f8fafc; }
-          .title { font-size:20px; font-weight:800; letter-spacing:0.01em; }
-          .sub { opacity:0.85; font-size:13px; padding-top:4px; }
-          .body { padding:26px 28px 10px; }
-          .muted { color:#475569; font-size:14px; line-height:1.65; }
-          .cta { display:inline-block; margin:18px 0 10px; padding:13px 22px; background:#4f46e5; color:#fff !important; text-decoration:none; border-radius:10px; font-weight:700; letter-spacing:0.01em; }
-          .cta:hover { background:#4338ca; }
-          .footer { padding:18px 24px 22px; background:#f8fafc; color:#6b7280; font-size:12px; line-height:1.5; }
-        </style>
-      </head>
-      <body>
-        <div class="card">
-          <div class="header">
-            <div class="title">Welcome aboard, ${displayName}!</div>
-            <div class="sub">Your account is ready.</div>
-          </div>
-          <div class="body">
-            <p class="muted" style="margin-top:0;">Thanks for joining the 2Creative Productivity Tool.</p>
-            <p class="muted">You can head straight to your dashboard to start booking rooms, tracking projects, or requesting assets.</p>
-            <a class="cta" href="${dashboardUrl}" target="_blank" rel="noopener">Go to Dashboard</a>
-            <p class="muted" style="margin-bottom:14px;">If you didn’t create this account, ignore this email.</p>
-          </div>
-          <div class="footer">
-            © 2025 2Creative Solutions — This is an automated message; replies aren’t monitored.
-          </div>
-        </div>
-      </body>
-    </html>
-  `
+  const html = createAccountEmailTemplate({
+    smtp,
+    title: `Welcome onboard, ${displayName}!`,
+    bodyHtml: `
+      <p style="margin:0 0 12px 0; font-size:16px;">Thanks for joining the 2Creative Productivity Tool.</p>
+      <p style="margin:0 0 18px 0; font-size:16px;">Your account is ready. Head to your dashboard to start booking rooms, tracking projects, or requesting assets.</p>
+      <a href="${dashboardUrl}" target="_blank" rel="noopener" style="display:block; margin:0 0 18px; padding:16px 24px; border-radius:10px; background-color:#322e85; color:#ffffff; text-decoration:none; font-size:16px; font-weight:700; text-align:center;">
+        Go to Dashboard
+      </a>
+      <p style="margin:0; font-size:16px;">If you didn’t create this account, ignore this email.</p>
+    `,
+  })
 
-  const text = `Welcome aboard, ${displayName}!\n\nYour account is ready. Go to your dashboard: ${dashboardUrl}\n\nIf you didn’t create this account, ignore this email.\n\n— 2Creative Productivity Tool`
+  const text = `Welcome aboard, ${displayName}!\n\nYour account is ready. Go to your dashboard: ${dashboardUrl}\n\nIf you didn’t create this account, ignore this email.\n\n© ${currentYear} ${companyName}. All rights reserved.\n${smtp.smtpFromEmail}`
 
   const transporter = createTransporter(smtp)
 
