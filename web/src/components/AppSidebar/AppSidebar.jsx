@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
-import { Link, navigate, routes, useLocation } from '@redwoodjs/router'
+import { Link, routes, useLocation } from '@redwoodjs/router'
 
 import { useAuth } from 'src/auth'
 import { STORAGE_KEYS } from 'src/lib/storageKeys'
@@ -20,7 +20,6 @@ const AppSidebar = ({ showQuickAccess = false }) => {
   const [mobileAdminOpen, setMobileAdminOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(true)
   const [compactDropdown, setCompactDropdown] = useState(null)
-  const [pendingHomeSection, setPendingHomeSection] = useState(null)
   const compactMenuRef = useRef(null)
 
   const isAdmin = Boolean(hasRole && hasRole('ADMIN'))
@@ -28,22 +27,33 @@ const AppSidebar = ({ showQuickAccess = false }) => {
   const homeItems = useMemo(
     () => [
       {
+        key: 'overview',
+        label: 'Overview',
+        icon: 'ri-dashboard-line',
+        to: routes.home(),
+        matchPrefix: '/me',
+        exact: true,
+      },
+      {
         key: 'bookings',
         label: 'Bookings',
         icon: 'ri-calendar-line',
-        sectionId: 'bookings-section',
+        to: routes.meBookings(),
+        matchPrefix: '/me/bookings',
       },
       {
         key: 'attendance',
         label: 'Attendance',
         icon: 'ri-time-line',
-        sectionId: 'attendance-section',
+        to: routes.meAttendance(),
+        matchPrefix: '/me/attendance',
       },
       {
         key: 'vacation',
         label: 'Vacation',
         icon: 'ri-calendar-event-line',
-        sectionId: 'vacation-section',
+        to: routes.meVacation(),
+        matchPrefix: '/me/vacation',
       },
     ],
     []
@@ -100,7 +110,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
       },
       {
         key: 'users',
-        label: 'Users',
+        label: 'Manage Users',
         to: routes.users(),
         icon: 'ri-group-line',
         matchPrefix: '/admin/users',
@@ -119,6 +129,13 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         icon: 'ri-price-tag-3-line',
         matchPrefix: '/admin/supply-categories',
       },
+      {
+        key: 'diagnosticsTools',
+        label: 'Diagnostics Tools',
+        to: routes.adminDiagnosticsTools(),
+        icon: 'ri-stethoscope-line',
+        matchPrefix: '/admin/diagnostics-tools',
+      },
     ]
   }, [isAdmin])
 
@@ -133,13 +150,28 @@ const AppSidebar = ({ showQuickAccess = false }) => {
     return pathname.startsWith(targetPath)
   }
 
+  const nestedNavItemClass = (isActive) =>
+    `relative flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${
+      isActive
+        ? 'bg-white text-[#322e85]'
+        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+    }`
+
+  const compactDropdownItemClass = (isActive) =>
+    `relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition ${
+      isActive
+        ? 'bg-white text-[#322e85]'
+        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+    }`
+
   const resourcesActive = resourceItems.some((item) =>
     pathname.startsWith(item.to)
   )
   const settingsActive = settingsItems.some((item) => isItemActive(item))
   const adminActive = adminItems.some((item) => isItemActive(item))
   const projectsActive = pathname.startsWith('/project-tracker')
-  const homeActive = pathname === '/'
+  const homeActive =
+    pathname === '/' || pathname === '/me' || pathname.startsWith('/me/')
 
   useEffect(() => {
     if (resourcesActive) {
@@ -163,24 +195,11 @@ const AppSidebar = ({ showQuickAccess = false }) => {
   }, [adminActive])
 
   useEffect(() => {
-    if (pathname === routes.home()) {
+    if (homeActive) {
       setHomeOpen(true)
       setMobileHomeOpen(true)
     }
-  }, [pathname])
-
-  useEffect(() => {
-    if (pathname === routes.home() && pendingHomeSection) {
-      const timeoutId = setTimeout(() => {
-        document
-          .getElementById(pendingHomeSection)
-          ?.scrollIntoView({ behavior: 'smooth' })
-        setPendingHomeSection(null)
-      }, 120)
-
-      return () => clearTimeout(timeoutId)
-    }
-  }, [pathname, pendingHomeSection])
+  }, [homeActive])
 
   useEffect(() => {
     setMobileMenuOpen(false)
@@ -234,20 +253,6 @@ const AppSidebar = ({ showQuickAccess = false }) => {
       document.documentElement.style.setProperty('--app-sidebar-width', '22rem')
     }
   }, [])
-
-  const handleHomeSectionClick = (sectionId, closeMobile = false) => {
-    if (closeMobile) {
-      setMobileMenuOpen(false)
-    }
-
-    if (pathname === routes.home()) {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
-      return
-    }
-
-    setPendingHomeSection(sectionId)
-    navigate(routes.home())
-  }
 
   return (
     <>
@@ -315,7 +320,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                   }`}
                 >
                   <i className="ri-home-4-line text-base"></i>
-                  <span className="flex-1">Home</span>
+                  <span className="flex-1">Dashboard</span>
                   <i
                     className={`ri-arrow-down-s-line text-base transition-transform ${
                       mobileHomeOpen ? 'rotate-180' : ''
@@ -326,17 +331,17 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                 {mobileHomeOpen && (
                   <div className="mt-1 space-y-1 pl-7">
                     {homeItems.map((homeItem) => (
-                      <button
-                        type="button"
+                      <Link
                         key={homeItem.key}
-                        onClick={() =>
-                          handleHomeSectionClick(homeItem.sectionId, true)
-                        }
-                        className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                        to={homeItem.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`${nestedNavItemClass(
+                          isItemActive(homeItem)
+                        )} w-full text-left`}
                       >
                         <i className={`${homeItem.icon} text-sm`}></i>
                         <span>{homeItem.label}</span>
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 )}
@@ -366,11 +371,9 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                         key={item.key}
                         to={item.to}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${
+                        className={nestedNavItemClass(
                           pathname.startsWith(item.to)
-                            ? 'bg-gray-100 text-black'
-                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                        }`}
+                        )}
                       >
                         <i className={`${item.icon} text-sm`}></i>
                         <span>{item.label}</span>
@@ -422,11 +425,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                         key={item.key}
                         to={item.to}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${
-                          isItemActive(item)
-                            ? 'bg-gray-100 text-black'
-                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                        }`}
+                        className={nestedNavItemClass(isItemActive(item))}
                       >
                         <i className={`${item.icon} text-sm`}></i>
                         <span>{item.label}</span>
@@ -466,11 +465,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                           key={item.key}
                           to={item.to}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${
-                            isItemActive(item)
-                              ? 'bg-gray-100 text-black'
-                              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                          }`}
+                          className={nestedNavItemClass(isItemActive(item))}
                         >
                           <i className={`${item.icon} text-sm`}></i>
                           <span>{item.label}</span>
@@ -515,7 +510,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
           desktopExpanded ? 'w-[22rem]' : 'w-[4.75rem]'
         }`}
       >
-        <div className="flex w-full flex-col p-3">
+        <div className="flex w-full flex-col p-3 pb-8">
           <div
             className={`mb-4 flex items-center border-b border-gray-100 pb-4 ${
               desktopExpanded ? 'justify-between gap-2' : 'justify-center'
@@ -599,7 +594,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                       }`}
                     >
                       <i className="ri-home-4-line text-base"></i>
-                      <span className="flex-1">Home</span>
+                      <span className="flex-1">Dashboard</span>
                       <i
                         className={`ri-arrow-down-s-line text-base transition-transform ${
                           homeOpen ? 'rotate-180' : ''
@@ -610,17 +605,16 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                     {homeOpen && (
                       <div className="mt-1 space-y-1 pl-7">
                         {homeItems.map((homeItem) => (
-                          <button
-                            type="button"
+                          <Link
                             key={homeItem.key}
-                            onClick={() =>
-                              handleHomeSectionClick(homeItem.sectionId)
-                            }
-                            className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                            to={homeItem.to}
+                            className={`${nestedNavItemClass(
+                              isItemActive(homeItem)
+                            )} w-full text-left`}
                           >
                             <i className={`${homeItem.icon} text-sm`}></i>
                             <span>{homeItem.label}</span>
-                          </button>
+                          </Link>
                         ))}
                       </div>
                     )}
@@ -650,11 +644,9 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                         <Link
                           key={item.key}
                           to={item.to}
-                          className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${
+                          className={nestedNavItemClass(
                             pathname.startsWith(item.to)
-                              ? 'bg-gray-100 text-black'
-                              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                          }`}
+                          )}
                         >
                           <i className={`${item.icon} text-sm`}></i>
                           <span>{item.label}</span>
@@ -704,11 +696,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                         <Link
                           key={item.key}
                           to={item.to}
-                          className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${
-                            isItemActive(item)
-                              ? 'bg-gray-100 text-black'
-                              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                          }`}
+                          className={nestedNavItemClass(isItemActive(item))}
                         >
                           <i className={`${item.icon} text-sm`}></i>
                           <span>{item.label}</span>
@@ -747,11 +735,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                           <Link
                             key={item.key}
                             to={item.to}
-                            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition ${
-                              isItemActive(item)
-                                ? 'bg-gray-100 text-black'
-                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                            }`}
+                            className={nestedNavItemClass(isItemActive(item))}
                           >
                             <i className={`${item.icon} text-sm`}></i>
                             <span>{item.label}</span>
@@ -801,8 +785,8 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                 <div className="relative">
                   <button
                     type="button"
-                    title="Home"
-                    aria-label="Home menu"
+                    title="Dashboard"
+                    aria-label="Dashboard menu"
                     aria-expanded={compactDropdown === 'home'}
                     onClick={() =>
                       setCompactDropdown((current) =>
@@ -820,27 +804,18 @@ const AppSidebar = ({ showQuickAccess = false }) => {
 
                   {compactDropdown === 'home' && (
                     <div className="absolute left-full top-0 ml-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
-                      <Link
-                        to={routes.home()}
-                        onClick={() => setCompactDropdown(null)}
-                        className="mb-1 flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
-                      >
-                        <i className="ri-home-4-line text-sm"></i>
-                        <span>Home</span>
-                      </Link>
                       {homeItems.map((homeItem) => (
-                        <button
-                          type="button"
+                        <Link
                           key={homeItem.key}
-                          onClick={() => {
-                            handleHomeSectionClick(homeItem.sectionId)
-                            setCompactDropdown(null)
-                          }}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                          to={homeItem.to}
+                          onClick={() => setCompactDropdown(null)}
+                          className={`${compactDropdownItemClass(
+                            isItemActive(homeItem)
+                          )} w-full text-left`}
                         >
                           <i className={`${homeItem.icon} text-sm`}></i>
                           <span>{homeItem.label}</span>
-                        </button>
+                        </Link>
                       ))}
                     </div>
                   )}
@@ -873,11 +848,9 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                           key={item.key}
                           to={item.to}
                           onClick={() => setCompactDropdown(null)}
-                          className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition ${
+                          className={compactDropdownItemClass(
                             pathname.startsWith(item.to)
-                              ? 'bg-gray-100 text-black'
-                              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                          }`}
+                          )}
                         >
                           <i className={`${item.icon} text-sm`}></i>
                           <span>{item.label}</span>
@@ -929,11 +902,9 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                             key={item.key}
                             to={item.to}
                             onClick={() => setCompactDropdown(null)}
-                            className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition ${
+                            className={compactDropdownItemClass(
                               isItemActive(item)
-                                ? 'bg-gray-100 text-black'
-                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                            }`}
+                            )}
                           >
                             <i className={`${item.icon} text-sm`}></i>
                             <span>{item.label}</span>
@@ -972,11 +943,9 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                             key={item.key}
                             to={item.to}
                             onClick={() => setCompactDropdown(null)}
-                            className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition ${
+                            className={compactDropdownItemClass(
                               isItemActive(item)
-                                ? 'bg-gray-100 text-black'
-                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                            }`}
+                            )}
                           >
                             <i className={`${item.icon} text-sm`}></i>
                             <span>{item.label}</span>

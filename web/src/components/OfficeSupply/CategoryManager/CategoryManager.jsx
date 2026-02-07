@@ -1,12 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
-  PlusIcon,
   PencilIcon,
   TrashIcon,
   FolderIcon,
   ExclamationTriangleIcon,
-  CogIcon,
 } from '@heroicons/react/24/outline'
 import { gql } from 'graphql-tag'
 
@@ -72,10 +70,10 @@ const DELETE_CATEGORY = gql`
   }
 `
 
-const CategoryManager = () => {
+const CategoryManager = ({ openCreateTrigger = 0 }) => {
   const [showForm, setShowForm] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
-  const { currentUser, hasRole } = useAuth()
+  const { hasRole } = useAuth()
 
   const isAdmin = hasRole('ADMIN')
 
@@ -144,6 +142,15 @@ const CategoryManager = () => {
     setShowForm(true)
   }
 
+  useEffect(() => {
+    if (!isAdmin || openCreateTrigger === 0) {
+      return
+    }
+
+    setEditingCategory(null)
+    setShowForm(true)
+  }, [isAdmin, openCreateTrigger])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
       <div className="mx-auto max-w-6xl">
@@ -193,44 +200,7 @@ const CategoryManager = () => {
 
         {!loading && !error && (
           <>
-            {/* Header */}
             <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-              <div className="mb-6 flex items-start justify-between">
-                <div>
-                  <div className="mb-2 flex items-center gap-3">
-                    <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent">
-                      Supply Categories
-                    </h1>
-                    {isAdmin && (
-                      <div className="flex items-center rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1 text-sm font-semibold text-white">
-                        <CogIcon className="mr-1 h-4 w-4" />
-                        Admin Mode
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-gray-600">
-                    {isAdmin
-                      ? 'Organize and manage office supply categories with full admin privileges'
-                      : 'View office supply categories and organization'}
-                  </p>
-                </div>
-                {isAdmin && (
-                  <button
-                    onClick={() => setShowForm(true)}
-                    className="flex transform items-center space-x-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
-                  >
-                    <PlusIcon className="h-5 w-5" />
-                    <span>Add Category</span>
-                  </button>
-                )}
-                {!isAdmin && (
-                  <div className="flex items-center space-x-2 rounded-xl border border-gray-200 bg-gray-100 px-6 py-3 text-gray-500">
-                    <FolderIcon className="h-5 w-5" />
-                    <span>View Only</span>
-                  </div>
-                )}
-              </div>
-
               {/* Stats */}
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
