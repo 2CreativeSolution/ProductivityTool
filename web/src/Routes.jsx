@@ -10,6 +10,10 @@
 import { Router, Route, Set, PrivateSet } from '@redwoodjs/router'
 
 import ScaffoldLayout from 'src/layouts/ScaffoldLayout'
+import AdminDiagnosticsToolsPage from 'src/pages/AdminDiagnosticsToolsPage/AdminDiagnosticsToolsPage'
+import MeAttendancePage from 'src/pages/MeAttendancePage/MeAttendancePage'
+import MeBookingsPage from 'src/pages/MeBookingsPage/MeBookingsPage'
+import MeVacationPage from 'src/pages/MeVacationPage/MeVacationPage'
 
 import { useAuth } from './auth'
 
@@ -22,7 +26,11 @@ const Routes = () => {
       <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
 
       <PrivateSet unauthenticated="login">
-        <Route path="/" page={DashboardPage} name="home" />
+        <Route path="/me" page={DashboardPage} name="home" />
+        <Route path="/" page={DashboardPage} name="legacyHome" />
+        <Route path="/me/bookings" page={MeBookingsPage} name="meBookings" />
+        <Route path="/me/attendance" page={MeAttendancePage} name="meAttendance" />
+        <Route path="/me/vacation" page={MeVacationPage} name="meVacation" />
         <Route path="/form" page={FormPage} name="form" />
         <Route path="/asset-tracker" page={AssetTrackerPage} name="assetTracker" />
         <Route path="/project-tracker" page={ProjectTrackerPage} name="projectTracker" />
@@ -44,6 +52,7 @@ const Routes = () => {
 
       <PrivateSet unauthenticated="login" roles={['ADMIN']}>
         <Route path="/admin" page={AdminPanelPage} name="adminPanel" />
+        <Route path="/admin/diagnostics-tools" page={AdminDiagnosticsToolsPage} name="adminDiagnosticsTools" />
         <Route path="/admin/users/new" page={UserNewUserPage} name="newUser" />
         <Route path="/admin/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
         <Route path="/admin/users/{id:Int}" page={UserUserPage} name="user" />

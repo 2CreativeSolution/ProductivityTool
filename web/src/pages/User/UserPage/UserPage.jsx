@@ -1,7 +1,9 @@
 import { Link, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 
+import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
+import PageHeader from 'src/components/PageHeader/PageHeader'
 import UserCell from 'src/components/User/UserCell'
 
 const UserPage = ({ id }) => {
@@ -9,17 +11,17 @@ const UserPage = ({ id }) => {
     <>
       <Metadata title="User" description="User details" />
       <AppSidebar />
-      <main className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
-        <div className="mb-6">
+      <AppContentShell>
+        <PageHeader title="User Details">
           <Link
             to={routes.users()}
             className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
           >
             Back to Users
           </Link>
-        </div>
-        <UserCell id={id} />
-      </main>
+        </PageHeader>
+        <UserCell id={id} showTitle={false} />
+      </AppContentShell>
     </>
   )
 }

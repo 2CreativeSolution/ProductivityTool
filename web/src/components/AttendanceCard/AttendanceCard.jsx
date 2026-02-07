@@ -1,4 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
+
+import { ClockIcon } from '@heroicons/react/24/outline'
+
+import { buttonVariants } from 'src/components/ui/button'
 
 const REQUIRED_HOURS = 9
 
@@ -19,14 +23,6 @@ function getStartOfWeekUTC(date) {
   d.setUTCDate(d.getUTCDate() - day + 1)
   d.setUTCHours(0, 0, 0, 0)
   return d
-}
-
-const getDuration = (clockIn, clockOut) => {
-  if (!clockIn || !clockOut) return '-'
-  const diffMs = new Date(clockOut) - new Date(clockIn)
-  const hours = Math.floor(diffMs / 1000 / 60 / 60)
-  const minutes = Math.floor((diffMs / 1000 / 60) % 60)
-  return `${hours}h ${minutes}m`
 }
 
 const msToHrsMin = (ms) => {
@@ -54,9 +50,7 @@ const AttendanceCard = ({
   const hasClockedOut = !!todayAttendance?.clockOut
 
   // Office hours config
-  const startTime = officeHours?.startTime || '09:00'
   const endTime = officeHours?.endTime || '18:00'
-  const officeStart = parseTime(startTime)
   const officeEnd = parseTime(endTime)
 
   // --- Break logic ---
@@ -140,7 +134,7 @@ const AttendanceCard = ({
     <div className="row-span-2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
       <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-4">
         <h2 className="text-lg font-semibold text-gray-800">
-          Today's Attendance
+          Today&apos;s Attendance
         </h2>
         <span className="inline-block rounded-full border border-blue-200 bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
           {new Date().toLocaleDateString()}
@@ -184,24 +178,25 @@ const AttendanceCard = ({
         </div>
         {!hasClockedIn && !afterOffice && (
           <button
-            className="w-full rounded-lg bg-green-500 py-3 text-lg font-semibold text-white shadow transition hover:bg-green-600 disabled:opacity-50"
+            className={`${buttonVariants({ variant: 'primary' })} w-full text-lg`}
             onClick={onClockIn}
             disabled={loading}
           >
-            {loading ? 'Clocking In...' : 'Clock In'}
+            <ClockIcon className="h-5 w-5" aria-hidden="true" />
+            <span>{loading ? 'Clocking In...' : 'Clock In'}</span>
           </button>
         )}
         {hasClockedIn && !hasClockedOut && !afterOffice && !onBreak && (
           <div className="flex gap-2">
             <button
-              className="flex-1 rounded-lg bg-yellow-500 py-3 text-lg font-semibold text-white shadow transition hover:bg-yellow-600"
+              className={`${buttonVariants({ variant: 'secondary' })} flex-1 text-lg`}
               onClick={onBreakIn}
               disabled={loading || breakLoading}
             >
               {loading || breakLoading ? 'Starting Break...' : 'Break'}
             </button>
             <button
-              className="flex-1 rounded-lg bg-red-500 py-3 text-lg font-semibold text-white shadow transition hover:bg-red-600"
+              className={`${buttonVariants({ variant: 'primary' })} flex-1 text-lg`}
               onClick={onClockOut}
               disabled={loading}
             >
@@ -212,14 +207,14 @@ const AttendanceCard = ({
         {hasClockedIn && !hasClockedOut && !afterOffice && onBreak && (
           <div className="flex gap-2">
             <button
-              className="flex-1 rounded-lg bg-green-500 py-3 text-lg font-semibold text-white shadow transition hover:bg-green-600"
+              className={`${buttonVariants({ variant: 'secondary' })} flex-1 text-lg`}
               onClick={onBreakOut}
               disabled={loading || breakLoading}
             >
               {loading || breakLoading ? 'Ending Break...' : 'Break Out'}
             </button>
             <button
-              className="flex-1 rounded-lg bg-red-500 py-3 text-lg font-semibold text-white shadow transition hover:bg-red-600"
+              className={`${buttonVariants({ variant: 'primary' })} flex-1 text-lg`}
               onClick={onClockOut}
               disabled={loading}
             >
@@ -255,7 +250,7 @@ const AttendanceCard = ({
       <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
         <h3 className="mb-3 font-medium text-gray-800">Weekly Overview</h3>
         <div className="mb-1 grid grid-cols-7 gap-2 text-center">
-          {daysOfWeek.map((day, i) => (
+          {daysOfWeek.map((day) => (
             <div key={day} className="text-xs text-gray-500">
               {day}
             </div>

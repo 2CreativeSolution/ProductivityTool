@@ -12,7 +12,6 @@ import {
 } from '@heroicons/react/24/outline'
 import { gql } from 'graphql-tag'
 
-import { Form, FormError, Label, TextAreaField, Submit } from '@redwoodjs/forms'
 import { useQuery, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
@@ -243,17 +242,7 @@ const AdminSupplyRequestManager = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
       <div className="mx-auto max-w-7xl">
-        {/* Header */}
         <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-          <div className="mb-6">
-            <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent">
-              Supply Request Management
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Review and approve employee supply requests
-            </p>
-          </div>
-
           {/* Stats */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-5">
             <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">

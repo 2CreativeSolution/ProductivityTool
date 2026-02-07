@@ -2,7 +2,9 @@ import { Link, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
+import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
+import PageHeader from 'src/components/PageHeader/PageHeader'
 import EditUserCell from 'src/components/User/EditUserCell'
 
 const EditUserPage = ({ id }) => {
@@ -19,16 +21,18 @@ const EditUserPage = ({ id }) => {
         description="Edit user"
       />
       <AppSidebar />
-      <main className="app-content-shell mb-8 mr-8 mt-20 lg:my-8 lg:ml-[calc(var(--app-sidebar-width)+1.25rem)]">
-        {!isAccountSettings && (
-          <div className="mb-6">
+      <AppContentShell>
+        {isAccountSettings ? (
+          <PageHeader title="Account Settings" />
+        ) : (
+          <PageHeader title="Edit User">
             <Link
               to={routes.users()}
               className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
             >
               Back to Users
             </Link>
-          </div>
+          </PageHeader>
         )}
         <EditUserCell
           id={resolvedId}
@@ -37,8 +41,9 @@ const EditUserPage = ({ id }) => {
           }
           formVariant="account"
           startInEditMode={!isAccountSettings}
+          showFormTitle={false}
         />
-      </main>
+      </AppContentShell>
     </>
   )
 }

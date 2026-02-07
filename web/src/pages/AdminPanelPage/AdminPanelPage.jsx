@@ -10,8 +10,9 @@ import { Link } from '@redwoodjs/router'
 import { Metadata, useQuery, useMutation, gql } from '@redwoodjs/web'
 
 import AdminVacationManager from 'src/components/AdminVacationManager/AdminVacationManager'
+import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
-import OutlookEmailTestComponent from 'src/components/OutlookEmailTestComponent/OutlookEmailTestComponent'
+import PageHeader from 'src/components/PageHeader/PageHeader'
 
 import MeetingRoomsSection from './MeetingRoomsSection'
 
@@ -269,15 +270,8 @@ const AdminPanelPage = () => {
         </div>
       )}
 
-      <div className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
-        <h1 className="mb-10 text-center text-4xl font-extrabold tracking-tight text-blue-800">
-          Admin Panel
-        </h1>
-
-        {/* Multi-Domain Email Testing System */}
-        <div className="mb-10">
-          <OutlookEmailTestComponent />
-        </div>
+      <AppContentShell>
+        <PageHeader title="Admin Panel" />
 
         {/* Admin Quick Access */}
         <div className="mb-10 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
@@ -572,7 +566,7 @@ const AdminPanelPage = () => {
         <div className="mt-8">
           <AdminVacationManager />
         </div>
-      </div>
+      </AppContentShell>
     </>
   )
 }

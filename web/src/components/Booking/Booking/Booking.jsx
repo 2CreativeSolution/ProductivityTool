@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react'
 
+import { format } from 'date-fns'
 import Calendar from 'react-calendar'
+import { FaRegCalendarAlt, FaRegClock } from 'react-icons/fa'
 
 import { useMutation, useQuery } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
 //import { toast } from '@redwoodjs/web/toast'
 import BookingLog from 'src/components/BookingLog/BookingLog'
+import { buttonVariants } from 'src/components/ui/button'
 
 import 'react-calendar/dist/Calendar.css'
-import { format } from 'date-fns'
-import { FaRegCalendarAlt, FaRegClock } from 'react-icons/fa'
 
 import MeetingRoomSelector from '../BookingForm/MeetingRoomSelector'
 const CREATE_BOOKING = gql`
@@ -305,7 +306,7 @@ export const BookingForm = ({ refetchBookings }) => {
           <div className="col-span-1 mt-6 flex justify-center md:col-span-2 md:mt-8">
             <button
               type="submit"
-              className="rw-button rw-button-blue rounded-lg bg-red-500 px-6 py-3 font-semibold text-white transition hover:bg-red-600"
+              className={buttonVariants({ variant: 'primary' })}
               disabled={!selectRoomId}
             >
               Book Now

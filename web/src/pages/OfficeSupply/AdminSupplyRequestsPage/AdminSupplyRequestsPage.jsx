@@ -1,7 +1,9 @@
 import { Metadata } from '@redwoodjs/web'
 
+import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import AdminSupplyRequestManager from 'src/components/OfficeSupply/AdminSupplyRequestManager/AdminSupplyRequestManager'
+import PageHeader from 'src/components/PageHeader/PageHeader'
 
 const AdminSupplyRequestsPage = () => {
   return (
@@ -11,9 +13,13 @@ const AdminSupplyRequestsPage = () => {
         description="Manage supply requests"
       />
       <AppSidebar />
-      <main className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
+      <AppContentShell>
+        <PageHeader
+          title="Supply Request Management"
+          description="Review and approve employee supply requests"
+        />
         <AdminSupplyRequestManager />
-      </main>
+      </AppContentShell>
     </>
   )
 }

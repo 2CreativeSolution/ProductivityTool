@@ -1,16 +1,15 @@
-import React, { useState } from 'react'
+import React from 'react'
 
+import { Link, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { useQuery, useMutation } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
+import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
-import Attendance from 'src/components/Attendance/Attendance'
 import AttendanceCard from 'src/components/AttendanceCard/AttendanceCard'
-import { BookingForm } from 'src/components/Booking/Booking'
+import PageHeader from 'src/components/PageHeader/PageHeader'
 import UpcomingBookings from 'src/components/UpcomingBookings/UpcomingBookings'
-import VacationPlanner from 'src/components/VacationPlanner/VacationPlanner'
-import WelcomeSection from 'src/components/WelcomeSection/WelcomeSection'
 
 const CLOCK_IN_MUTATION = gql`
   mutation ClockIn($userId: Int!, $date: DateTime!, $clockIn: DateTime!) {
@@ -112,7 +111,7 @@ weekEnd.setUTCHours(23, 59, 59, 999)
 const DashboardPage = () => {
   const { currentUser, isAuthenticated, loading } = useAuth()
   const userId = currentUser.id
-  const [userName] = useState('')
+  const firstName = currentUser?.name?.trim()?.split(/\s+/)?.[0] || 'there'
 
   // For bookings and other attendance data
   const { loading: bookingsLoading, refetch } = useQuery(BOOKINGS_QUERY, {
@@ -483,8 +482,11 @@ const DashboardPage = () => {
       <Metadata title="Dashboard" description="Dashboard page" />
       <AppSidebar showQuickAccess={true} />
 
-      <main className="app-content-shell mx-4 mt-20 md:mx-8 lg:ml-[var(--app-sidebar-width)] lg:mr-10 lg:mt-4">
-        <WelcomeSection />
+      <AppContentShell>
+        <PageHeader
+          title={`Welcome, ${firstName}`}
+          titleClassName="font-normal"
+        />
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left: Upcoming Bookings (2/3 width on large screens) */}
@@ -515,23 +517,43 @@ const DashboardPage = () => {
             />
           </div>
         </div>
-        {/* Attendance Section with ID for scroll */}
-        <div>
-          <Attendance
-            userId={userId}
-            todayAttendance={todayAttendance}
-            userName={userName}
-            refetch={refetch}
-          />
+
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <Link
+            to={routes.meBookings()}
+            className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
+          >
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Bookings
+            </p>
+            <p className="mt-2 text-base font-semibold text-slate-900">
+              Manage meeting room bookings
+            </p>
+          </Link>
+          <Link
+            to={routes.meAttendance()}
+            className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
+          >
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Attendance
+            </p>
+            <p className="mt-2 text-base font-semibold text-slate-900">
+              View logs, exceptions, and exports
+            </p>
+          </Link>
+          <Link
+            to={routes.meVacation()}
+            className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
+          >
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              Vacation
+            </p>
+            <p className="mt-2 text-base font-semibold text-slate-900">
+              Track and manage leave requests
+            </p>
+          </Link>
         </div>
-        <div id="bookings-section" className="mt-8">
-          <BookingForm userName={userName} refetchBookings={refetch} />
-        </div>
-        {/* Add the vacation planner section */}
-        <div id="vacation-section" className="mb-8">
-          <VacationPlanner />
-        </div>
-      </main>
+      </AppContentShell>
     </>
   )
 }
