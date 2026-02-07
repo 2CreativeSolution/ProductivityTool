@@ -5,8 +5,10 @@
 - Netlify build uses `yarn rw build`, outputs `web/dist` and `api/dist/functions`, and pins Node 25; Netlify dev proxies web on 8910. (evidence: netlify.toml#L1-L26)
 - Workspace setup uses Node 25.x and Yarn 4.6.0 with Redwood 8.9.0 packages. (evidence: package.json#L1-L47, api/package.json#L1-L13, web/package.json#L1-L35)
 - Web routing covers signin/signup/forgot-password/reset-password plus dashboard, bookings CRUD, asset tracker, project tracker, office supplies, and admin routes with role gating. (evidence: web/src/Routes.jsx#L18-L54)
+- Settings now includes account profile and password-change routes under `/settings/*`, with sidebar access for authenticated users. (evidence: web/src/Routes.jsx#L50-L52, web/src/components/AppSidebar/AppSidebar.jsx#L86-L105)
 - DbAuth is wired for web auth and used by the login form. (evidence: web/src/auth.js#L1-L5, web/src/pages/LoginPage/LoginPage.jsx#L15-L35)
 - API uses DbAuth handler and SMTP for password reset emails. (evidence: api/src/functions/auth.js#L1-L208)
+- Account emails (reset/welcome/password-changed confirmation) now share a reusable template and centralized delivery helpers. (evidence: api/src/lib/emailService.js#L124-L249, api/src/lib/emailService.js#L1302-L1337)
 - Prisma schema targets PostgreSQL and defines models for users/roles, bookings, attendance, vacation, assets, projects, and office supplies. (evidence: api/db/schema.prisma#L7-L449)
 - Seed scripts cover assets, office supplies, and JSON-imported users/projects/allocations/meetings/daily updates with sequence reset and configurable seeded-user password. (evidence: scripts/seed.js#L1-L320, scripts/seed_data_2creative.json)
 - Status casing is normalized in project/allocations UI and services so seeded statuses (e.g., "Active", "On Hold") display correctly; allocations seeded without hours default to 8h. (evidence: api/src/services/projects/projects.js; api/src/services/projectAllocations/projectAllocations.js; web/src/components/ProjectTracker/EmployeeManagement.jsx; scripts/seed.js)
@@ -14,6 +16,7 @@
 
 ## Feature Inventory (with evidence)
 - Authentication: DbAuth login/signup/forgot/reset wired via web auth client and auth pages; server handled by DbAuth function. (evidence: web/src/auth.js#L1-L5, web/src/pages/LoginPage/LoginPage.jsx#L15-L71, web/src/pages/SignupPage/SignupPage.jsx#L15-L118, web/src/pages/ForgotPasswordPage/ForgotPasswordPage.jsx#L11-L84, api/src/functions/auth.js#L1-L208)
+- Account security settings: authenticated users can change password from Settings; API validates current password and rotates stored hash+salt on success. (evidence: web/src/pages/User/ChangePasswordPage/ChangePasswordPage.jsx#L1-L27, web/src/components/Settings/ChangePasswordForm/ChangePasswordForm.jsx#L8-L285, api/src/graphql/users.sdl.js#L99-L119, api/src/services/users/users.js#L207-L275)
 - Dashboard: consolidated view for attendance/vacation summaries and shortcuts. (evidence: web/src/pages/DashboardPage/DashboardPage.jsx#L1-L210)
 - Meeting room bookings: CRUD pages and API services for bookings/rooms. (evidence: web/src/pages/Booking/BookingsPage/BookingsPage.jsx#L1-L115, web/src/pages/Booking/NewBookingPage/NewBookingPage.jsx#L1-L42, api/src/services/bookings/bookings.js#L1-L140, api/src/services/meetingRooms/meetingRooms.js#L1-L77)
 - Asset tracker: asset list and category management with services. (evidence: web/src/pages/AssetTrackerPage/AssetTrackerPage.jsx#L1-L155, api/src/services/assets/assets.js#L1-L150, api/src/services/assetCategories/assetCategories.js#L1-L118)

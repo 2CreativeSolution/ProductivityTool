@@ -115,7 +115,7 @@
   - [ ] Password reset links use env-configured base URL (no localhost in prod).
   - [ ] TLS mode is configurable with secure default for 465 or documented STARTTLS setting.
   - [ ] SendGrid (or chosen provider) tested end-to-end with evidence in WORK_LOG and logged message ID.
-  - [ ] Welcome email sent on successful signup when WELCOME_EMAIL_ENABLED=true.
+  - [x] Welcome email sent on successful signup using shared account-email template.
 - Tech Notes:
   - Add `WEB_APP_URL` for reset links; consider `SMTP_SECURE`/port guard.
   - Keep `SMTP_FROM` required when `SMTP_USERNAME=apikey`.
