@@ -94,6 +94,13 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         icon: 'ri-user-settings-line',
         matchPrefix: '/settings/account',
       },
+      {
+        key: 'changePassword',
+        label: 'Change Password',
+        to: routes.changePassword(),
+        icon: 'ri-lock-password-line',
+        matchPrefix: '/settings/change-password',
+      },
     ]
   }, [currentUser?.id])
 

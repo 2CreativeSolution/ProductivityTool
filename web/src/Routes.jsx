@@ -48,6 +48,7 @@ const Routes = () => {
         </Set>
 
         <Route path="/settings/account" page={UserEditUserPage} name="accountSettings" />
+        <Route path="/settings/change-password" page={UserChangePasswordPage} name="changePassword" />
       </PrivateSet>
 
       <PrivateSet unauthenticated="login" roles={['ADMIN']}>
