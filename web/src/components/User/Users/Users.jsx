@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
@@ -14,7 +16,7 @@ const DELETE_USER_MUTATION = gql`
   }
 `
 
-const UsersList = ({ users }) => {
+const UsersList = ({ users, searchTerm = '' }) => {
   const actionTextClass =
     'text-sm font-medium text-[#322e85] transition hover:text-[#2b2773]'
 
@@ -53,6 +55,23 @@ const UsersList = ({ users }) => {
       </button>
     )
   }
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase()
+  const filteredUsers = useMemo(() => {
+    if (!normalizedSearchTerm) {
+      return users
+    }
+
+    return users.filter((user) => {
+      const normalizedName = (user?.name || '').toLowerCase()
+      const normalizedEmail = (user?.email || '').toLowerCase()
+
+      return (
+        normalizedName.includes(normalizedSearchTerm) ||
+        normalizedEmail.includes(normalizedSearchTerm)
+      )
+    })
+  }, [users, normalizedSearchTerm])
 
   return (
     <div className="overflow-hidden rounded-md border bg-white">
@@ -136,7 +155,7 @@ const UsersList = ({ users }) => {
             },
           },
         ]}
-        data={users}
+        data={filteredUsers}
         pagination
         pageSizeOptions={[10, 20, 50, 100]}
         initialPageSize={10}

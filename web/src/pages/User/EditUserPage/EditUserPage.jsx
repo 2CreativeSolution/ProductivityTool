@@ -1,16 +1,19 @@
-import { Link, routes } from '@redwoodjs/router'
+import { Link, routes, useLocation } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
 import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import PageHeader from 'src/components/PageHeader/PageHeader'
+import { buttonVariants } from 'src/components/ui/button'
 import EditUserCell from 'src/components/User/EditUserCell'
 
 const EditUserPage = ({ id }) => {
+  const { pathname } = useLocation()
   const { currentUser } = useAuth()
   const resolvedId = id ?? currentUser?.id
   const isAccountSettings = !id
+  const isExplicitEditRoute = pathname.endsWith('/edit')
 
   if (!resolvedId) return null
 
@@ -28,7 +31,7 @@ const EditUserPage = ({ id }) => {
           <PageHeader title="Edit User">
             <Link
               to={routes.users()}
-              className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
+              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
             >
               Back to Users
             </Link>
@@ -40,7 +43,7 @@ const EditUserPage = ({ id }) => {
             isAccountSettings ? routes.accountSettings() : routes.users()
           }
           formVariant="account"
-          startInEditMode={!isAccountSettings}
+          startInEditMode={isExplicitEditRoute}
           showFormTitle={false}
         />
       </AppContentShell>

@@ -4,6 +4,7 @@ import { Metadata } from '@redwoodjs/web'
 import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import PageHeader from 'src/components/PageHeader/PageHeader'
+import { buttonVariants } from 'src/components/ui/button'
 import UserCell from 'src/components/User/UserCell'
 
 const UserPage = ({ id }) => {
@@ -15,7 +16,7 @@ const UserPage = ({ id }) => {
         <PageHeader title="User Details">
           <Link
             to={routes.users()}
-            className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
+            className={buttonVariants({ variant: 'secondary', size: 'sm' })}
           >
             Back to Users
           </Link>
