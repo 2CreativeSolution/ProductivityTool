@@ -11,6 +11,7 @@ import {
 
 import { useAuth } from 'src/auth'
 import { Button, buttonVariants } from 'src/components/ui/button'
+import { Pill } from 'src/components/ui/pill'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ROLE_OPTIONS = ['USER', 'ADMIN', 'MANAGER', 'TEAM_LEAD']
@@ -174,12 +175,9 @@ const UserForm = (props) => {
               </h2>
               <div className="flex flex-wrap gap-2">
                 {summaryRolePillValues.map((role) => (
-                  <span
-                    key={role}
-                    className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700"
-                  >
+                  <Pill key={role} className="uppercase tracking-wide">
                     {role.replaceAll('_', ' ')}
-                  </span>
+                  </Pill>
                 ))}
               </div>
               {!summaryRolePillValues.length && (
@@ -312,12 +310,9 @@ const UserForm = (props) => {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {rolePillValues.map((role) => (
-                    <span
-                      key={role}
-                      className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700"
-                    >
+                    <Pill key={role} className="uppercase tracking-wide">
                       {role.replaceAll('_', ' ')}
-                    </span>
+                    </Pill>
                   ))}
                 </div>
               )}

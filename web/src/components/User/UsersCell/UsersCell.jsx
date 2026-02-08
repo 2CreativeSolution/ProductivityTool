@@ -16,6 +16,8 @@ export const QUERY = gql`
 export const beforeQuery = () => {
   return {
     variables: {},
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   }
 }
 

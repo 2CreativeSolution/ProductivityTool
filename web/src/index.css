@@ -17,7 +17,13 @@
  */
 
 :root {
-  --app-sidebar-width: 22rem;
+  --app-sidebar-width-expanded: 22rem;
+  --app-sidebar-width-minimized: 4.75rem;
+  --app-sidebar-width: var(--app-sidebar-width-expanded);
+  --app-shell-left-gap: 1rem;
+  --app-shell-left-offset: calc(
+    var(--app-sidebar-width) + var(--app-shell-left-gap)
+  );
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

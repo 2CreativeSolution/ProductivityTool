@@ -3,6 +3,9 @@ import * as React from 'react'
 import {
   flexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -29,6 +32,7 @@ function DataTable({
   initialPageSize,
 }) {
   const [sorting, setSorting] = React.useState([])
+  const [columnFilters, setColumnFilters] = React.useState([])
   const defaultPageSize = initialPageSize || pageSizeOptions[0] || 10
   const [paginationState, setPaginationState] = React.useState({
     pageIndex: 0,
@@ -40,11 +44,16 @@ function DataTable({
     columns: columns ?? [],
     state: {
       sorting,
+      columnFilters,
       ...(pagination ? { pagination: paginationState } : {}),
     },
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     ...(pagination ? { onPaginationChange: setPaginationState } : {}),
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     getSortedRowModel: getSortedRowModel(),
     ...(pagination ? { getPaginationRowModel: getPaginationRowModel() } : {}),
   })

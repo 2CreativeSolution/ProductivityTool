@@ -58,6 +58,7 @@ const Routes = () => {
         <Route path="/admin/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
         <Route path="/admin/users/{id:Int}" page={UserEditUserPage} name="user" />
         <Route path="/admin/users" page={UserUsersPage} name="users" />
+        <Route path="/admin/vacation-requests" page={AdminVacationRequestsPage} name="adminVacationRequests" />
         <Route path="/admin/supply-requests" page={OfficeSupplyAdminSupplyRequestsPage} name="adminSupplyRequests" />
         <Route path="/admin/supply-categories" page={OfficeSupplySupplyCategoriesPage} name="adminSupplyCategories" />
       </PrivateSet>

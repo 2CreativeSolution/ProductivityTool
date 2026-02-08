@@ -91,9 +91,6 @@ const VacationForm = ({ onSuccess, onCancel }) => {
       onCompleted: () => {
         onSuccess()
         toast.success('Vacation request submitted')
-        // Notify other components about the update
-        window.dispatchEvent(new Event('vacationRequestsUpdated'))
-        window.localStorage.setItem('vacationRequestsUpdated', Date.now())
       },
       onError: (error) => {
         setFormError(error.message)
@@ -252,9 +249,6 @@ const VacationPlanner = forwardRef(
     const [deleteVacationRequest] = useMutation(DELETE_VACATION_REQUEST, {
       onCompleted: () => {
         toast.success('Request deleted')
-        // Notify other components about the update
-        window.dispatchEvent(new Event('vacationRequestsUpdated'))
-        window.localStorage.setItem('vacationRequestsUpdated', Date.now())
       },
       update: (cache, { data: { deleteVacationRequest } }) => {
         try {
@@ -279,9 +273,6 @@ const VacationPlanner = forwardRef(
     const [cancelVacationRequest] = useMutation(CANCEL_VACATION_REQUEST, {
       onCompleted: () => {
         toast.success('Vacation cancelled')
-        // Notify other components about the update
-        window.dispatchEvent(new Event('vacationRequestsUpdated'))
-        window.localStorage.setItem('vacationRequestsUpdated', Date.now())
       },
       onError: (error) => {
         toast.error(`Error: ${error.message}`)
@@ -425,38 +416,6 @@ const VacationPlanner = forwardRef(
         dataLength: data?.userVacationRequests?.length,
       })
     }, [loading, error, data])
-
-    // Add this useEffect to listen for changes from admin
-    useEffect(() => {
-      const handleVacationUpdated = async () => {
-        console.log(
-          'User: vacationRequestsUpdated event received, refetching...'
-        )
-        await refetch()
-      }
-
-      // Listen for custom event from admin component
-      window.addEventListener('vacationRequestsUpdated', handleVacationUpdated)
-
-      // Listen for localStorage changes (cross-tab communication)
-      const handleStorageChange = (e) => {
-        if (e.key === 'vacationRequestsUpdated') {
-          console.log(
-            'User: vacationRequestsUpdated storage event, refetching...'
-          )
-          refetch()
-        }
-      }
-      window.addEventListener('storage', handleStorageChange)
-
-      return () => {
-        window.removeEventListener(
-          'vacationRequestsUpdated',
-          handleVacationUpdated
-        )
-        window.removeEventListener('storage', handleStorageChange)
-      }
-    }, [refetch])
 
     return (
       <div className="vacation-planner rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
@@ -866,9 +825,6 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
       onCompleted: () => {
         onSuccess()
         toast.success('Vacation request resubmitted successfully!')
-        // Notify other components about the update
-        window.dispatchEvent(new Event('vacationRequestsUpdated'))
-        window.localStorage.setItem('vacationRequestsUpdated', Date.now())
       },
       onError: (error) => {
         setFormError(error.message)

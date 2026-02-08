@@ -1,8 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
-import { Link, routes, useLocation } from '@redwoodjs/router'
+import { Link, navigate, routes, useLocation } from '@redwoodjs/router'
 
 import { useAuth } from 'src/auth'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from 'src/components/ui/dropdown-menu'
 import { STORAGE_KEYS } from 'src/lib/storageKeys'
 
 const AppSidebar = ({ showQuickAccess = false }) => {
@@ -18,9 +24,10 @@ const AppSidebar = ({ showQuickAccess = false }) => {
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false)
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false)
   const [mobileAdminOpen, setMobileAdminOpen] = useState(false)
-  const [desktopExpanded, setDesktopExpanded] = useState(true)
-  const [compactDropdown, setCompactDropdown] = useState(null)
-  const compactMenuRef = useRef(null)
+  const [desktopExpanded, setDesktopExpanded] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return window.localStorage.getItem(STORAGE_KEYS.sidebarExpanded) !== '0'
+  })
 
   const isAdmin = Boolean(hasRole && hasRole('ADMIN'))
 
@@ -123,6 +130,13 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         matchPrefix: '/admin/users',
       },
       {
+        key: 'adminVacationRequests',
+        label: 'Vacation Requests',
+        to: routes.adminVacationRequests(),
+        icon: 'ri-calendar-check-line',
+        matchPrefix: '/admin/vacation-requests',
+      },
+      {
         key: 'adminSupplyRequests',
         label: 'Manage Supply Requests',
         to: routes.adminSupplyRequests(),
@@ -170,6 +184,12 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         ? 'bg-white text-[#322e85]'
         : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
     }`
+  const compactTriggerClass = (isActive) =>
+    `grid h-9 w-9 place-items-center rounded-lg transition ${
+      isActive
+        ? 'bg-gray-900 text-white'
+        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
+    }`
 
   const resourcesActive = resourceItems.some((item) =>
     pathname.startsWith(item.to)
@@ -210,37 +230,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
 
   useEffect(() => {
     setMobileMenuOpen(false)
-    setCompactDropdown(null)
   }, [pathname])
-
-  useEffect(() => {
-    if (desktopExpanded) {
-      setCompactDropdown(null)
-    }
-  }, [desktopExpanded])
-
-  useEffect(() => {
-    if (!compactDropdown) return
-
-    const handleOutsideClick = (event) => {
-      if (!compactMenuRef.current?.contains(event.target)) {
-        setCompactDropdown(null)
-      }
-    }
-
-    document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
-  }, [compactDropdown])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const storedSidebarState = window.localStorage.getItem(
-      STORAGE_KEYS.sidebarExpanded
-    )
-    if (storedSidebarState === '0') {
-      setDesktopExpanded(false)
-    }
-  }, [])
 
   useEffect(() => {
     if (typeof window === 'undefined' || typeof document === 'undefined') return
@@ -248,18 +238,71 @@ const AppSidebar = ({ showQuickAccess = false }) => {
       STORAGE_KEYS.sidebarExpanded,
       desktopExpanded ? '1' : '0'
     )
+    const sidebarWidthVar = desktopExpanded
+      ? 'var(--app-sidebar-width-expanded)'
+      : 'var(--app-sidebar-width-minimized)'
+    const shellLeftGap = desktopExpanded ? '1rem' : '0rem'
     document.documentElement.style.setProperty(
       '--app-sidebar-width',
-      desktopExpanded ? '22rem' : '4.75rem'
+      sidebarWidthVar
+    )
+    document.documentElement.style.setProperty(
+      '--app-shell-left-gap',
+      shellLeftGap
     )
   }, [desktopExpanded])
 
   useEffect(() => {
     return () => {
       if (typeof document === 'undefined') return
-      document.documentElement.style.setProperty('--app-sidebar-width', '22rem')
+      document.documentElement.style.setProperty(
+        '--app-sidebar-width',
+        'var(--app-sidebar-width-expanded)'
+      )
+      document.documentElement.style.setProperty('--app-shell-left-gap', '1rem')
     }
   }, [])
+
+  const renderCompactDropdownMenu = ({
+    title,
+    ariaLabel,
+    iconClassName,
+    isActive,
+    items,
+    menuWidthClass = 'w-48',
+    itemIsActive = isItemActive,
+  }) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          title={title}
+          aria-label={ariaLabel}
+          className={compactTriggerClass(isActive)}
+        >
+          <i className={`${iconClassName} text-xl`}></i>
+        </button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent
+        side="right"
+        align="start"
+        sideOffset={8}
+        className={`${menuWidthClass} rounded-lg border border-gray-200 bg-white p-2 shadow-lg`}
+      >
+        {items.map((item) => (
+          <DropdownMenuItem
+            key={item.key}
+            onSelect={() => navigate(item.to)}
+            className={compactDropdownItemClass(itemIsActive(item))}
+          >
+            <i className={`${item.icon} text-sm`}></i>
+            <span>{item.label}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 
   return (
     <>
@@ -513,9 +556,8 @@ const AppSidebar = ({ showQuickAccess = false }) => {
       )}
 
       <aside
-        className={`fixed left-0 top-0 z-40 hidden h-screen overflow-visible bg-gradient-to-r from-[#eee] to-[#f6f6f6] lg:flex ${
-          desktopExpanded ? 'w-[22rem]' : 'w-[4.75rem]'
-        }`}
+        className="fixed left-0 top-0 z-40 hidden h-screen overflow-visible bg-gradient-to-r from-[#eee] to-[#f6f6f6] lg:flex"
+        style={{ width: 'var(--app-sidebar-width)' }}
       >
         <div className="flex w-full flex-col p-3 pb-8">
           <div
@@ -781,7 +823,6 @@ const AppSidebar = ({ showQuickAccess = false }) => {
             </div>
 
             <div
-              ref={compactMenuRef}
               className={`absolute inset-0 flex flex-col items-center justify-between pb-2 transition-opacity duration-200 ${
                 desktopExpanded
                   ? 'pointer-events-none opacity-0'
@@ -789,179 +830,51 @@ const AppSidebar = ({ showQuickAccess = false }) => {
               }`}
             >
               <div className="flex w-full flex-1 flex-col items-center gap-2">
-                <div className="relative">
-                  <button
-                    type="button"
-                    title="Dashboard"
-                    aria-label="Dashboard menu"
-                    aria-expanded={compactDropdown === 'home'}
-                    onClick={() =>
-                      setCompactDropdown((current) =>
-                        current === 'home' ? null : 'home'
-                      )
-                    }
-                    className={`grid h-9 w-9 place-items-center rounded-lg transition ${
-                      homeActive
-                        ? 'bg-gray-900 text-white'
-                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-                    }`}
-                  >
-                    <i className="ri-home-4-line text-xl"></i>
-                  </button>
+                {renderCompactDropdownMenu({
+                  title: 'Dashboard',
+                  ariaLabel: 'Dashboard menu',
+                  iconClassName: 'ri-home-4-line',
+                  isActive: homeActive,
+                  items: homeItems,
+                })}
 
-                  {compactDropdown === 'home' && (
-                    <div className="absolute left-full top-0 ml-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
-                      {homeItems.map((homeItem) => (
-                        <Link
-                          key={homeItem.key}
-                          to={homeItem.to}
-                          onClick={() => setCompactDropdown(null)}
-                          className={`${compactDropdownItemClass(
-                            isItemActive(homeItem)
-                          )} w-full text-left`}
-                        >
-                          <i className={`${homeItem.icon} text-sm`}></i>
-                          <span>{homeItem.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <button
-                    type="button"
-                    title="Resources"
-                    aria-label="Resources menu"
-                    aria-expanded={compactDropdown === 'resources'}
-                    onClick={() =>
-                      setCompactDropdown((current) =>
-                        current === 'resources' ? null : 'resources'
-                      )
-                    }
-                    className={`grid h-9 w-9 place-items-center rounded-lg transition ${
-                      resourcesActive
-                        ? 'bg-gray-900 text-white'
-                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-                    }`}
-                  >
-                    <i className="ri-stack-line text-xl"></i>
-                  </button>
-
-                  {compactDropdown === 'resources' && (
-                    <div className="absolute left-full top-0 ml-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
-                      {resourceItems.map((item) => (
-                        <Link
-                          key={item.key}
-                          to={item.to}
-                          onClick={() => setCompactDropdown(null)}
-                          className={compactDropdownItemClass(
-                            pathname.startsWith(item.to)
-                          )}
-                        >
-                          <i className={`${item.icon} text-sm`}></i>
-                          <span>{item.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {renderCompactDropdownMenu({
+                  title: 'Resources',
+                  ariaLabel: 'Resources menu',
+                  iconClassName: 'ri-stack-line',
+                  isActive: resourcesActive,
+                  items: resourceItems,
+                  itemIsActive: (item) => pathname.startsWith(item.to),
+                })}
 
                 <Link
                   to={routes.projectTracker()}
                   title="Projects"
-                  className={`grid h-9 w-9 place-items-center rounded-lg transition ${
-                    projectsActive
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-                  }`}
+                  className={compactTriggerClass(projectsActive)}
                 >
                   <i className="ri-briefcase-4-line text-xl"></i>
                 </Link>
 
                 <div className="my-2 h-px w-8 bg-gray-200"></div>
 
-                {settingsItems.length > 0 && (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      title="Settings"
-                      aria-label="Settings menu"
-                      aria-expanded={compactDropdown === 'settings'}
-                      onClick={() =>
-                        setCompactDropdown((current) =>
-                          current === 'settings' ? null : 'settings'
-                        )
-                      }
-                      className={`grid h-9 w-9 place-items-center rounded-lg transition ${
-                        settingsActive
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-                      }`}
-                    >
-                      <i className="ri-settings-3-line text-xl"></i>
-                    </button>
+                {settingsItems.length > 0 &&
+                  renderCompactDropdownMenu({
+                    title: 'Settings',
+                    ariaLabel: 'Settings menu',
+                    iconClassName: 'ri-settings-3-line',
+                    isActive: settingsActive,
+                    items: settingsItems,
+                  })}
 
-                    {compactDropdown === 'settings' && (
-                      <div className="absolute left-full top-0 ml-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
-                        {settingsItems.map((item) => (
-                          <Link
-                            key={item.key}
-                            to={item.to}
-                            onClick={() => setCompactDropdown(null)}
-                            className={compactDropdownItemClass(
-                              isItemActive(item)
-                            )}
-                          >
-                            <i className={`${item.icon} text-sm`}></i>
-                            <span>{item.label}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {isAdmin && (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      title="Admin"
-                      aria-label="Admin menu"
-                      aria-expanded={compactDropdown === 'admin'}
-                      onClick={() =>
-                        setCompactDropdown((current) =>
-                          current === 'admin' ? null : 'admin'
-                        )
-                      }
-                      className={`grid h-9 w-9 place-items-center rounded-lg transition ${
-                        adminActive
-                          ? 'bg-gray-900 text-white'
-                          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
-                      }`}
-                    >
-                      <i className="ri-shield-user-line text-xl"></i>
-                    </button>
-
-                    {compactDropdown === 'admin' && (
-                      <div className="absolute left-full top-0 ml-2 w-56 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
-                        {adminItems.map((item) => (
-                          <Link
-                            key={item.key}
-                            to={item.to}
-                            onClick={() => setCompactDropdown(null)}
-                            className={compactDropdownItemClass(
-                              isItemActive(item)
-                            )}
-                          >
-                            <i className={`${item.icon} text-sm`}></i>
-                            <span>{item.label}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
+                {isAdmin &&
+                  renderCompactDropdownMenu({
+                    title: 'Admin',
+                    ariaLabel: 'Admin menu',
+                    iconClassName: 'ri-shield-user-line',
+                    isActive: adminActive,
+                    items: adminItems,
+                    menuWidthClass: 'w-56',
+                  })}
               </div>
 
               <div className="flex flex-col items-center gap-2 border-t border-gray-100 pt-3">

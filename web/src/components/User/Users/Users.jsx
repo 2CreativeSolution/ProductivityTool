@@ -4,7 +4,7 @@ import { Link, routes } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import { DataTable } from 'src/components/ui'
+import { AdminDataTable, Pill } from 'src/components/ui'
 import { QUERY } from 'src/components/User/UsersCell'
 import { truncate } from 'src/lib/formatters'
 
@@ -19,6 +19,8 @@ const DELETE_USER_MUTATION = gql`
 const UsersList = ({ users, searchTerm = '' }) => {
   const actionTextClass =
     'text-sm font-medium text-[#322e85] transition hover:text-[#2b2773]'
+  const rowActionTextClass =
+    'text-[11px] font-semibold uppercase tracking-wide text-[#322e85] transition hover:text-[#2b2773]'
 
   const [deleteUser] = useMutation(DELETE_USER_MUTATION, {
     onCompleted: () => {
@@ -75,8 +77,7 @@ const UsersList = ({ users, searchTerm = '' }) => {
 
   return (
     <div className="overflow-hidden rounded-md border bg-white">
-      <DataTable
-        className="[&_thead_[data-slot=table-row]:hover]:bg-gray-800 [&_thead_[data-slot=table-row]]:border-b-0 [&_thead_[data-slot=table-row]]:bg-gray-900 [&_thead_th]:font-semibold [&_thead_th]:text-white"
+      <AdminDataTable
         columns={[
           {
             accessorKey: 'id',
@@ -102,9 +103,13 @@ const UsersList = ({ users, searchTerm = '' }) => {
                     {truncate(user.name) || 'Not set'}
                   </Link>
                   {isAdminRole && (
-                    <span className="inline-flex items-center rounded-full bg-[#322e85]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#322e85]">
+                    <Pill
+                      variant="brand"
+                      size="sm"
+                      className="uppercase tracking-wide"
+                    >
                       Admin
-                    </span>
+                    </Pill>
                   )}
                   {isRoleMissing && (
                     <span
@@ -137,7 +142,7 @@ const UsersList = ({ users, searchTerm = '' }) => {
                   <Link
                     to={routes.editUser({ id: user.id })}
                     title={'Edit user ' + user.id}
-                    className={actionTextClass}
+                    className={rowActionTextClass}
                   >
                     Edit
                   </Link>

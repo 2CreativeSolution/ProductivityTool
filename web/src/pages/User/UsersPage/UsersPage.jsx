@@ -23,7 +23,7 @@ const UsersPage = () => {
             type="text"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Search name or email"
+            placeholder="Search by name or email"
             aria-label="Search users by name or email"
             className="h-9 w-64 border-slate-300 bg-white"
           />
