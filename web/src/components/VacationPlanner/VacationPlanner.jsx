@@ -418,7 +418,7 @@ const VacationPlanner = forwardRef(
     }, [loading, error, data])
 
     return (
-      <div className="vacation-planner rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
+      <div className="vacation-planner">
         <Toaster toastOptions={{ duration: 3000 }} />
 
         <div className="mb-6 flex items-center justify-between">
