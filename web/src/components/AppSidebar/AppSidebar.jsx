@@ -446,45 +446,6 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                 </Link>
               </div>
 
-              <div className="mt-6">
-                <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  Settings
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setMobileSettingsOpen((open) => !open)}
-                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
-                    settingsActive
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  <i className="ri-settings-3-line text-base"></i>
-                  <span className="flex-1">Settings</span>
-                  <i
-                    className={`ri-arrow-down-s-line text-base transition-transform ${
-                      mobileSettingsOpen ? 'rotate-180' : ''
-                    }`}
-                  ></i>
-                </button>
-
-                {mobileSettingsOpen && settingsItems.length > 0 && (
-                  <div className="mt-1 space-y-1 pl-7">
-                    {settingsItems.map((item) => (
-                      <Link
-                        key={item.key}
-                        to={item.to}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={nestedNavItemClass(isItemActive(item))}
-                      >
-                        <i className={`${item.icon} text-sm`}></i>
-                        <span>{item.label}</span>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {isAdmin && (
                 <div className="mt-6">
                   <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
@@ -525,6 +486,45 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                   )}
                 </div>
               )}
+
+              <div className="mt-6">
+                <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Settings
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setMobileSettingsOpen((open) => !open)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
+                    settingsActive
+                      ? 'bg-gray-900 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <i className="ri-settings-3-line text-base"></i>
+                  <span className="flex-1">Settings</span>
+                  <i
+                    className={`ri-arrow-down-s-line text-base transition-transform ${
+                      mobileSettingsOpen ? 'rotate-180' : ''
+                    }`}
+                  ></i>
+                </button>
+
+                {mobileSettingsOpen && settingsItems.length > 0 && (
+                  <div className="mt-1 space-y-1 pl-7">
+                    {settingsItems.map((item) => (
+                      <Link
+                        key={item.key}
+                        to={item.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={nestedNavItemClass(isItemActive(item))}
+                      >
+                        <i className={`${item.icon} text-sm`}></i>
+                        <span>{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <div className="mt-6 border-t border-gray-100 pt-4">
                 <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
@@ -717,44 +717,6 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                   </Link>
                 </div>
 
-                <div className="mt-6">
-                  <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    Settings
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setSettingsOpen((open) => !open)}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
-                      settingsActive
-                        ? 'bg-gray-900 text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    <i className="ri-settings-3-line text-base"></i>
-                    <span className="flex-1">Settings</span>
-                    <i
-                      className={`ri-arrow-down-s-line text-base transition-transform ${
-                        settingsOpen ? 'rotate-180' : ''
-                      }`}
-                    ></i>
-                  </button>
-
-                  {settingsOpen && settingsItems.length > 0 && (
-                    <div className="mt-1 space-y-1 pl-7">
-                      {settingsItems.map((item) => (
-                        <Link
-                          key={item.key}
-                          to={item.to}
-                          className={nestedNavItemClass(isItemActive(item))}
-                        >
-                          <i className={`${item.icon} text-sm`}></i>
-                          <span>{item.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
                 {isAdmin && (
                   <div className="mt-6">
                     <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
@@ -794,6 +756,44 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                     )}
                   </div>
                 )}
+
+                <div className="mt-6">
+                  <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                    Settings
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSettingsOpen((open) => !open)}
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
+                      settingsActive
+                        ? 'bg-gray-900 text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <i className="ri-settings-3-line text-base"></i>
+                    <span className="flex-1">Settings</span>
+                    <i
+                      className={`ri-arrow-down-s-line text-base transition-transform ${
+                        settingsOpen ? 'rotate-180' : ''
+                      }`}
+                    ></i>
+                  </button>
+
+                  {settingsOpen && settingsItems.length > 0 && (
+                    <div className="mt-1 space-y-1 pl-7">
+                      {settingsItems.map((item) => (
+                        <Link
+                          key={item.key}
+                          to={item.to}
+                          className={nestedNavItemClass(isItemActive(item))}
+                        >
+                          <i className={`${item.icon} text-sm`}></i>
+                          <span>{item.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="mt-4 border-t border-gray-100 pt-4">
@@ -857,15 +857,6 @@ const AppSidebar = ({ showQuickAccess = false }) => {
 
                 <div className="my-2 h-px w-8 bg-gray-200"></div>
 
-                {settingsItems.length > 0 &&
-                  renderCompactDropdownMenu({
-                    title: 'Settings',
-                    ariaLabel: 'Settings menu',
-                    iconClassName: 'ri-settings-3-line',
-                    isActive: settingsActive,
-                    items: settingsItems,
-                  })}
-
                 {isAdmin &&
                   renderCompactDropdownMenu({
                     title: 'Admin',
@@ -874,6 +865,15 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                     isActive: adminActive,
                     items: adminItems,
                     menuWidthClass: 'w-56',
+                  })}
+
+                {settingsItems.length > 0 &&
+                  renderCompactDropdownMenu({
+                    title: 'Settings',
+                    ariaLabel: 'Settings menu',
+                    iconClassName: 'ri-settings-3-line',
+                    isActive: settingsActive,
+                    items: settingsItems,
                   })}
               </div>
 

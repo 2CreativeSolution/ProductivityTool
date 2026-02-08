@@ -15,6 +15,8 @@ import { gql } from 'graphql-tag'
 import { useQuery, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { SummaryMetricCard } from 'src/components/ui'
+
 const GET_PENDING_REQUESTS = gql`
   query GetPendingSupplyRequests {
     pendingSupplyRequests {
@@ -238,85 +240,75 @@ const AdminSupplyRequestManager = () => {
         0
       ) || 0,
   }
+  const totalRequestsForRates = stats.total || currentData?.length || 0
+  const pendingRate = totalRequestsForRates
+    ? Math.round((stats.pending / totalRequestsForRates) * 100)
+    : 0
+  const approvedRate = totalRequestsForRates
+    ? Math.round((stats.approved / totalRequestsForRates) * 100)
+    : 0
+  const rejectedRate = totalRequestsForRates
+    ? Math.round((stats.rejected / totalRequestsForRates) * 100)
+    : 0
+  const overdueRate = totalRequestsForRates
+    ? Math.round((stats.overdue / totalRequestsForRates) * 100)
+    : 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-          {/* Stats */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-5">
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-yellow-100 p-3">
-                  <ClockIcon className="h-6 w-6 text-yellow-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.pending}
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Stats */}
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <SummaryMetricCard
+            size="sm"
+            title="Pending"
+            value={stats.pending.toLocaleString('en-US')}
+            subtitle="Open approvals"
+            icon={<ClockIcon />}
+            trend={{ direction: 'neutral', label: `${pendingRate}%` }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-green-100 p-3">
-                  <CheckCircleIcon className="h-6 w-6 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Approved</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.approved}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Approved"
+            value={stats.approved.toLocaleString('en-US')}
+            subtitle="Approved requests"
+            icon={<CheckCircleIcon />}
+            trend={{ direction: 'positive', label: `${approvedRate}%` }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-red-100 p-3">
-                  <XCircleIcon className="h-6 w-6 text-red-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Rejected</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.rejected}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Rejected"
+            value={stats.rejected.toLocaleString('en-US')}
+            subtitle="Rejected requests"
+            icon={<XCircleIcon />}
+            trend={{ direction: 'negative', label: `${rejectedRate}%` }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-red-100 p-3">
-                  <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Overdue</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stats.overdue}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Overdue"
+            value={stats.overdue.toLocaleString('en-US')}
+            subtitle="Pending and overdue"
+            icon={<ExclamationTriangleIcon />}
+            trend={{ direction: 'negative', label: `${overdueRate}%` }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-blue-100 p-3">
-                  <CurrencyDollarIcon className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Value
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ${stats.totalValue.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Total Value"
+            value={`$${stats.totalValue.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`}
+            subtitle="Value of listed requests"
+            icon={<CurrencyDollarIcon />}
+            trend={{
+              direction: 'positive',
+              label: activeTab === 'pending' ? 'pending' : 'all',
+            }}
+          />
         </div>
 
         {/* Tabs */}

@@ -4,6 +4,8 @@ import {
   PencilIcon,
   TrashIcon,
   FolderIcon,
+  ClipboardDocumentListIcon,
+  ChartBarIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline'
 import { gql } from 'graphql-tag'
@@ -21,6 +23,7 @@ import { useQuery, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
+import { SummaryMetricCard } from 'src/components/ui'
 
 const GET_CATEGORIES = gql`
   query GetOfficeSupplyCategoriesForManager {
@@ -151,6 +154,16 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
     setShowForm(true)
   }, [isAdmin, openCreateTrigger])
 
+  const totalCategories = data?.officeSupplyCategories?.length || 0
+  const totalSupplies =
+    data?.officeSupplyCategories?.reduce(
+      (total, category) => total + (category.supplies?.length || 0),
+      0
+    ) || 0
+  const averagePerCategory = totalCategories
+    ? Math.round(totalSupplies / totalCategories)
+    : 0
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6">
       <div className="mx-auto max-w-6xl">
@@ -200,68 +213,37 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
 
         {!loading && !error && (
           <>
-            <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-              {/* Stats */}
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-                  <div className="flex items-center">
-                    <div className="rounded-lg bg-blue-100 p-3">
-                      <FolderIcon className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">
-                        Total Categories
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {data?.officeSupplyCategories?.length || 0}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            {/* Stats */}
+            <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+              <SummaryMetricCard
+                size="sm"
+                title="Total Categories"
+                value={totalCategories.toLocaleString('en-US')}
+                subtitle="Configured categories"
+                icon={<FolderIcon />}
+                trend={{ direction: 'neutral', label: 'active' }}
+              />
 
-                <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-                  <div className="flex items-center">
-                    <div className="rounded-lg bg-green-100 p-3">
-                      <FolderIcon className="h-6 w-6 text-green-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">
-                        Total Supplies
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {data?.officeSupplyCategories?.reduce(
-                          (total, cat) => total + (cat.supplies?.length || 0),
-                          0
-                        ) || 0}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <SummaryMetricCard
+                size="sm"
+                title="Total Supplies"
+                value={totalSupplies.toLocaleString('en-US')}
+                subtitle="Supplies across categories"
+                icon={<ClipboardDocumentListIcon />}
+                trend={{ direction: 'positive', label: 'tracked' }}
+              />
 
-                <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-                  <div className="flex items-center">
-                    <div className="rounded-lg bg-purple-100 p-3">
-                      <FolderIcon className="h-6 w-6 text-purple-600" />
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-600">
-                        Average per Category
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {data?.officeSupplyCategories?.length
-                          ? Math.round(
-                              data.officeSupplyCategories.reduce(
-                                (total, cat) =>
-                                  total + (cat.supplies?.length || 0),
-                                0
-                              ) / data.officeSupplyCategories.length
-                            )
-                          : 0}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <SummaryMetricCard
+                size="sm"
+                title="Average / Category"
+                value={averagePerCategory.toLocaleString('en-US')}
+                subtitle="Average supplies in each category"
+                icon={<ChartBarIcon />}
+                trend={{
+                  direction: 'neutral',
+                  label: `${totalCategories} cats`,
+                }}
+              />
             </div>
 
             {/* Category Form Modal - Admin Only */}

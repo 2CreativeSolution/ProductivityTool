@@ -1,6 +1,15 @@
 import React, { useState, useMemo } from 'react'
 
+import {
+  ClipboardDocumentListIcon,
+  ClockIcon,
+  FolderOpenIcon,
+  UserGroupIcon,
+} from '@heroicons/react/24/outline'
+
 import { useQuery, gql } from '@redwoodjs/web'
+
+import { SummaryMetricCard } from 'src/components/ui'
 
 const PROJECT_REPORTS_QUERY = gql`
   query ProjectReportsQuery($startDate: DateTime!, $endDate: DateTime!) {
@@ -266,30 +275,50 @@ const ProjectReports = () => {
         <>
           {/* Overview Cards */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <div className="text-2xl font-bold text-blue-600">
-                {reports.allocationSummary.totalProjects}
-              </div>
-              <div className="text-sm text-gray-600">Active Projects</div>
-            </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <div className="text-2xl font-bold text-green-600">
-                {reports.allocationSummary.totalActiveAllocations}
-              </div>
-              <div className="text-sm text-gray-600">Team Allocations</div>
-            </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <div className="text-2xl font-bold text-purple-600">
-                {reports.updatesSummary.totalUpdates}
-              </div>
-              <div className="text-sm text-gray-600">Daily Updates</div>
-            </div>
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <div className="text-2xl font-bold text-orange-600">
-                {Math.round(reports.updatesSummary.totalHours)}h
-              </div>
-              <div className="text-sm text-gray-600">Total Hours Logged</div>
-            </div>
+            <SummaryMetricCard
+              size="sm"
+              title="Active Projects"
+              value={reports.allocationSummary.totalProjects.toLocaleString(
+                'en-US'
+              )}
+              subtitle="Projects in scope"
+              icon={<FolderOpenIcon />}
+              trend={{ direction: 'neutral', label: 'current' }}
+            />
+            <SummaryMetricCard
+              size="sm"
+              title="Team Allocations"
+              value={reports.allocationSummary.totalActiveAllocations.toLocaleString(
+                'en-US'
+              )}
+              subtitle="Active team allocations"
+              icon={<UserGroupIcon />}
+              trend={{
+                direction: 'positive',
+                label: `${reports.allocationSummary.totalProjects} projects`,
+              }}
+            />
+            <SummaryMetricCard
+              size="sm"
+              title="Daily Updates"
+              value={reports.updatesSummary.totalUpdates.toLocaleString(
+                'en-US'
+              )}
+              subtitle="Updates submitted"
+              icon={<ClipboardDocumentListIcon />}
+              trend={{ direction: 'neutral', label: 'period' }}
+            />
+            <SummaryMetricCard
+              size="sm"
+              title="Total Hours Logged"
+              value={`${Math.round(reports.updatesSummary.totalHours)}h`}
+              subtitle="Hours across all updates"
+              icon={<ClockIcon />}
+              trend={{
+                direction: 'positive',
+                label: `${reports.updatesSummary.totalUpdates} updates`,
+              }}
+            />
           </div>
 
           {/* Status & Priority Distribution */}

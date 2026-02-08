@@ -38,7 +38,6 @@ const Routes = () => {
         {/* Office Supplies Management */}
         <Route path="/office-supplies" page={OfficeSupplyOfficeSupplyInventoryPage} name="officeSupplies" />
         <Route path="/supply-requests" page={OfficeSupplySupplyRequestsPage} name="supplyRequests" />
-        <Route path="/supply-categories" page={OfficeSupplySupplyCategoriesPage} name="supplyCategories" />
 
         <Set wrap={ScaffoldLayout} title="Bookings" titleTo="bookings" buttonLabel="New Booking" buttonTo="newBooking">
           <Route path="/bookings/new" page={BookingNewBookingPage} name="newBooking" />

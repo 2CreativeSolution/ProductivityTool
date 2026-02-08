@@ -1,5 +1,12 @@
 import { useState } from 'react'
 
+import {
+  ArchiveBoxIcon,
+  BriefcaseIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline'
+
 import { Metadata } from '@redwoodjs/web'
 import { useQuery } from '@redwoodjs/web'
 
@@ -10,6 +17,7 @@ import AssetManagement from 'src/components/AssetTracker/AssetManagement'
 import AssetReports from 'src/components/AssetTracker/AssetReports'
 import AssetTracker from 'src/components/AssetTracker/AssetTracker'
 import PageHeader from 'src/components/PageHeader/PageHeader'
+import { SummaryMetricCard } from 'src/components/ui'
 
 const ASSET_STATS_QUERY = gql`
   query AssetStatsQuery {
@@ -65,6 +73,15 @@ const AssetTrackerPage = () => {
       threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3)
       return expiryDate <= threeMonthsFromNow && expiryDate >= new Date()
     }).length || 0
+  const availabilityRate = totalAssets
+    ? Math.round((availableAssets / totalAssets) * 100)
+    : 0
+  const assignedRate = totalAssets
+    ? Math.round((assignedAssets / totalAssets) * 100)
+    : 0
+  const warrantyRiskRate = totalAssets
+    ? Math.round((warrantyExpiringSoon / totalAssets) * 100)
+    : 0
 
   // Category icon mapping
   const getCategoryIcon = (categoryName) => {
@@ -198,54 +215,59 @@ const AssetTrackerPage = () => {
         </div>
 
         {/* Quick Stats Section - Now Dynamic */}
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {statsLoading ? '...' : totalAssets}
-              </div>
-              <div className="mt-1 text-sm font-medium text-gray-900">
-                Total Assets
-              </div>
-              <div className="text-xs text-gray-500">In inventory</div>
-            </div>
-          </div>
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <SummaryMetricCard
+            size="sm"
+            title="Total Assets"
+            value={
+              statsLoading ? '...' : Number(totalAssets).toLocaleString('en-US')
+            }
+            subtitle="In inventory"
+            icon={<ArchiveBoxIcon />}
+            trend={{ direction: 'neutral', label: '100%' }}
+          />
 
-          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {statsLoading ? '...' : availableAssets}
-              </div>
-              <div className="mt-1 text-sm font-medium text-gray-900">
-                Available
-              </div>
-              <div className="text-xs text-gray-500">Ready to assign</div>
-            </div>
-          </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Available"
+            value={
+              statsLoading
+                ? '...'
+                : Number(availableAssets).toLocaleString('en-US')
+            }
+            subtitle="Ready to assign"
+            icon={<CheckCircleIcon />}
+            trend={{ direction: 'positive', label: `${availabilityRate}%` }}
+          />
 
-          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">
-                {statsLoading ? '...' : assignedAssets}
-              </div>
-              <div className="mt-1 text-sm font-medium text-gray-900">
-                Assigned
-              </div>
-              <div className="text-xs text-gray-500">To employees</div>
-            </div>
-          </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Assigned"
+            value={
+              statsLoading
+                ? '...'
+                : Number(assignedAssets).toLocaleString('en-US')
+            }
+            subtitle="In active use"
+            icon={<BriefcaseIcon />}
+            trend={{ direction: 'neutral', label: `${assignedRate}%` }}
+          />
 
-          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">
-                {statsLoading ? '...' : warrantyExpiringSoon}
-              </div>
-              <div className="mt-1 text-sm font-medium text-gray-900">
-                Warranty
-              </div>
-              <div className="text-xs text-gray-500">Expiring soon</div>
-            </div>
-          </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Warranty Risk"
+            value={
+              statsLoading
+                ? '...'
+                : Number(warrantyExpiringSoon).toLocaleString('en-US')
+            }
+            subtitle="Expiring within 3 months"
+            icon={<ExclamationTriangleIcon />}
+            trend={{
+              direction: warrantyExpiringSoon > 0 ? 'negative' : 'positive',
+              label: `${warrantyRiskRate}%`,
+            }}
+          />
         </div>
 
         {/* Asset Categories Overview - Now Dynamic */}

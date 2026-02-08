@@ -5,6 +5,7 @@ import {
   ExclamationTriangleIcon,
   ChartBarIcon,
   ClipboardDocumentListIcon,
+  CurrencyDollarIcon,
 } from '@heroicons/react/24/outline'
 import { gql } from 'graphql-tag'
 
@@ -19,6 +20,7 @@ import {
   AdminDataTable,
   DataTableSelectFilterHeader,
   Pill,
+  SummaryMetricCard,
 } from 'src/components/ui'
 import { buttonVariants } from 'src/components/ui/button'
 import { Input } from 'src/components/ui/input'
@@ -149,7 +151,21 @@ const SupplyInventory = () => {
     return matchesSearch
   })
 
-  const categories = [...new Set(data?.officeSupplies?.map((s) => s.category))]
+  const allSupplies = data?.officeSupplies ?? []
+  const lowStockThreshold = 10
+  const categoryCount = new Set(
+    allSupplies.map((supply) => supply.category?.id).filter(Boolean)
+  ).size
+  const lowStockCount = allSupplies.filter(
+    (supply) => supply.stockCount < lowStockThreshold
+  ).length
+  const totalInventoryValue = allSupplies.reduce(
+    (total, supply) => total + supply.stockCount * (supply.unitPrice || 0),
+    0
+  )
+  const lowStockRate = allSupplies.length
+    ? Math.round((lowStockCount / allSupplies.length) * 100)
+    : 0
   const supplyActionTextClass =
     'text-[11px] font-semibold uppercase tracking-wide text-[#322e85] transition hover:text-[#2b2773]'
   const supplyTableColumns = [
@@ -295,83 +311,49 @@ const SupplyInventory = () => {
           )}
         </PageHeader>
 
-        {/* Header Support Content */}
-        <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-lg md:p-8">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 gap-3 md:gap-6 lg:grid-cols-4">
-            <div className="rounded-xl border border-white/20 bg-white/50 p-3 backdrop-blur-sm md:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center">
-                <div className="mb-2 self-start rounded-lg bg-blue-100 p-2 sm:mb-0 md:p-3">
-                  <ChartBarIcon className="h-4 w-4 text-blue-600 md:h-6 md:w-6" />
-                </div>
-                <div className="sm:ml-4">
-                  <p className="text-xs font-medium text-gray-600 md:text-sm">
-                    Total Supplies
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 md:text-2xl">
-                    {data?.officeSupplies?.length || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Stats Cards */}
+        <div className="mb-8 grid grid-cols-2 gap-3 md:gap-6 lg:grid-cols-4">
+          <SummaryMetricCard
+            size="sm"
+            title="Total Supplies"
+            value={allSupplies.length.toLocaleString('en-US')}
+            subtitle="Items in inventory"
+            icon={<ChartBarIcon />}
+            trend={{ direction: 'neutral', label: `${categoryCount} cats` }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-3 backdrop-blur-sm md:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center">
-                <div className="mb-2 self-start rounded-lg bg-red-100 p-2 sm:mb-0 md:p-3">
-                  <ExclamationTriangleIcon className="h-4 w-4 text-red-600 md:h-6 md:w-6" />
-                </div>
-                <div className="sm:ml-4">
-                  <p className="text-xs font-medium text-gray-600 md:text-sm">
-                    Low Stock Items
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 md:text-2xl">
-                    {data?.officeSupplies?.filter(
-                      (supply) => supply.stockCount < 10
-                    )?.length || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Low Stock Items"
+            value={lowStockCount.toLocaleString('en-US')}
+            subtitle={`Below ${lowStockThreshold} units`}
+            icon={<ExclamationTriangleIcon />}
+            trend={{
+              direction: lowStockCount > 0 ? 'negative' : 'positive',
+              label: `${lowStockRate}%`,
+            }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-3 backdrop-blur-sm md:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center">
-                <div className="mb-2 self-start rounded-lg bg-green-100 p-2 sm:mb-0 md:p-3">
-                  <ClipboardDocumentListIcon className="h-4 w-4 text-green-600 md:h-6 md:w-6" />
-                </div>
-                <div className="sm:ml-4">
-                  <p className="text-xs font-medium text-gray-600 md:text-sm">
-                    Categories
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 md:text-2xl">
-                    {categories.length}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Categories"
+            value={categoryCount.toLocaleString('en-US')}
+            subtitle="Tracked categories"
+            icon={<ClipboardDocumentListIcon />}
+            trend={{ direction: 'neutral', label: 'active' }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-3 backdrop-blur-sm md:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center">
-                <div className="mb-2 self-start rounded-lg bg-yellow-100 p-2 sm:mb-0 md:p-3">
-                  <ChartBarIcon className="h-4 w-4 text-yellow-600 md:h-6 md:w-6" />
-                </div>
-                <div className="sm:ml-4">
-                  <p className="text-xs font-medium text-gray-600 md:text-sm">
-                    Total Value
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 md:text-2xl">
-                    $
-                    {data?.officeSupplies
-                      ?.reduce(
-                        (total, supply) =>
-                          total + supply.stockCount * (supply.unitPrice || 0),
-                        0
-                      )
-                      .toFixed(2) || '0.00'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Total Value"
+            value={`$${totalInventoryValue.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`}
+            subtitle="Estimated inventory value"
+            icon={<CurrencyDollarIcon />}
+            trend={{ direction: 'positive', label: 'current' }}
+          />
         </div>
 
         {/* Supply List */}
