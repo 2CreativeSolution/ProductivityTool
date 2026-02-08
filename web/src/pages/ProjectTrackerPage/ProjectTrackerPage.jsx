@@ -15,18 +15,15 @@ const ProjectTrackerPage = () => {
         title="Project Tracker"
         description="Resource allocation and daily project tracking"
       />
+      <AppSidebar />
+      <AppContentShell>
+        <PageHeader
+          title="Project Tracker"
+          description="Manage resource allocation and track daily project progress"
+        />
 
-      <div className="min-h-screen bg-gray-50">
-        <AppSidebar />
-        <AppContentShell>
-          <PageHeader
-            title="Project Tracker"
-            description="Manage resource allocation and track daily project progress"
-          />
-
-          <ProjectTracker currentUser={currentUser} />
-        </AppContentShell>
-      </div>
+        <ProjectTracker currentUser={currentUser} />
+      </AppContentShell>
     </>
   )
 }
