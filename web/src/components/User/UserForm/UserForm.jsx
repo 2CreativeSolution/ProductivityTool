@@ -106,7 +106,6 @@ const UserForm = (props) => {
     const accountTitle = props.formTitle || 'Account Settings'
     const showFormTitle = props.showFormTitle ?? true
     const submitLabel = props.submitLabel || 'Save Changes'
-    const isEmailVerified = Boolean(props.user?.microsoftId)
     const summaryRolePillValues = props.user?.roles ?? []
     const rolePillValues = accountDraftValues.roles || []
     const hasValidAccountEmail = EMAIL_PATTERN.test(
@@ -150,20 +149,9 @@ const UserForm = (props) => {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
-                  Email Address
-                </h2>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    isEmailVerified
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-amber-100 text-amber-700'
-                  }`}
-                >
-                  {isEmailVerified ? 'Verified' : 'Unverified'}
-                </span>
-              </div>
+              <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
+                Email Address
+              </h2>
               <p className="text-sm font-medium text-slate-900">
                 {props.user?.email}
               </p>

@@ -144,7 +144,7 @@ const ChangePasswordForm = () => {
 
   return (
     <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="w-full max-w-2xl">
         <h2 className="text-lg font-semibold text-slate-900">
           Update Password
         </h2>
