@@ -1,15 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import {
-  Form,
-  FormError,
-  FieldError,
-  Label,
-  TextField,
-  Submit,
-} from '@redwoodjs/forms'
+import { Form, FormError, FieldError, Label, Submit } from '@redwoodjs/forms'
 
 import { useAuth } from 'src/auth'
+import { Input } from 'src/components/Forms/Input/Input'
 import { Button, buttonVariants } from 'src/components/ui/button'
 import { Pill } from 'src/components/ui/pill'
 
@@ -200,7 +194,10 @@ const UserForm = (props) => {
               >
                 Name
               </Label>
-              <TextField
+              <Input
+                framework="redwood"
+                size="md"
+                type="text"
                 name="name"
                 value={accountDraftValues.name}
                 onChange={(event) =>
@@ -209,8 +206,6 @@ const UserForm = (props) => {
                     name: event.target.value,
                   }))
                 }
-                className="ring-offset-background flex h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#322e85]/30"
-                errorClassName="flex h-11 w-full rounded-md border border-red-400 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-red-200"
                 validation={{
                   required: {
                     value: true,
@@ -233,7 +228,10 @@ const UserForm = (props) => {
               >
                 Email Address
               </Label>
-              <TextField
+              <Input
+                framework="redwood"
+                size="md"
+                type="email"
                 name="email"
                 value={accountDraftValues.email}
                 onChange={(event) =>
@@ -242,8 +240,6 @@ const UserForm = (props) => {
                     email: event.target.value,
                   }))
                 }
-                className="ring-offset-background flex h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#322e85]/30"
-                errorClassName="flex h-11 w-full rounded-md border border-red-400 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-red-200"
                 validation={{
                   required: {
                     value: true,
@@ -363,7 +359,9 @@ const UserForm = (props) => {
           Name
         </Label>
 
-        <TextField
+        <Input
+          framework="redwood"
+          type="text"
           name="name"
           defaultValue={props.user?.name}
           className="rw-input"
@@ -381,7 +379,9 @@ const UserForm = (props) => {
           Email
         </Label>
 
-        <TextField
+        <Input
+          framework="redwood"
+          type="email"
           name="email"
           defaultValue={props.user?.email}
           className="rw-input"

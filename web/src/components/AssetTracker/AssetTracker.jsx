@@ -10,6 +10,7 @@ import {
   AssetRequestDialog,
   ApprovalDialog,
 } from 'src/components/Dialog/Dialog'
+import { AdminDataTable, DataTableSelectFilterHeader } from 'src/components/ui'
 
 const ASSETS_QUERY = gql`
   query AssetsQuery {
@@ -221,8 +222,6 @@ const DELETE_ASSET_MUTATION = gql`
 const AssetTracker = () => {
   const { currentUser } = useAuth()
   const [activeTab, setActiveTab] = useState('inventory')
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [selectedStatus, setSelectedStatus] = useState('all')
   const [returnDialog, setReturnDialog] = useState({
     isOpen: false,
     assignment: null,
@@ -464,17 +463,6 @@ const AssetTracker = () => {
     }
   }
 
-  // Filter assets based on selected filters
-  const filteredAssets =
-    assetsData?.assets?.filter((asset) => {
-      const categoryMatch =
-        selectedCategory === 'all' ||
-        asset.category.id.toString() === selectedCategory
-      const statusMatch =
-        selectedStatus === 'all' || asset.status === selectedStatus
-      return categoryMatch && statusMatch
-    }) || []
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString()
   }
@@ -509,6 +497,188 @@ const AssetTracker = () => {
     }
   }
 
+  const assetCategoryFilterOptions = (
+    categoriesData?.assetCategories || []
+  ).map((category) => category.name)
+
+  const assetInventoryColumns = [
+    {
+      accessorKey: 'assetId',
+      header: 'Asset',
+      cell: ({ row }) => {
+        const asset = row.original
+
+        return (
+          <div>
+            <div className="text-sm font-medium text-gray-900">
+              {asset.assetId}
+            </div>
+            <div className="text-sm text-gray-500">
+              {asset.name} - {asset.model}
+            </div>
+            {asset.serialNumber && (
+              <div className="text-xs text-gray-400">
+                SN: {asset.serialNumber}
+              </div>
+            )}
+          </div>
+        )
+      },
+    },
+    {
+      accessorFn: (row) => row.category?.name || 'Uncategorized',
+      id: 'category',
+      header: ({ column }) => (
+        <DataTableSelectFilterHeader
+          column={column}
+          label="Category"
+          options={assetCategoryFilterOptions}
+          allLabel="All"
+        />
+      ),
+      filterFn: (row, id, value) => row.getValue(id) === value,
+      cell: ({ row }) => (
+        <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
+          {row.original.category?.name || 'Uncategorized'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(row.original.status)}`}
+        >
+          {row.original.status}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'condition',
+      header: 'Condition',
+      cell: ({ row }) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getConditionBadgeColor(row.original.condition)}`}
+        >
+          {row.original.condition}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'assignedTo',
+      header: 'Assigned To',
+      enableSorting: false,
+      cell: ({ row }) => {
+        const asset = row.original
+        const activeAssignment = asset.assignments?.find(
+          (assignment) => assignment.status === 'Active'
+        )
+
+        return activeAssignment ? (
+          <div>
+            <div>
+              {activeAssignment.user.name || activeAssignment.user.email}
+            </div>
+            <div className="text-xs text-gray-500">
+              Since {formatDate(activeAssignment.issueDate)}
+            </div>
+          </div>
+        ) : (
+          <span className="text-gray-400">Not assigned</span>
+        )
+      },
+    },
+    {
+      accessorKey: 'purchaseDate',
+      header: 'Purchase Date',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {formatDate(row.original.purchaseDate)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'warrantyExpiry',
+      header: 'Warranty',
+      cell: ({ row }) => {
+        const { warrantyExpiry } = row.original
+        if (!warrantyExpiry) {
+          return <span className="text-gray-400">No warranty</span>
+        }
+
+        return (
+          <span
+            className={
+              new Date(warrantyExpiry) < new Date()
+                ? 'text-red-600'
+                : 'text-gray-500'
+            }
+          >
+            {formatDate(warrantyExpiry)}
+          </span>
+        )
+      },
+    },
+    ...(isAdmin
+      ? [
+          {
+            id: 'actions',
+            header: () => <div className="text-right">Actions</div>,
+            enableSorting: false,
+            cell: ({ row }) => {
+              const asset = row.original
+
+              return (
+                <div className="flex justify-end space-x-2">
+                  {asset.proofOfPurchaseUrl && (
+                    <button
+                      onClick={() => handleViewProofOfPurchase(asset)}
+                      className="text-blue-600 hover:text-blue-900"
+                      title="View Proof of Purchase"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDeleteAsset(asset)}
+                    className="text-red-600 hover:text-red-900"
+                    title="Delete Asset"
+                  >
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              )
+            },
+          },
+        ]
+      : []),
+  ]
+
   if (assetsLoading || categoriesLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -519,8 +689,8 @@ const AssetTracker = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 pt-32">
-      <div className="mx-auto max-w-7xl">
+    <div className="w-full">
+      <div className="w-full">
         {/* Header */}
         <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
           <div className="mb-6 flex items-start justify-between">
@@ -579,225 +749,14 @@ const AssetTracker = () => {
         {/* Asset Inventory Tab */}
         {activeTab === 'inventory' && (
           <>
-            {/* Filters */}
-            <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Category
-                  </label>
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">All Categories</option>
-                    {categoriesData?.assetCategories?.map((category) => (
-                      <option key={category.id} value={category.id.toString()}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Status
-                  </label>
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="Available">Available</option>
-                    <option value="Assigned">Assigned</option>
-                    <option value="Under Repair">Under Repair</option>
-                    <option value="Retired">Retired</option>
-                  </select>
-                </div>
-                <div className="flex items-end">
-                  <button
-                    onClick={() => {
-                      setSelectedCategory('all')
-                      setSelectedStatus('all')
-                    }}
-                    className="w-full rounded-xl bg-gray-100 px-4 py-3 font-medium text-gray-700 transition-all duration-200 hover:bg-gray-200"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-              </div>
-            </div>
-
             {/* Assets Table */}
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Asset
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Category
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Condition
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Assigned To
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Purchase Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Warranty
-                    </th>
-                    {currentUser?.roles?.includes('ADMIN') && (
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Actions
-                      </th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {filteredAssets.map((asset) => {
-                    const activeAssignment = asset.assignments?.find(
-                      (a) => a.status === 'Active'
-                    )
-                    return (
-                      <tr key={asset.id} className="hover:bg-gray-50">
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {asset.assetId}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {asset.name} - {asset.model}
-                            </div>
-                            {asset.serialNumber && (
-                              <div className="text-xs text-gray-400">
-                                SN: {asset.serialNumber}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
-                            {asset.category.name}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(asset.status)}`}
-                          >
-                            {asset.status}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getConditionBadgeColor(asset.condition)}`}
-                          >
-                            {asset.condition}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                          {activeAssignment ? (
-                            <div>
-                              <div>
-                                {activeAssignment.user.name ||
-                                  activeAssignment.user.email}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                Since {formatDate(activeAssignment.issueDate)}
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">Not assigned</span>
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {formatDate(asset.purchaseDate)}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {asset.warrantyExpiry ? (
-                            <span
-                              className={
-                                new Date(asset.warrantyExpiry) < new Date()
-                                  ? 'text-red-600'
-                                  : 'text-gray-500'
-                              }
-                            >
-                              {formatDate(asset.warrantyExpiry)}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">No warranty</span>
-                          )}
-                        </td>
-                        {currentUser?.roles?.includes('ADMIN') && (
-                          <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                            <div className="flex space-x-2">
-                              {asset.proofOfPurchaseUrl && (
-                                <button
-                                  onClick={() =>
-                                    handleViewProofOfPurchase(asset)
-                                  }
-                                  className="text-blue-600 hover:text-blue-900"
-                                  title="View Proof of Purchase"
-                                >
-                                  <svg
-                                    className="h-4 w-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
-                                  </svg>
-                                </button>
-                              )}
-                              <button
-                                onClick={() => handleDeleteAsset(asset)}
-                                className="text-red-600 hover:text-red-900"
-                                title="Delete Asset"
-                              >
-                                <svg
-                                  className="h-4 w-4"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                          </td>
-                        )}
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+            <div className="overflow-hidden rounded-md border bg-white">
+              <AdminDataTable
+                columns={assetInventoryColumns}
+                data={assetsData?.assets || []}
+                emptyMessage="No assets found."
+              />
             </div>
-
-            {filteredAssets.length === 0 && (
-              <div className="py-8 text-center">
-                <p className="text-gray-500">
-                  No assets found matching the selected filters.
-                </p>
-              </div>
-            )}
           </>
         )}
 

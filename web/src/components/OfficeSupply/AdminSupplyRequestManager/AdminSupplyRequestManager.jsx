@@ -15,7 +15,9 @@ import { gql } from 'graphql-tag'
 import { useQuery, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import { SummaryMetricCard } from 'src/components/ui'
+import { Pill, SummaryMetricCard } from 'src/components/ui'
+
+import SupplyRequestCard from '../SupplyRequestCard/SupplyRequestCard'
 
 const GET_PENDING_REQUESTS = gql`
   query GetPendingSupplyRequests {
@@ -468,59 +470,44 @@ const AdminSupplyRequestManager = () => {
           </div>
         ) : (
           filteredRequests?.map((request) => (
-            <div
+            <SupplyRequestCard
               key={request.id}
-              className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg transition-all duration-200 hover:shadow-2xl"
-            >
-              <div className="mb-4 flex items-start justify-between">
-                <div className="flex items-start space-x-4">
-                  <div className="rounded-lg bg-blue-100 p-3">
-                    <UserIcon className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {request.supply.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {request.supply.category.name}
-                    </p>
-                    <div className="mt-2 flex items-center space-x-4">
-                      <span className="text-sm font-medium">
-                        {request.quantityRequested} items
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        Stock: {request.supply.stockCount} items
-                      </span>
-                      {request.supply.unitPrice && (
-                        <span className="text-sm text-gray-600">
-                          Cost: ${request.totalCost?.toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`rounded-full px-3 py-1 text-sm ${getUrgencyColor(request.urgency)}`}
-                  >
-                    {request.urgency}
+              icon={<UserIcon className="h-6 w-6 text-blue-600" />}
+              title={request.supply.name}
+              subtitle={request.supply.category.name}
+              metrics={
+                <>
+                  <span className="text-sm font-medium">
+                    {request.quantityRequested} items
                   </span>
-                  {activeTab === 'all' && (
-                    <span
-                      className={`rounded-full border px-3 py-1 text-sm ${getStatusColor(request.status)}`}
-                    >
-                      {request.status}
+                  <span className="text-sm text-gray-600">
+                    Stock: {request.supply.stockCount} items
+                  </span>
+                  {request.supply.unitPrice && (
+                    <span className="text-sm text-gray-600">
+                      Cost: ${request.totalCost?.toFixed(2)}
                     </span>
+                  )}
+                </>
+              }
+              badges={
+                <>
+                  <Pill className={getUrgencyColor(request.urgency)}>
+                    {request.urgency}
+                  </Pill>
+                  {activeTab === 'all' && (
+                    <Pill className={getStatusColor(request.status)}>
+                      {request.status}
+                    </Pill>
                   )}
                   {request.isOverdue && request.status === 'PENDING' && (
                     <span className="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800">
                       Overdue
                     </span>
                   )}
-                </div>
-              </div>
-
-              <div className="mb-4">
+                </>
+              }
+              details={
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <p className="text-sm text-gray-600">
@@ -545,36 +532,31 @@ const AdminSupplyRequestManager = () => {
                     </p>
                   </div>
                 </div>
-              </div>
-
-              {request.approverNotes && (
-                <div className="mb-4 rounded-lg bg-gray-50 p-3">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Admin Notes:</span>{' '}
-                    {request.approverNotes}
-                  </p>
-                </div>
-              )}
-
-              {request.status === 'PENDING' && (
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={() => handleReject(request)}
-                    className="flex items-center space-x-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700"
-                  >
-                    <XCircleIcon className="h-4 w-4" />
-                    <span>Reject</span>
-                  </button>
-                  <button
-                    onClick={() => handleApprove(request)}
-                    className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-green-700"
-                  >
-                    <CheckCircleIcon className="h-4 w-4" />
-                    <span>Approve</span>
-                  </button>
-                </div>
-              )}
-            </div>
+              }
+              notes={request.approverNotes}
+              footer={
+                request.status === 'PENDING' ? (
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleReject(request)}
+                      className="flex items-center space-x-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700"
+                    >
+                      <XCircleIcon className="h-4 w-4" />
+                      <span>Reject</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApprove(request)}
+                      className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-green-700"
+                    >
+                      <CheckCircleIcon className="h-4 w-4" />
+                      <span>Approve</span>
+                    </button>
+                  </div>
+                ) : null
+              }
+            />
           ))
         )}
       </div>

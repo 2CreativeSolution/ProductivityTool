@@ -265,6 +265,11 @@ const DashboardPage = () => {
   const vacationRequests = vacationSummaryData?.userVacationRequests || []
   const utcDateString = getUTCMidnightISOString()
   const now = new Date()
+  const nowUtcDayValue = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate()
+  )
   const todayAttendance =
     weeklyAttendances.find((a) => a.date.startsWith(utcDateString)) || null
 
@@ -277,6 +282,9 @@ const DashboardPage = () => {
   const pendingVacationCount = vacationRequests.filter(
     (request) => request.status === 'Pending'
   ).length
+  const approvedVacationCount = vacationRequests.filter(
+    (request) => request.status === 'Approved'
+  ).length
   const activeVacationCount = vacationRequests.filter((request) => {
     if (request.status !== 'Approved') {
       return false
@@ -284,7 +292,20 @@ const DashboardPage = () => {
 
     const startDate = new Date(request.startDate)
     const endDate = new Date(request.endDate)
-    return startDate <= now && now <= endDate
+    const startUtcDayValue = Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate()
+    )
+    const endUtcDayValue = Date.UTC(
+      endDate.getUTCFullYear(),
+      endDate.getUTCMonth(),
+      endDate.getUTCDate()
+    )
+
+    return (
+      startUtcDayValue <= nowUtcDayValue && nowUtcDayValue <= endUtcDayValue
+    )
   }).length
   const todayAttendanceStateLabel = todayAttendance?.clockOut
     ? 'Complete today'
@@ -321,12 +342,15 @@ const DashboardPage = () => {
       key: 'vacation',
       to: routes.meVacation(),
       title: 'Vacation Planner',
-      value: vacationSummaryLoading ? '...' : pendingVacationCount.toString(),
-      subtitle: 'Pending requests',
+      value: vacationSummaryLoading ? '...' : approvedVacationCount.toString(),
+      subtitle: vacationSummaryLoading
+        ? 'Pending requests'
+        : `Pending requests: ${pendingVacationCount}`,
       icon: <Plane />,
       trend: {
         direction: activeVacationCount > 0 ? 'positive' : 'neutral',
         label: `Active: ${activeVacationCount}`,
+        showIcon: false,
       },
     },
   ]

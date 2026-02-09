@@ -5,7 +5,6 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   ExclamationTriangleIcon,
-  MagnifyingGlassIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline'
 import { gql } from 'graphql-tag'
@@ -26,8 +25,11 @@ import { toast } from '@redwoodjs/web/toast'
 import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import PageHeader from 'src/components/PageHeader/PageHeader'
-import { SummaryMetricCard } from 'src/components/ui'
+import { Pill, SummaryMetricCard } from 'src/components/ui'
 import { buttonVariants } from 'src/components/ui/button'
+import { Input } from 'src/components/ui/input'
+
+import SupplyRequestCard from '../SupplyRequestCard/SupplyRequestCard'
 
 const GET_MY_SUPPLY_REQUESTS = gql`
   query GetMySupplyRequests {
@@ -110,7 +112,6 @@ const SupplyRequestManager = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingRequest, setEditingRequest] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
 
   const {
     data: requestsData,
@@ -221,8 +222,7 @@ const SupplyRequestManager = () => {
     const matchesSearch =
       request.supply.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.justification.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = !statusFilter || request.status === statusFilter
-    return matchesSearch && matchesStatus
+    return matchesSearch
   })
 
   const statusCounts =
@@ -252,6 +252,14 @@ const SupplyRequestManager = () => {
           title="My Supply Requests"
           description="Request and track office supplies for your work needs"
         >
+          <Input
+            type="text"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search requests..."
+            aria-label="Search supply requests"
+            className="h-9 w-64 border-slate-300 bg-white"
+          />
           <button
             type="button"
             onClick={() => setShowForm(true)}
@@ -433,46 +441,6 @@ const SupplyRequestManager = () => {
           </div>
         )}
 
-        {/* Filters */}
-        <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {/* Search */}
-            <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search requests..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white/50 py-3 pl-10 pr-4 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Status</option>
-              <option value="PENDING">Pending</option>
-              <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
-            </select>
-
-            {/* Clear Filters */}
-            <button
-              onClick={() => {
-                setSearchTerm('')
-                setStatusFilter('')
-              }}
-              className="rounded-xl bg-gray-100 px-4 py-3 font-medium text-gray-700 transition-all duration-200 hover:bg-gray-200"
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-
         {/* Requests List */}
         <div className="space-y-4">
           {requestsLoading ? (
@@ -499,113 +467,98 @@ const SupplyRequestManager = () => {
             </div>
           ) : (
             filteredRequests?.map((request) => (
-              <div
+              <SupplyRequestCard
                 key={request.id}
-                className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg transition-all duration-200 hover:shadow-2xl"
-              >
-                <div className="mb-4 flex items-start justify-between">
-                  <div className="flex items-start space-x-4">
-                    <div className="rounded-lg bg-blue-100 p-3">
-                      {getStatusIcon(request.status)}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {request.supply.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {request.supply.category.name}
-                      </p>
-                      <div className="mt-2 flex items-center space-x-4">
-                        <span className="text-sm font-medium">
-                          {request.quantityRequested} items
-                        </span>
-                        {request.supply.unitPrice && (
-                          <span className="text-sm text-gray-600">
-                            Total: $
-                            {request.totalCost?.toFixed(2) ||
-                              (
-                                request.quantityRequested *
-                                request.supply.unitPrice
-                              ).toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`rounded-full px-3 py-1 text-sm ${getUrgencyColor(request.urgency)}`}
-                    >
-                      {request.urgency} Priority
+                icon={getStatusIcon(request.status)}
+                title={request.supply.name}
+                subtitle={request.supply.category.name}
+                metrics={
+                  <>
+                    <span className="text-sm font-medium">
+                      {request.quantityRequested} items
                     </span>
-                    <span
-                      className={`rounded-full border px-3 py-1 text-sm ${getStatusColor(request.status)}`}
-                    >
+                    {request.supply.unitPrice && (
+                      <span className="text-sm text-gray-600">
+                        Total: $
+                        {request.totalCost?.toFixed(2) ||
+                          (
+                            request.quantityRequested * request.supply.unitPrice
+                          ).toFixed(2)}
+                      </span>
+                    )}
+                  </>
+                }
+                badges={
+                  <>
+                    <Pill className={getUrgencyColor(request.urgency)}>
+                      {request.urgency}
+                    </Pill>
+                    <Pill className={getStatusColor(request.status)}>
                       {request.status}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mb-4">
+                    </Pill>
+                  </>
+                }
+                details={
                   <p className="text-sm text-gray-600">
                     <span className="font-medium">Justification:</span>{' '}
                     {request.justification}
                   </p>
-                </div>
-
-                {request.approverNotes && (
-                  <div className="mb-4 rounded-lg bg-gray-50 p-3">
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium">Admin Notes:</span>{' '}
-                      {request.approverNotes}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
-                    <span>
-                      Requested:{' '}
-                      {new Date(request.createdAt).toLocaleDateString()}
-                    </span>
-                    {request.approvedAt && (
-                      <span className="ml-4">
-                        {request.status === 'APPROVED'
-                          ? 'Approved'
-                          : 'Rejected'}
-                        : {new Date(request.approvedAt).toLocaleDateString()}
+                }
+                notes={request.approverNotes}
+                footer={
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                      <span>
+                        Requested:{' '}
+                        {new Date(request.createdAt).toLocaleDateString()}
                       </span>
-                    )}
-                    {request.isOverdue && request.status === 'PENDING' && (
-                      <span className="ml-4 font-medium text-red-600">
-                        Overdue
-                      </span>
-                    )}
-                  </div>
-
-                  {request.status === 'PENDING' && (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditingRequest(request)
-                          setShowForm(true)
-                        }}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-blue-700"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleDelete(request.id, request.supply.name)
-                        }
-                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
+                      {request.approvedAt && (
+                        <span className="ml-4">
+                          {request.status === 'APPROVED'
+                            ? 'Approved'
+                            : 'Rejected'}
+                          : {new Date(request.approvedAt).toLocaleDateString()}
+                        </span>
+                      )}
+                      {request.isOverdue && request.status === 'PENDING' && (
+                        <span className="ml-4 font-medium text-red-600">
+                          Overdue
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
+
+                    {request.status === 'PENDING' && (
+                      <div className="flex space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingRequest(request)
+                            setShowForm(true)
+                          }}
+                          className={buttonVariants({
+                            variant: 'secondary',
+                            size: 'sm',
+                          })}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleDelete(request.id, request.supply.name)
+                          }
+                          className={buttonVariants({
+                            variant: 'destructive',
+                            size: 'sm',
+                          })}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                }
+              />
             ))
           )}
         </div>

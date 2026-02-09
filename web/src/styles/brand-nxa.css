@@ -62,15 +62,6 @@
   @apply mt-8 space-y-4;
 }
 
-.nxa-input {
-  @apply w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-800;
-  @apply focus:outline-none focus:ring-2 focus:ring-violet-500;
-}
-
-.nxa-input:disabled {
-  @apply cursor-not-allowed bg-gray-100 text-gray-400;
-}
-
 .nxa-row {
   @apply flex items-center justify-between text-xs text-gray-500;
 }

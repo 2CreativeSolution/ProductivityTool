@@ -14,6 +14,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import ConfirmDialog from 'src/components/ConfirmDialog/ConfirmDialog'
 import FormModal from 'src/components/FormModal/FormModal'
+import { AdminDataTable, Pill } from 'src/components/ui'
 import { buttonVariants } from 'src/components/ui/button'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
@@ -225,12 +226,9 @@ const VacationPlanner = forwardRef(
     const [showCancelDialog, setShowCancelDialog] = useState(false)
     const [cancelRequestId, setCancelRequestId] = useState(null)
     const [cancelDialogType, setCancelDialogType] = useState('delete') // 'delete' or 'cancel'
-    const [itemsPerPage] = useState(5)
-    const [currentPage, setCurrentPage] = useState(1)
     const [viewMode, setViewMode] = useState('list') // 'list' or 'calendar'
     const [showResubmitModal, setShowResubmitModal] = useState(false)
     const [resubmitRequest, setResubmitRequest] = useState(null)
-    const today = new Date()
 
     useImperativeHandle(ref, () => ({
       openRequestModal: () => setShowModal(true),
@@ -299,17 +297,19 @@ const VacationPlanner = forwardRef(
       },
     })
 
-    const vacationRequests = data?.userVacationRequests || []
+    const vacationRequests = useMemo(
+      () => data?.userVacationRequests ?? [],
+      [data?.userVacationRequests]
+    )
 
     // Check if user is currently on vacation
-    const activeVacation = useMemo(() => {
-      return vacationRequests.find((req) => {
-        if (req.status !== 'Approved') return false
-        const start = new Date(req.startDate)
-        const end = new Date(req.endDate)
-        return today >= start && today <= end
-      })
-    }, [vacationRequests, today])
+    const currentDate = new Date()
+    const activeVacation = vacationRequests.find((req) => {
+      if (req.status !== 'Approved') return false
+      const start = new Date(req.startDate)
+      const end = new Date(req.endDate)
+      return currentDate >= start && currentDate <= end
+    })
 
     // Format data for calendar view
     const calendarEvents = useMemo(() => {
@@ -322,15 +322,6 @@ const VacationPlanner = forwardRef(
         status: req.status,
       }))
     }, [vacationRequests])
-
-    const paginatedRequests = useMemo(() => {
-      return vacationRequests.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-      )
-    }, [vacationRequests, currentPage, itemsPerPage])
-
-    const totalPages = Math.ceil(vacationRequests.length / itemsPerPage)
 
     const openDeleteDialog = (id) => {
       setCancelRequestId(id)
@@ -376,15 +367,152 @@ const VacationPlanner = forwardRef(
     const getStatusClass = (status) => {
       switch (status) {
         case 'Approved':
-          return 'bg-green-100 text-green-800 border-green-200'
+          return 'bg-green-100 text-green-800'
         case 'Rejected':
-          return 'bg-red-100 text-red-800 border-red-200'
+          return 'bg-red-100 text-red-800'
         case 'Cancelled':
-          return 'bg-gray-100 text-gray-800 border-gray-200'
+          return 'bg-slate-100 text-slate-700'
         default:
-          return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+          return 'bg-yellow-100 text-yellow-800'
       }
     }
+
+    const getDurationDays = (startDate, endDate) =>
+      Math.ceil(
+        (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)
+      ) + 1
+
+    const vacationRequestColumns = [
+      {
+        accessorKey: 'startDate',
+        header: 'Date Range',
+        cell: ({ row }) => {
+          const request = row.original
+          const start = new Date(request.startDate)
+          const end = new Date(request.endDate)
+          const currentDate = new Date()
+          const isActive =
+            currentDate >= start &&
+            currentDate <= end &&
+            request.status === 'Approved'
+
+          return (
+            <div>
+              <div className="font-medium text-slate-900">
+                {formatDate(request.startDate)} - {formatDate(request.endDate)}
+              </div>
+              <div className="text-xs text-slate-500">
+                {getDurationDays(request.startDate, request.endDate)} day
+                {getDurationDays(request.startDate, request.endDate) === 1
+                  ? ''
+                  : 's'}
+                {isActive && (
+                  <Pill size="sm" className="ml-2 bg-green-100 text-green-800">
+                    Active now
+                  </Pill>
+                )}
+              </div>
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'reason',
+        header: 'Reason',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const request = row.original
+
+          return (
+            <div className="max-h-24 max-w-xs overflow-y-auto overflow-x-hidden whitespace-normal break-words text-sm text-gray-900">
+              <div>{request.reason}</div>
+              {request.status === 'Rejected' && request.rejectionReason && (
+                <div className="mt-2 rounded border-l-2 border-red-200 bg-red-50 p-2 text-xs text-red-600">
+                  <strong>Rejection Reason:</strong> {request.rejectionReason}
+                </div>
+              )}
+              {request.originalRequestId && (
+                <div className="mt-2">
+                  <Pill size="sm" className="bg-orange-100 text-orange-700">
+                    Resubmission
+                  </Pill>
+                </div>
+              )}
+            </div>
+          )
+        },
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => (
+          <Pill size="sm" className={getStatusClass(row.original.status)}>
+            {row.original.status}
+          </Pill>
+        ),
+      },
+      {
+        id: 'actions',
+        header: () => <div className="text-right">Actions</div>,
+        enableSorting: false,
+        cell: ({ row }) => {
+          const request = row.original
+
+          if (request.status === 'Pending') {
+            return (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => openDeleteDialog(request.id)}
+                  className={buttonVariants({
+                    variant: 'destructive',
+                    size: 'xs',
+                  })}
+                >
+                  Cancel
+                </button>
+              </div>
+            )
+          }
+
+          if (request.status === 'Approved') {
+            return (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => openCancelDialog(request.id)}
+                  className={buttonVariants({
+                    variant: 'destructive',
+                    size: 'xs',
+                  })}
+                >
+                  Cancel
+                </button>
+              </div>
+            )
+          }
+
+          if (request.status === 'Rejected') {
+            return (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => handleResubmit(request)}
+                  className={buttonVariants({
+                    variant: 'secondary',
+                    size: 'xs',
+                  })}
+                >
+                  Resubmit
+                </button>
+              </div>
+            )
+          }
+
+          return <div className="text-right text-xs text-slate-500">-</div>
+        },
+      },
+    ]
 
     const eventStyleGetter = (event) => {
       let style = {
@@ -423,14 +551,10 @@ const VacationPlanner = forwardRef(
 
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">
-              Vacation Planner
-            </h2>
             {activeVacation && (
-              <div className="mt-1 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-                <span className="mr-1 h-2 w-2 rounded-full bg-green-500"></span>
+              <Pill className="bg-green-100 text-green-800">
                 Currently on vacation
-              </div>
+              </Pill>
             )}
           </div>
           <div className="flex items-center space-x-3">
@@ -484,7 +608,7 @@ const VacationPlanner = forwardRef(
               defaultView="month"
             />
           </div>
-        ) : paginatedRequests.length === 0 ? (
+        ) : vacationRequests.length === 0 ? (
           <div className="rounded-lg bg-gray-50 py-12 text-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -504,6 +628,7 @@ const VacationPlanner = forwardRef(
               You haven&apos;t requested any time off yet.
             </p>
             <button
+              type="button"
               onClick={() => setShowModal(true)}
               className={`${buttonVariants({ variant: 'primary' })} mt-4`}
             >
@@ -511,246 +636,16 @@ const VacationPlanner = forwardRef(
             </button>
           </div>
         ) : (
-          <>
-            <div className="overflow-hidden rounded-lg border border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
-                      Date Range
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
-                      Reason
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {paginatedRequests.map((request) => {
-                    const start = new Date(request.startDate)
-                    const end = new Date(request.endDate)
-                    const isActive =
-                      today >= start &&
-                      today <= end &&
-                      request.status === 'Approved'
-
-                    return (
-                      <tr
-                        key={request.id}
-                        className={isActive ? 'bg-green-50' : undefined}
-                      >
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <div className="text-sm text-gray-900">
-                            {formatDate(request.startDate)} -{' '}
-                            {formatDate(request.endDate)}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {Math.ceil(
-                              (new Date(request.endDate) -
-                                new Date(request.startDate)) /
-                                (1000 * 60 * 60 * 24)
-                            ) + 1}{' '}
-                            days
-                            {isActive && (
-                              <span className="ml-2 inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
-                                Active now
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="max-h-24 max-w-xs overflow-y-auto break-words text-sm text-gray-900">
-                            <div>{request.reason}</div>
-                            {request.status === 'Rejected' &&
-                              request.rejectionReason && (
-                                <div className="mt-2 rounded border-l-2 border-red-200 bg-red-50 p-2 text-xs text-red-600">
-                                  <strong>Rejection Reason:</strong>{' '}
-                                  {request.rejectionReason}
-                                </div>
-                              )}
-                            {request.originalRequestId && (
-                              <div className="mt-1 text-xs">
-                                <span className="rounded bg-orange-100 px-2 py-1 text-orange-700">
-                                  📝 Resubmission
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <span
-                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getStatusClass(
-                              request.status
-                            )}`}
-                          >
-                            {request.status}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          <div className="flex space-x-2">
-                            {request.status === 'Pending' && (
-                              <button
-                                onClick={() => openDeleteDialog(request.id)}
-                                className="rounded bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100 hover:text-red-900"
-                              >
-                                Cancel
-                              </button>
-                            )}
-                            {request.status === 'Approved' && (
-                              <button
-                                onClick={() => openCancelDialog(request.id)}
-                                className="rounded bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100 hover:text-red-900"
-                              >
-                                Cancel
-                              </button>
-                            )}
-                            {request.status === 'Rejected' && (
-                              <button
-                                onClick={() => handleResubmit(request)}
-                                className="rounded bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-100 hover:text-blue-900"
-                              >
-                                🔄 Resubmit
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {totalPages > 1 && (
-              <div className="mt-4 flex items-center justify-center">
-                <nav
-                  className="relative z-0 inline-flex -space-x-px rounded-md shadow-sm"
-                  aria-label="Pagination"
-                >
-                  <button
-                    className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(1)}
-                  >
-                    <span className="sr-only">First</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => p - 1)}
-                  >
-                    <span className="sr-only">Previous</span>
-                    <svg
-                      className="h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-
-                  {/* Page numbers */}
-                  {Array.from({ length: Math.min(5, totalPages) }).map(
-                    (_, idx) => {
-                      let pageNum
-                      if (totalPages <= 5) {
-                        pageNum = idx + 1
-                      } else if (currentPage <= 3) {
-                        pageNum = idx + 1
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + idx
-                      } else {
-                        pageNum = currentPage - 2 + idx
-                      }
-
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium
-                        ${
-                          currentPage === pageNum
-                            ? 'z-10 border-indigo-500 bg-indigo-50 text-indigo-600'
-                            : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-                        }`}
-                        >
-                          {pageNum}
-                        </button>
-                      )
-                    }
-                  )}
-
-                  <button
-                    className="relative inline-flex items-center border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => p + 1)}
-                  >
-                    <span className="sr-only">Next</span>
-                    <svg
-                      className="h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(totalPages)}
-                  >
-                    <span className="sr-only">Last</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
-                        clipRule="evenodd"
-                      />
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </nav>
-              </div>
-            )}
-          </>
+          <div className="overflow-hidden rounded-md border bg-white">
+            <AdminDataTable
+              columns={vacationRequestColumns}
+              data={vacationRequests}
+              emptyMessage="No vacation requests found."
+              pagination
+              pageSizeOptions={[5, 10, 20, 50]}
+              initialPageSize={5}
+            />
+          </div>
         )}
 
         {showModal && (

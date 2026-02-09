@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { Input } from 'src/components/Forms/Input/Input'
 import { buttonVariants } from 'src/components/ui/button'
 
 const CHANGE_PASSWORD_MUTATION = gql`
@@ -61,9 +62,6 @@ const STRENGTH_SCALE = {
     textClassName: 'text-emerald-700',
   },
 }
-
-const FIELD_CLASS_NAME =
-  'ring-offset-background flex h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#322e85]/30'
 
 const FIELD_ERROR_CLASS_NAME = 'mt-1 text-xs text-red-700'
 
@@ -160,13 +158,13 @@ const ChangePasswordForm = () => {
             >
               Current Password
             </label>
-            <input
+            <Input
               id="current-password"
+              size="md"
               type="password"
               value={currentPassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
               autoComplete="current-password"
-              className={FIELD_CLASS_NAME}
               placeholder="Enter your current password"
             />
             {showCurrentPasswordError && (
@@ -183,13 +181,13 @@ const ChangePasswordForm = () => {
             >
               New Password
             </label>
-            <input
+            <Input
               id="new-password"
+              size="md"
               type="password"
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               autoComplete="new-password"
-              className={FIELD_CLASS_NAME}
               placeholder="Enter a new password"
             />
             {showNewPasswordError && (
@@ -204,13 +202,13 @@ const ChangePasswordForm = () => {
             >
               Confirm New Password
             </label>
-            <input
+            <Input
               id="confirm-new-password"
+              size="md"
               type="password"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               autoComplete="new-password"
-              className={FIELD_CLASS_NAME}
               placeholder="Re-enter your new password"
             />
             {showPasswordMismatchError && (

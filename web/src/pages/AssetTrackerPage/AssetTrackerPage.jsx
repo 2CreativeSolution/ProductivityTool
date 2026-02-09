@@ -30,15 +30,6 @@ const ASSET_STATS_QUERY = gql`
         name
       }
     }
-    assetCategories {
-      id
-      name
-      description
-      assets {
-        id
-        status
-      }
-    }
     activeAssetAssignments {
       id
     }
@@ -83,38 +74,6 @@ const AssetTrackerPage = () => {
     ? Math.round((warrantyExpiringSoon / totalAssets) * 100)
     : 0
 
-  // Category icon mapping
-  const getCategoryIcon = (categoryName) => {
-    const iconMap = {
-      Laptop: '💻',
-      Monitor: '🖥️',
-      Phone: '📱',
-      Tablet: '📱',
-      Accessories: '⌨️',
-      'Network Equipment': '🌐',
-      Printer: '🖨️',
-      Camera: '📷',
-      Speaker: '🔊',
-      Headset: '🎧',
-    }
-    return iconMap[categoryName] || '📦'
-  }
-
-  // Category color mapping
-  const getCategoryColor = (index) => {
-    const colors = [
-      'bg-blue-50 border-blue-200',
-      'bg-green-50 border-green-200',
-      'bg-purple-50 border-purple-200',
-      'bg-yellow-50 border-yellow-200',
-      'bg-red-50 border-red-200',
-      'bg-indigo-50 border-indigo-200',
-      'bg-pink-50 border-pink-200',
-      'bg-orange-50 border-orange-200',
-    ]
-    return colors[index % colors.length] || 'bg-gray-50 border-gray-200'
-  }
-
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -145,8 +104,64 @@ const AssetTrackerPage = () => {
           description="Track company-owned assets and their assignments to employees"
         />
 
+        {/* Quick Stats Section - Now Dynamic */}
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <SummaryMetricCard
+            size="sm"
+            title="Total Assets"
+            value={
+              statsLoading ? '...' : Number(totalAssets).toLocaleString('en-US')
+            }
+            subtitle="In inventory"
+            icon={<ArchiveBoxIcon />}
+            trend={{ direction: 'neutral', label: '100%' }}
+          />
+
+          <SummaryMetricCard
+            size="sm"
+            title="Available"
+            value={
+              statsLoading
+                ? '...'
+                : Number(availableAssets).toLocaleString('en-US')
+            }
+            subtitle="Ready to assign"
+            icon={<CheckCircleIcon />}
+            trend={{ direction: 'positive', label: `${availabilityRate}%` }}
+          />
+
+          <SummaryMetricCard
+            size="sm"
+            title="Assigned"
+            value={
+              statsLoading
+                ? '...'
+                : Number(assignedAssets).toLocaleString('en-US')
+            }
+            subtitle="In active use"
+            icon={<BriefcaseIcon />}
+            trend={{ direction: 'neutral', label: `${assignedRate}%` }}
+          />
+
+          <SummaryMetricCard
+            size="sm"
+            title="Warranty Risk"
+            value={
+              statsLoading
+                ? '...'
+                : Number(warrantyExpiringSoon).toLocaleString('en-US')
+            }
+            subtitle="Expiring within 3 months"
+            icon={<ExclamationTriangleIcon />}
+            trend={{
+              direction: warrantyExpiringSoon > 0 ? 'negative' : 'positive',
+              label: `${warrantyRiskRate}%`,
+            }}
+          />
+        </div>
+
         {/* Tab Navigation */}
-        <div className="mb-8 border-b border-gray-200">
+        <div className="mb-8 mt-8 border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
             <button
               onClick={() => setActiveTab('tracker')}
@@ -212,126 +227,6 @@ const AssetTrackerPage = () => {
               <AssetReports />
             </div>
           )}
-        </div>
-
-        {/* Quick Stats Section - Now Dynamic */}
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <SummaryMetricCard
-            size="sm"
-            title="Total Assets"
-            value={
-              statsLoading ? '...' : Number(totalAssets).toLocaleString('en-US')
-            }
-            subtitle="In inventory"
-            icon={<ArchiveBoxIcon />}
-            trend={{ direction: 'neutral', label: '100%' }}
-          />
-
-          <SummaryMetricCard
-            size="sm"
-            title="Available"
-            value={
-              statsLoading
-                ? '...'
-                : Number(availableAssets).toLocaleString('en-US')
-            }
-            subtitle="Ready to assign"
-            icon={<CheckCircleIcon />}
-            trend={{ direction: 'positive', label: `${availabilityRate}%` }}
-          />
-
-          <SummaryMetricCard
-            size="sm"
-            title="Assigned"
-            value={
-              statsLoading
-                ? '...'
-                : Number(assignedAssets).toLocaleString('en-US')
-            }
-            subtitle="In active use"
-            icon={<BriefcaseIcon />}
-            trend={{ direction: 'neutral', label: `${assignedRate}%` }}
-          />
-
-          <SummaryMetricCard
-            size="sm"
-            title="Warranty Risk"
-            value={
-              statsLoading
-                ? '...'
-                : Number(warrantyExpiringSoon).toLocaleString('en-US')
-            }
-            subtitle="Expiring within 3 months"
-            icon={<ExclamationTriangleIcon />}
-            trend={{
-              direction: warrantyExpiringSoon > 0 ? 'negative' : 'positive',
-              label: `${warrantyRiskRate}%`,
-            }}
-          />
-        </div>
-
-        {/* Asset Categories Overview - Now Dynamic */}
-        <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">
-            Asset Categories
-          </h3>
-          {statsLoading ? (
-            <div className="flex items-center justify-center p-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
-              <span className="ml-2 text-gray-600">Loading categories...</span>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-              {statsData?.assetCategories?.map((category, index) => {
-                const assetCount = category.assets?.length || 0
-                const availableCount =
-                  category.assets?.filter(
-                    (asset) => asset.status === 'Available'
-                  ).length || 0
-                const assignedCount =
-                  category.assets?.filter(
-                    (asset) => asset.status === 'Assigned'
-                  ).length || 0
-
-                return (
-                  <div
-                    key={category.id}
-                    className={`rounded-lg border p-3 text-center ${getCategoryColor(index)} cursor-pointer transition-shadow hover:shadow-md`}
-                    title={`${category.description || category.name} - ${assetCount} total assets`}
-                  >
-                    <div className="mb-2 text-2xl">
-                      {getCategoryIcon(category.name)}
-                    </div>
-                    <div className="text-sm font-medium text-gray-900">
-                      {category.name}
-                    </div>
-                    <div className="mt-1 text-xs text-gray-500">
-                      {assetCount} total
-                    </div>
-                    <div className="mt-1 flex justify-center gap-2 text-xs text-gray-400">
-                      <span className="text-green-600">
-                        {availableCount} free
-                      </span>
-                      <span className="text-blue-600">
-                        {assignedCount} used
-                      </span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-
-          {!statsLoading &&
-            (!statsData?.assetCategories ||
-              statsData.assetCategories.length === 0) && (
-              <div className="py-8 text-center">
-                <p className="text-gray-500">
-                  No asset categories found. Create some categories to get
-                  started!
-                </p>
-              </div>
-            )}
         </div>
       </AppContentShell>
     </>

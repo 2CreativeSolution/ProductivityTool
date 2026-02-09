@@ -402,22 +402,8 @@ const AssetReports = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 pt-32">
-      <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-          <div>
-            <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent">
-              Asset Reports
-            </h1>
-            <p className="mt-2 text-gray-600">
-              {isAdmin
-                ? 'Comprehensive asset assignment reports and analytics'
-                : 'Your personal asset assignment report'}
-            </p>
-          </div>
-        </div>
-
+    <div className="w-full">
+      <div className="w-full">
         {/* Admin Tab Navigation */}
         {isAdmin && (
           <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
@@ -466,10 +452,14 @@ const AssetReports = () => {
               </h3>
               <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  <label
+                    htmlFor="asset-report-start-date"
+                    className="mb-2 block text-sm font-semibold text-gray-700"
+                  >
                     Start Date
                   </label>
                   <input
+                    id="asset-report-start-date"
                     type="date"
                     value={reportDateRange.startDate}
                     onChange={(e) =>
@@ -479,10 +469,14 @@ const AssetReports = () => {
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  <label
+                    htmlFor="asset-report-end-date"
+                    className="mb-2 block text-sm font-semibold text-gray-700"
+                  >
                     End Date
                   </label>
                   <input
+                    id="asset-report-end-date"
                     type="date"
                     value={reportDateRange.endDate}
                     onChange={(e) =>
@@ -614,10 +608,14 @@ const AssetReports = () => {
                   </h3>
                   <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      <label
+                        htmlFor="asset-admin-report-start-date"
+                        className="mb-2 block text-sm font-semibold text-gray-700"
+                      >
                         Start Date
                       </label>
                       <input
+                        id="asset-admin-report-start-date"
                         type="date"
                         value={reportDateRange.startDate}
                         onChange={(e) =>
@@ -627,10 +625,14 @@ const AssetReports = () => {
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      <label
+                        htmlFor="asset-admin-report-end-date"
+                        className="mb-2 block text-sm font-semibold text-gray-700"
+                      >
                         End Date
                       </label>
                       <input
+                        id="asset-admin-report-end-date"
                         type="date"
                         value={reportDateRange.endDate}
                         onChange={(e) =>
@@ -838,10 +840,11 @@ const AssetReports = () => {
                 </h4>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {allUsersData?.users?.map((user) => (
-                    <div
+                    <button
+                      type="button"
                       key={user.id}
                       onClick={() => handleUserSelect(user)}
-                      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
+                      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:shadow-md"
                     >
                       <div className="flex items-start justify-between">
                         <div>
@@ -861,7 +864,7 @@ const AssetReports = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -1076,10 +1079,11 @@ const AssetReports = () => {
                 </h4>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {getUniqueDepartments().map((department) => (
-                    <div
+                    <button
+                      type="button"
                       key={department}
                       onClick={() => handleDepartmentSelect(department)}
-                      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
+                      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:shadow-md"
                     >
                       <div className="text-center">
                         <h5 className="text-sm font-medium text-gray-900">
@@ -1092,7 +1096,7 @@ const AssetReports = () => {
                           assignments
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
 
