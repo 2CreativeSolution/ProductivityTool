@@ -1,6 +1,31 @@
 import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 
+const resolveCurrentUserId = async (context) => {
+  const rawUserId = context?.currentUser?.id
+  const numericUserId = Number(rawUserId)
+
+  if (Number.isInteger(numericUserId)) {
+    return numericUserId
+  }
+
+  const currentUserEmail = context?.currentUser?.email
+  if (!currentUserEmail) {
+    throw new Error('Unable to resolve current user id')
+  }
+
+  const user = await db.user.findUnique({
+    where: { email: currentUserEmail },
+    select: { id: true },
+  })
+
+  if (!user?.id) {
+    throw new Error('Unable to resolve current user id')
+  }
+
+  return user.id
+}
+
 export const assetAssignments = (args, { context }) => {
   requireAuth({}, context)
   return db.assetAssignment.findMany({
@@ -34,7 +59,7 @@ export const assetAssignment = ({ id }, { context }) => {
 }
 
 export const activeAssetAssignments = (args, { context }) => {
-  requireAuth({}, context)
+  requireAuth({ roles: ['ADMIN'] }, context)
   return db.assetAssignment.findMany({
     where: {
       status: 'Active',
@@ -53,11 +78,13 @@ export const activeAssetAssignments = (args, { context }) => {
   })
 }
 
-export const myAssetAssignments = (args, { context }) => {
+export const myAssetAssignments = async (args, { context }) => {
   requireAuth({}, context)
+  const userId = await resolveCurrentUserId(context)
+
   return db.assetAssignment.findMany({
     where: {
-      userId: parseInt(context.currentUser.id),
+      userId,
       status: 'Active',
     },
     include: {
@@ -79,7 +106,7 @@ export const myAssetAssignmentReport = async (
   { context }
 ) => {
   requireAuth({}, context)
-  const userId = parseInt(context.currentUser.id)
+  const userId = await resolveCurrentUserId(context)
 
   // Set default date range if not provided (last 6 months)
   const endDateTime = endDate ? new Date(endDate) : new Date()

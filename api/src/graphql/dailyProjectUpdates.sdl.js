@@ -23,7 +23,7 @@ export const schema = gql`
     dailyProjectUpdates(
       startDate: DateTime
       endDate: DateTime
-    ): [DailyProjectUpdate!]! @requireAuth
+    ): [DailyProjectUpdate!]! @requireAuth(roles: ["ADMIN"])
     dailyProjectUpdate(id: Int!): DailyProjectUpdate @requireAuth
     updatesByAllocation(allocationId: Int!): [DailyProjectUpdate!]! @requireAuth
     updatesByProject(projectId: Int!): [DailyProjectUpdate!]! @requireAuth

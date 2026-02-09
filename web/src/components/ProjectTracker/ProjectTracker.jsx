@@ -151,11 +151,11 @@ const ProjectTracker = () => {
     { id: 'daily', name: 'Daily Tracker', icon: '📅' },
     ...(isAdmin
       ? [
+          { id: 'reports', name: 'Reports', icon: '📊' },
           { id: 'management', name: 'Project Management', icon: '⚙️' },
           { id: 'employees', name: 'Employee Management', icon: '👥' },
         ]
       : []),
-    { id: 'reports', name: 'Reports', icon: '📊' },
   ]
 
   // Update indicator position when active tab changes
@@ -264,7 +264,7 @@ const ProjectTracker = () => {
 
         {activeTab === 'employees' && isAdmin && <EmployeeManagement />}
 
-        {activeTab === 'reports' && (
+        {activeTab === 'reports' && isAdmin && (
           <ProjectReports currentUser={currentUser} isAdmin={isAdmin} />
         )}
       </div>

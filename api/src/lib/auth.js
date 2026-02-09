@@ -43,8 +43,8 @@ export const getCurrentUser = async (session) => {
  *
  * @returns {boolean} - If the currentUser is authenticated
  */
-export const isAuthenticated = () => {
-  return !!context.currentUser
+export const isAuthenticated = (ctx = context) => {
+  return !!ctx?.currentUser
 }
 
 /**
@@ -60,12 +60,12 @@ export const isAuthenticated = () => {
  * @returns {boolean} - Returns true if the currentUser is logged in and assigned one of the given roles,
  * or when no roles are provided to check against. Otherwise returns false.
  */
-export const hasRole = (roles) => {
-  if (!isAuthenticated()) {
+export const hasRole = (roles, ctx = context) => {
+  if (!isAuthenticated(ctx)) {
     return false
   }
 
-  const currentUserRoles = context.currentUser?.roles
+  const currentUserRoles = ctx.currentUser?.roles
 
   if (typeof roles === 'string') {
     if (typeof currentUserRoles === 'string') {
@@ -107,8 +107,12 @@ export const hasRole = (roles) => {
  *
  * @see https://github.com/redwoodjs/redwood/tree/main/packages/auth for examples
  */
-export const requireAuth = () => {
-  if (!isAuthenticated()) {
+export const requireAuth = ({ roles } = {}, ctx = context) => {
+  if (!isAuthenticated(ctx)) {
     throw new AuthenticationError("You don't have permission to do that.")
+  }
+
+  if (roles && !hasRole(roles, ctx)) {
+    throw new ForbiddenError("You don't have access to do that.")
   }
 }

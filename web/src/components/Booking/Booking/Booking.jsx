@@ -10,6 +10,7 @@ import { useAuth } from 'src/auth'
 //import { toast } from '@redwoodjs/web/toast'
 import BookingLog from 'src/components/BookingLog/BookingLog'
 import { buttonVariants } from 'src/components/ui/button'
+import { Widget } from 'src/components/ui/widget'
 
 import 'react-calendar/dist/Calendar.css'
 
@@ -213,7 +214,7 @@ export const BookingForm = ({ refetchBookings }) => {
         className="grid w-full grid-cols-1 items-start gap-6 md:grid-cols-2"
       >
         {/* Calendar Column */}
-        <div className="w-full border border-gray-200 bg-white p-4 sm:p-5">
+        <Widget className="w-full p-4 sm:p-5">
           <div className="mb-4 flex items-center justify-center gap-2 text-red-500 md:mb-6">
             <FaRegCalendarAlt className="text-xl" />
             <h2 className="text-lg font-semibold tracking-wide md:text-xl">
@@ -234,10 +235,10 @@ export const BookingForm = ({ refetchBookings }) => {
               }
             />
           </div>
-        </div>
+        </Widget>
 
         {/* Time Slots Column */}
-        <div className="flex w-full flex-col items-center border border-gray-200 bg-white p-4 sm:p-5">
+        <Widget className="flex w-full flex-col items-center p-4 sm:p-5">
           <div className="mb-2 flex items-center gap-2 text-red-500 md:mb-4">
             <FaRegClock className="text-xl" />
             <h2 className="text-lg font-semibold tracking-wide md:text-xl">
@@ -273,7 +274,7 @@ export const BookingForm = ({ refetchBookings }) => {
               date or check back later.
             </p>
           )}
-        </div>
+        </Widget>
 
         {/* Meeting Title and Notes */}
         <div className="col-span-1 mt-2 flex flex-col gap-4 md:col-span-2">

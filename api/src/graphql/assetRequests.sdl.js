@@ -20,7 +20,7 @@ export const schema = gql`
   }
 
   type Query {
-    assetRequests: [AssetRequest!]! @requireAuth
+    assetRequests: [AssetRequest!]! @requireAuth(roles: ["ADMIN"])
     assetRequest(id: Int!): AssetRequest @requireAuth
     myAssetRequests: [AssetRequest!]! @requireAuth
     pendingAssetRequests: [AssetRequest!]! @requireAuth(roles: ["ADMIN"])

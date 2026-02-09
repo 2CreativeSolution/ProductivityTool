@@ -1,3 +1,4 @@
+import { Widget } from 'src/components/ui/widget'
 import { cn } from 'src/lib/utils'
 
 function SupplyRequestCard({
@@ -13,12 +14,7 @@ function SupplyRequestCard({
   className,
 }) {
   return (
-    <div
-      className={cn(
-        'rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg transition-all duration-200 hover:shadow-2xl',
-        className
-      )}
-    >
+    <Widget className={cn('p-6 transition-all duration-200', className)}>
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-start space-x-4">
           <div className="rounded-lg bg-blue-100 p-3">{icon}</div>
@@ -48,7 +44,7 @@ function SupplyRequestCard({
       ) : null}
 
       {footer}
-    </div>
+    </Widget>
   )
 }
 

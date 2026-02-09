@@ -17,7 +17,6 @@ import AssetManagement from 'src/components/AssetTracker/AssetManagement'
 import AssetReports from 'src/components/AssetTracker/AssetReports'
 import AssetTracker from 'src/components/AssetTracker/AssetTracker'
 import PageHeader from 'src/components/PageHeader/PageHeader'
-import { SummaryMetricCard } from 'src/components/ui'
 
 const ASSET_STATS_QUERY = gql`
   query AssetStatsQuery {
@@ -105,61 +104,6 @@ const AssetTrackerPage = () => {
         />
 
         {/* Quick Stats Section - Now Dynamic */}
-        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <SummaryMetricCard
-            size="sm"
-            title="Total Assets"
-            value={
-              statsLoading ? '...' : Number(totalAssets).toLocaleString('en-US')
-            }
-            subtitle="In inventory"
-            icon={<ArchiveBoxIcon />}
-            trend={{ direction: 'neutral', label: '100%' }}
-          />
-
-          <SummaryMetricCard
-            size="sm"
-            title="Available"
-            value={
-              statsLoading
-                ? '...'
-                : Number(availableAssets).toLocaleString('en-US')
-            }
-            subtitle="Ready to assign"
-            icon={<CheckCircleIcon />}
-            trend={{ direction: 'positive', label: `${availabilityRate}%` }}
-          />
-
-          <SummaryMetricCard
-            size="sm"
-            title="Assigned"
-            value={
-              statsLoading
-                ? '...'
-                : Number(assignedAssets).toLocaleString('en-US')
-            }
-            subtitle="In active use"
-            icon={<BriefcaseIcon />}
-            trend={{ direction: 'neutral', label: `${assignedRate}%` }}
-          />
-
-          <SummaryMetricCard
-            size="sm"
-            title="Warranty Risk"
-            value={
-              statsLoading
-                ? '...'
-                : Number(warrantyExpiringSoon).toLocaleString('en-US')
-            }
-            subtitle="Expiring within 3 months"
-            icon={<ExclamationTriangleIcon />}
-            trend={{
-              direction: warrantyExpiringSoon > 0 ? 'negative' : 'positive',
-              label: `${warrantyRiskRate}%`,
-            }}
-          />
-        </div>
-
         {/* Tab Navigation */}
         <div className="mb-8 mt-8 border-b border-gray-200">
           <nav className="-mb-px flex space-x-8">
