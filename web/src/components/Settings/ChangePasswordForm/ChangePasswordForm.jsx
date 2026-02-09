@@ -5,6 +5,7 @@ import { toast } from '@redwoodjs/web/toast'
 
 import { Input } from 'src/components/Forms/Input/Input'
 import { buttonVariants } from 'src/components/ui/button'
+import { Widget } from 'src/components/ui/widget'
 
 const CHANGE_PASSWORD_MUTATION = gql`
   mutation ChangePasswordMutation($input: ChangePasswordInput!) {
@@ -235,44 +236,43 @@ const ChangePasswordForm = () => {
         </div>
       </form>
 
-      <aside>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-          Password Strength
-        </h3>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
-          <div
-            className={`h-full transition-all duration-200 ${strength.barClassName}`}
-            style={{ width: `${strengthPercent}%` }}
-          ></div>
-        </div>
-        <p className={`mt-2 text-sm font-medium ${strength.textClassName}`}>
-          {strength.label}
-        </p>
-        <p className="mt-2 text-xs text-slate-500">
-          Strength is informational only. You can still save with a weak
-          password.
-        </p>
+      <Widget className="h-fit" header title="Password Strength">
+        <div className="p-4">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+            <div
+              className={`h-full transition-all duration-200 ${strength.barClassName}`}
+              style={{ width: `${strengthPercent}%` }}
+            ></div>
+          </div>
+          <p className={`mt-2 text-sm font-medium ${strength.textClassName}`}>
+            {strength.label}
+          </p>
+          <p className="mt-2 text-xs text-slate-500">
+            Strength is informational only. You can still save with a weak
+            password.
+          </p>
 
-        <ul className="mt-4 space-y-2">
-          {strengthChecks.map((rule) => (
-            <li key={rule.key} className="flex items-center gap-2 text-xs">
-              <i
-                className={`text-sm ${
-                  rule.passed
-                    ? 'ri-checkbox-circle-fill text-emerald-600'
-                    : 'ri-close-circle-line text-slate-400'
-                }`}
-                aria-hidden="true"
-              ></i>
-              <span
-                className={rule.passed ? 'text-slate-800' : 'text-slate-500'}
-              >
-                {rule.label}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </aside>
+          <ul className="mt-4 space-y-2">
+            {strengthChecks.map((rule) => (
+              <li key={rule.key} className="flex items-center gap-2 text-xs">
+                <i
+                  className={`text-sm ${
+                    rule.passed
+                      ? 'ri-checkbox-circle-fill text-emerald-600'
+                      : 'ri-close-circle-line text-slate-400'
+                  }`}
+                  aria-hidden="true"
+                ></i>
+                <span
+                  className={rule.passed ? 'text-slate-800' : 'text-slate-500'}
+                >
+                  {rule.label}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Widget>
     </section>
   )
 }

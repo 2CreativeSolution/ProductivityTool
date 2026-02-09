@@ -1,3 +1,4 @@
+import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 import {
   sendAssetRequestApprovalEmail,
@@ -5,7 +6,9 @@ import {
   sendAssetRequestNotificationToAdmins,
 } from 'src/lib/emailService'
 
-export const assetRequests = () => {
+export const assetRequests = (_args, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   return db.assetRequest.findMany({
     include: {
       user: true,
@@ -22,9 +25,16 @@ export const assetRequests = () => {
   })
 }
 
-export const assetRequest = ({ id }) => {
-  return db.assetRequest.findUnique({
-    where: { id },
+export const assetRequest = ({ id }, { context }) => {
+  requireAuth({}, context)
+
+  const isAdmin = context.currentUser.roles?.includes('ADMIN')
+  const where = isAdmin
+    ? { id }
+    : { id, userId: Number(context.currentUser.id) }
+
+  return db.assetRequest.findFirst({
+    where,
     include: {
       user: true,
       assetCategory: true,
@@ -38,9 +48,11 @@ export const assetRequest = ({ id }) => {
 }
 
 export const myAssetRequests = (_args, { context }) => {
+  requireAuth({}, context)
+
   return db.assetRequest.findMany({
     where: {
-      userId: context.currentUser.id,
+      userId: Number(context.currentUser.id),
     },
     include: {
       user: true,
@@ -57,7 +69,9 @@ export const myAssetRequests = (_args, { context }) => {
   })
 }
 
-export const pendingAssetRequests = () => {
+export const pendingAssetRequests = (_args, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   return db.assetRequest.findMany({
     where: {
       status: 'Pending',
@@ -78,12 +92,14 @@ export const pendingAssetRequests = () => {
 }
 
 export const createAssetRequest = ({ input }, { context }) => {
+  requireAuth({}, context)
+
   return db.$transaction(async (tx) => {
     // Create the asset request
     const newRequest = await tx.assetRequest.create({
       data: {
         ...input,
-        userId: context.currentUser.id,
+        userId: Number(context.currentUser.id),
       },
       include: {
         user: true,
@@ -113,9 +129,13 @@ export const createAssetRequest = ({ input }, { context }) => {
 }
 
 export const updateAssetRequest = ({ id, input }, { context }) => {
+  requireAuth({}, context)
+
   // Only allow users to update their own requests (unless admin)
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
-  const whereClause = isAdmin ? { id } : { id, userId: context.currentUser.id }
+  const whereClause = isAdmin
+    ? { id }
+    : { id, userId: Number(context.currentUser.id) }
 
   return db.assetRequest.update({
     data: input,
@@ -133,9 +153,13 @@ export const updateAssetRequest = ({ id, input }, { context }) => {
 }
 
 export const deleteAssetRequest = ({ id }, { context }) => {
+  requireAuth({}, context)
+
   // Only allow users to delete their own requests (unless admin)
   const isAdmin = context.currentUser.roles?.includes('ADMIN')
-  const whereClause = isAdmin ? { id } : { id, userId: context.currentUser.id }
+  const whereClause = isAdmin
+    ? { id }
+    : { id, userId: Number(context.currentUser.id) }
 
   return db.assetRequest.delete({
     where: whereClause,
@@ -143,6 +167,7 @@ export const deleteAssetRequest = ({ id }, { context }) => {
 }
 
 export const approveAssetRequest = async ({ id, input }, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
   const approverName = context.currentUser.name || context.currentUser.email
 
   return await db.$transaction(async (prisma) => {
@@ -247,6 +272,7 @@ export const approveAssetRequest = async ({ id, input }, { context }) => {
 }
 
 export const rejectAssetRequest = async ({ id, input }, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
   const approverName = context.currentUser.name || context.currentUser.email
 
   const updatedRequest = await db.assetRequest.update({

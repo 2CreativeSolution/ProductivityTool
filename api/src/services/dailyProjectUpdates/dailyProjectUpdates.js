@@ -1,6 +1,9 @@
+import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 
-export const dailyProjectUpdates = ({ startDate, endDate }) => {
+export const dailyProjectUpdates = ({ startDate, endDate }, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   const where = {}
 
   if (startDate || endDate) {
@@ -192,7 +195,7 @@ export const projectUpdatesForDate = ({ projectId, date }) => {
   })
 }
 
-export const createDailyProjectUpdate = ({ input }, { context }) => {
+export const createDailyProjectUpdate = ({ input }, { _context }) => {
   return db.dailyProjectUpdate.create({
     data: {
       ...input,
@@ -211,7 +214,7 @@ export const createDailyProjectUpdate = ({ input }, { context }) => {
   })
 }
 
-export const updateDailyProjectUpdate = ({ id, input }, { context }) => {
+export const updateDailyProjectUpdate = ({ id, input }, { _context }) => {
   return db.dailyProjectUpdate.update({
     data: input,
     where: { id },
@@ -227,7 +230,7 @@ export const updateDailyProjectUpdate = ({ id, input }, { context }) => {
   })
 }
 
-export const deleteDailyProjectUpdate = ({ id }, { context }) => {
+export const deleteDailyProjectUpdate = ({ id }, { _context }) => {
   return db.dailyProjectUpdate.delete({
     where: { id },
   })

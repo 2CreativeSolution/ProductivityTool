@@ -1,15 +1,6 @@
 import React, { useState, useMemo } from 'react'
 
-import {
-  ClipboardDocumentListIcon,
-  ClockIcon,
-  FolderOpenIcon,
-  UserGroupIcon,
-} from '@heroicons/react/24/outline'
-
 import { useQuery, gql } from '@redwoodjs/web'
-
-import { SummaryMetricCard } from 'src/components/ui'
 
 const PROJECT_REPORTS_QUERY = gql`
   query ProjectReportsQuery($startDate: DateTime!, $endDate: DateTime!) {
@@ -247,22 +238,30 @@ const ProjectReports = () => {
         </h3>
         <div className="flex flex-wrap gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="project-report-start"
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
               Start Date
             </label>
             <input
               type="date"
+              id="project-report-start"
               value={dateRange.start}
               onChange={(e) => handleDateChange('start', e.target.value)}
               className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="project-report-end"
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
               End Date
             </label>
             <input
               type="date"
+              id="project-report-end"
               value={dateRange.end}
               onChange={(e) => handleDateChange('end', e.target.value)}
               className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -273,55 +272,6 @@ const ProjectReports = () => {
 
       {reports && (
         <>
-          {/* Overview Cards */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <SummaryMetricCard
-              size="sm"
-              title="Active Projects"
-              value={reports.allocationSummary.totalProjects.toLocaleString(
-                'en-US'
-              )}
-              subtitle="Projects in scope"
-              icon={<FolderOpenIcon />}
-              trend={{ direction: 'neutral', label: 'current' }}
-            />
-            <SummaryMetricCard
-              size="sm"
-              title="Team Allocations"
-              value={reports.allocationSummary.totalActiveAllocations.toLocaleString(
-                'en-US'
-              )}
-              subtitle="Active team allocations"
-              icon={<UserGroupIcon />}
-              trend={{
-                direction: 'positive',
-                label: `${reports.allocationSummary.totalProjects} projects`,
-              }}
-            />
-            <SummaryMetricCard
-              size="sm"
-              title="Daily Updates"
-              value={reports.updatesSummary.totalUpdates.toLocaleString(
-                'en-US'
-              )}
-              subtitle="Updates submitted"
-              icon={<ClipboardDocumentListIcon />}
-              trend={{ direction: 'neutral', label: 'period' }}
-            />
-            <SummaryMetricCard
-              size="sm"
-              title="Total Hours Logged"
-              value={`${Math.round(reports.updatesSummary.totalHours)}h`}
-              subtitle="Hours across all updates"
-              icon={<ClockIcon />}
-              trend={{
-                direction: 'positive',
-                label: `${reports.updatesSummary.totalUpdates} updates`,
-              }}
-            />
-          </div>
-
-          {/* Status & Priority Distribution */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="rounded-lg border border-gray-200 bg-white p-6">
               <h3 className="mb-4 text-lg font-semibold text-gray-900">
@@ -567,9 +517,9 @@ const ProjectReports = () => {
                         Assigned Projects:
                       </h5>
                       <div className="flex flex-wrap gap-2">
-                        {member.projects.map((project, idx) => (
+                        {member.projects.map((project, _idx) => (
                           <span
-                            key={idx}
+                            key={_idx}
                             className="rounded-full bg-blue-100 px-2 py-1 text-xs text-blue-800"
                           >
                             {project}
@@ -585,7 +535,7 @@ const ProjectReports = () => {
                       </h5>
                       {memberUpdates.length > 0 ? (
                         <div className="space-y-3">
-                          {memberUpdates.map((update, idx) => (
+                          {memberUpdates.map((update) => (
                             <div
                               key={update.id}
                               className="rounded-lg bg-gray-50 p-3"

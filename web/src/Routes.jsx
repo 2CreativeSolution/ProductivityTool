@@ -11,6 +11,19 @@ import { Router, Route, Set, PrivateSet } from '@redwoodjs/router'
 
 import ScaffoldLayout from 'src/layouts/ScaffoldLayout'
 import AdminDiagnosticsToolsPage from 'src/pages/AdminDiagnosticsToolsPage/AdminDiagnosticsToolsPage'
+import AssetsAssignmentsPage from 'src/pages/AssetsAssignmentsPage/AssetsAssignmentsPage'
+import AssetsIndexPage from 'src/pages/AssetsIndexPage/AssetsIndexPage'
+import AssetsInventoryPage from 'src/pages/AssetsInventoryPage/AssetsInventoryPage'
+import AssetsManagementPage from 'src/pages/AssetsManagementPage/AssetsManagementPage'
+import AssetsReportsDepartmentDetailPage from 'src/pages/AssetsReportsDepartmentDetailPage/AssetsReportsDepartmentDetailPage'
+import AssetsReportsDepartmentsPage from 'src/pages/AssetsReportsDepartmentsPage/AssetsReportsDepartmentsPage'
+import AssetsReportsEmployeeDetailPage from 'src/pages/AssetsReportsEmployeeDetailPage/AssetsReportsEmployeeDetailPage'
+import AssetsReportsEmployeesPage from 'src/pages/AssetsReportsEmployeesPage/AssetsReportsEmployeesPage'
+import AssetsReportsIndexPage from 'src/pages/AssetsReportsIndexPage/AssetsReportsIndexPage'
+import AssetsReportsMyPage from 'src/pages/AssetsReportsMyPage/AssetsReportsMyPage'
+import AssetsReportsOverviewPage from 'src/pages/AssetsReportsOverviewPage/AssetsReportsOverviewPage'
+import AssetsRequestsPage from 'src/pages/AssetsRequestsPage/AssetsRequestsPage'
+import AssetTrackerLegacyPage from 'src/pages/AssetTrackerLegacyPage/AssetTrackerLegacyPage'
 import MeAttendancePage from 'src/pages/MeAttendancePage/MeAttendancePage'
 import MeBookingsPage from 'src/pages/MeBookingsPage/MeBookingsPage'
 import MeVacationPage from 'src/pages/MeVacationPage/MeVacationPage'
@@ -35,12 +48,15 @@ const Routes = () => {
         <Route path="/me/attendance" page={MeAttendancePage} name="meAttendance" />
         <Route path="/me/vacation" page={MeVacationPage} name="meVacation" />
         <Route path="/form" page={FormPage} name="form" />
-        <Route path="/asset-tracker" page={AssetTrackerPage} name="assetTracker" />
+        <Route path="/asset-tracker" page={AssetTrackerLegacyPage} name="assetTracker" />
+        <Route path="/assets" page={AssetsIndexPage} name="assets" />
+        <Route path="/assets/assignments" page={AssetsAssignmentsPage} name="assetsAssignments" />
+        <Route path="/assets/requests" page={AssetsRequestsPage} name="assetsRequests" />
+        <Route path="/assets/reports" page={AssetsReportsIndexPage} name="assetsReports" />
+        <Route path="/assets/reports/my" page={AssetsReportsMyPage} name="assetsReportsMy" />
         <Route path="/project" page={ProjectTrackerPage} name="projectTracker" />
-        <Route path="/project/reports" page={ProjectTrackerReportsPage} name="projectTrackerReports" />
 
         {/* Office Supplies Management */}
-        <Route path="/office-supplies" page={OfficeSupplyOfficeSupplyInventoryPage} name="officeSupplies" />
         <Route path="/supply-requests" page={OfficeSupplySupplyRequestsPage} name="supplyRequests" />
 
         <Set wrap={ScaffoldLayout} title="Bookings" titleTo="bookings" buttonLabel="New Booking" buttonTo="newBooking">
@@ -64,6 +80,15 @@ const Routes = () => {
         <Route path="/admin/vacation-requests" page={AdminVacationRequestsPage} name="adminVacationRequests" />
         <Route path="/admin/supply-requests" page={OfficeSupplyAdminSupplyRequestsPage} name="adminSupplyRequests" />
         <Route path="/admin/supply-categories" page={OfficeSupplySupplyCategoriesPage} name="adminSupplyCategories" />
+        <Route path="/assets/inventory" page={AssetsInventoryPage} name="assetsInventory" />
+        <Route path="/assets/management" page={AssetsManagementPage} name="assetsManagement" />
+        <Route path="/assets/reports/overview" page={AssetsReportsOverviewPage} name="assetsReportsOverview" />
+        <Route path="/assets/reports/employees" page={AssetsReportsEmployeesPage} name="assetsReportsEmployees" />
+        <Route path="/assets/reports/employees/{userId:Int}" page={AssetsReportsEmployeeDetailPage} name="assetsReportsEmployee" />
+        <Route path="/assets/reports/departments" page={AssetsReportsDepartmentsPage} name="assetsReportsDepartments" />
+        <Route path="/assets/reports/departments/{department}" page={AssetsReportsDepartmentDetailPage} name="assetsReportsDepartment" />
+        <Route path="/project/reports" page={ProjectTrackerReportsPage} name="projectTrackerReports" />
+        <Route path="/office-supplies" page={OfficeSupplyOfficeSupplyInventoryPage} name="officeSupplies" />
         <Route path="/project/management" page={ProjectTrackerManagementPage} name="projectTrackerManagement" />
         <Route path="/project/employees" page={ProjectTrackerEmployeesPage} name="projectTrackerEmployees" />
       </PrivateSet>

@@ -1,4 +1,11 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react'
+import React, {
+  useCallback,
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from 'react'
 
 import { useQuery, gql } from '@apollo/client'
 import JsPDF from 'jspdf'
@@ -10,7 +17,9 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 import { useAuth } from 'src/auth'
 import ExceptionForm from 'src/components/ExceptionForm'
 import FormModal from 'src/components/FormModal'
+import { AdminDataTable, Pill } from 'src/components/ui'
 import { buttonVariants } from 'src/components/ui/button'
+import { Widget } from 'src/components/ui/widget'
 
 const ATTENDANCE_QUERY = gql`
   query AttendanceQuery($userId: Int) {
@@ -47,10 +56,61 @@ const EXCEPTION_REQUESTS_QUERY = gql`
   }
 `
 
-const Attendance = ({ userId }) => {
+const formatAttendanceDate = (value) =>
+  new Date(value).toLocaleDateString('en-GB', { timeZone: 'UTC' })
+
+const formatAttendanceTime = (value) =>
+  value
+    ? new Date(value).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '-'
+
+const getAttendanceDuration = (record) => {
+  const breaks = record.breaks || []
+  const totalBreakMs = breaks.reduce((sum, currentBreak) => {
+    if (!currentBreak.breakIn || !currentBreak.breakOut) {
+      return sum
+    }
+
+    return (
+      sum + (new Date(currentBreak.breakOut) - new Date(currentBreak.breakIn))
+    )
+  }, 0)
+
+  const officeMs =
+    record.clockIn && record.clockOut
+      ? Math.max(
+          new Date(record.clockOut) - new Date(record.clockIn) - totalBreakMs,
+          0
+        )
+      : 0
+
+  const hours = Math.floor(officeMs / 1000 / 60 / 60)
+  const minutes = Math.floor((officeMs / 1000 / 60) % 60)
+
+  return record.clockIn && record.clockOut ? `${hours}h ${minutes}m` : '-'
+}
+
+const getStatusBadgeClassName = (status) => {
+  if (status === 'Present') {
+    return 'border-green-200 bg-green-100 text-green-800'
+  }
+
+  if (status === 'Late') {
+    return 'border-yellow-200 bg-yellow-100 text-yellow-800'
+  }
+
+  if (status === 'Leave') {
+    return 'border-blue-200 bg-blue-100 text-blue-800'
+  }
+
+  return 'border-red-200 bg-red-100 text-red-800'
+}
+
+const Attendance = forwardRef(({ userId }, ref) => {
   const { currentUser } = useAuth()
-  const dropdownRef = useRef(null)
-  const [showDropdown, setShowDropdown] = useState(false)
   const [showModal, setShowModal] = useState(false)
 
   const { data, loading, error, refetch } = useQuery(ATTENDANCE_QUERY, {
@@ -73,40 +133,75 @@ const Attendance = ({ userId }) => {
   const [exceptionRequests, setExceptionRequests] = useState([])
   const [attendances, setAttendances] = useState([])
 
-  // Pagination states
-  const [attendancePage, setAttendancePage] = useState(1)
   const [exceptionPage, setExceptionPage] = useState(1)
-  const itemsPerPage = 5
-
-  // Memoized paginated data
-  const paginatedAttendances = useMemo(() => {
-    return attendances.slice(
-      (attendancePage - 1) * itemsPerPage,
-      attendancePage * itemsPerPage
-    )
-  }, [attendances, attendancePage, itemsPerPage])
+  const exceptionItemsPerPage = 5
+  const exceptionTotalPages = Math.ceil(
+    exceptionRequests.length / exceptionItemsPerPage
+  )
+  const exceptionDisplayPage = exceptionTotalPages === 0 ? 0 : exceptionPage
 
   const paginatedExceptions = useMemo(() => {
     const sorted = [...exceptionRequests].sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     )
     return sorted.slice(
-      (exceptionPage - 1) * itemsPerPage,
-      exceptionPage * itemsPerPage
+      (exceptionPage - 1) * exceptionItemsPerPage,
+      exceptionPage * exceptionItemsPerPage
     )
-  }, [exceptionRequests, exceptionPage, itemsPerPage])
+  }, [exceptionRequests, exceptionPage, exceptionItemsPerPage])
 
-  // Update state when attendance data changes
+  const attendanceColumns = useMemo(
+    () => [
+      {
+        accessorKey: 'date',
+        header: 'Date',
+        cell: ({ row }) => formatAttendanceDate(row.original.date),
+      },
+      {
+        accessorKey: 'clockIn',
+        header: 'Clock In',
+        cell: ({ row }) => formatAttendanceTime(row.original.clockIn),
+      },
+      {
+        accessorKey: 'clockOut',
+        header: 'Clock Out',
+        cell: ({ row }) => formatAttendanceTime(row.original.clockOut),
+      },
+      {
+        id: 'duration',
+        header: 'Duration',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <span className="font-mono text-sm text-gray-900">
+            {getAttendanceDuration(row.original)}
+          </span>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => (
+          <Pill className={getStatusBadgeClassName(row.original.status)}>
+            {row.original.status}
+          </Pill>
+        ),
+      },
+    ],
+    []
+  )
+
   useEffect(() => {
-    if (
-      data?.attendances &&
-      JSON.stringify(data.attendances) !== JSON.stringify(attendances)
-    ) {
-      setAttendances(data.attendances)
+    if (!data?.attendances) {
+      return
     }
+
+    setAttendances((currentAttendances) =>
+      JSON.stringify(data.attendances) === JSON.stringify(currentAttendances)
+        ? currentAttendances
+        : data.attendances
+    )
   }, [data])
 
-  // Update state when exception data changes
   useEffect(() => {
     if (exceptionData?.user?.exceptionRequests) {
       const sorted = [...exceptionData.user.exceptionRequests].sort(
@@ -116,8 +211,7 @@ const Attendance = ({ userId }) => {
     }
   }, [exceptionData])
 
-  // PDF export option
-  const exportAttendancePDF = () => {
+  const exportAttendancePDF = useCallback(() => {
     if (!attendances.length) {
       toast.error('No attendance records to export 😓')
       return
@@ -130,45 +224,13 @@ const Attendance = ({ userId }) => {
 
     const headers = ['Date', 'Clock In', 'Clock Out', 'Duration', 'Status']
 
-    const dataRows = attendances.map((record) => {
-      const date = new Date(record.date).toLocaleDateString('en-GB')
-      const clockIn = record.clockIn
-        ? new Date(record.clockIn).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-        : '-'
-      const clockOut = record.clockOut
-        ? new Date(record.clockOut).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-        : '-'
-
-      const duration = (() => {
-        const breaks = record.breaks || []
-        const totalBreakMs = breaks.reduce((sum, b) => {
-          if (b.breakIn && b.breakOut) {
-            return sum + (new Date(b.breakOut) - new Date(b.breakIn))
-          }
-          return sum
-        }, 0)
-        const officeMs =
-          record.clockIn && record.clockOut
-            ? Math.max(
-                new Date(record.clockOut) -
-                  new Date(record.clockIn) -
-                  totalBreakMs,
-                0
-              )
-            : 0
-        const h = Math.floor(officeMs / 1000 / 60 / 60)
-        const m = Math.floor((officeMs / 1000 / 60) % 60)
-        return record.clockIn && record.clockOut ? `${h}h ${m}m` : '-'
-      })()
-
-      return [date, clockIn, clockOut, duration, record.status]
-    })
+    const dataRows = attendances.map((record) => [
+      formatAttendanceDate(record.date),
+      formatAttendanceTime(record.clockIn),
+      formatAttendanceTime(record.clockOut),
+      getAttendanceDuration(record),
+      record.status,
+    ])
 
     autoTable(pdf, {
       head: [headers],
@@ -180,31 +242,28 @@ const Attendance = ({ userId }) => {
     })
 
     pdf.save('attendance-history.pdf')
-  }
+  }, [attendances, currentUser?.name])
 
-  // CSV Export
-  const exportAttendanceCSV = () => {
+  const exportAttendanceCSV = useCallback(() => {
     if (!attendances.length) {
       toast.error('No attendance records to export 😓')
       return
     }
-    // Prepare data for CSV: flatten breaks as a string
+
     const csvData = attendances.map((rec) => ({
       ...rec,
       breaks: (rec.breaks || [])
         .map(
-          (b, idx) =>
-            `#${idx + 1}: ${b.breakIn ? new Date(b.breakIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''} - ${
-              b.breakOut
-                ? new Date(b.breakOut).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
+          (currentBreak, index) =>
+            `#${index + 1}: ${currentBreak.breakIn ? formatAttendanceTime(currentBreak.breakIn) : ''} - ${
+              currentBreak.breakOut
+                ? formatAttendanceTime(currentBreak.breakOut)
                 : ''
             }`
         )
         .join('; '),
     }))
+
     const csv = Papa.unparse(csvData)
     const blob = new Blob([csv], { type: 'text/csv' })
     const link = document.createElement('a')
@@ -213,37 +272,30 @@ const Attendance = ({ userId }) => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-  }
+  }, [attendances, currentUser?.name])
 
-  // export handler
-  const exportHandler = (type) => {
-    if (!attendances || attendances.length === 0) {
-      toast.error('No attendance records to export 😓')
-      return
-    }
-
-    if (type === 'csv') exportAttendanceCSV()
-    else if (type === 'pdf') exportAttendancePDF()
-  }
-
-  // Listen for outside clicks to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false)
+  const exportHandler = useCallback(
+    (type) => {
+      if (type === 'csv') {
+        exportAttendanceCSV()
+        return
       }
-    }
 
-    if (showDropdown) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
+      if (type === 'pdf') {
+        exportAttendancePDF()
+      }
+    },
+    [exportAttendanceCSV, exportAttendancePDF]
+  )
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showDropdown])
+  useImperativeHandle(
+    ref,
+    () => ({
+      exportAttendance: exportHandler,
+    }),
+    [exportHandler]
+  )
 
-  // Listen for attendance updates (from AttendanceCard)
   useEffect(() => {
     const handler = () => {
       refetch().then(() => {
@@ -251,20 +303,21 @@ const Attendance = ({ userId }) => {
       })
     }
     window.addEventListener('attendanceUpdated', handler)
-    // For cross-tab support:
-    const storageHandler = (e) => {
-      if (e.key === 'attendanceUpdated') refetch()
+
+    const storageHandler = (event) => {
+      if (event.key === 'attendanceUpdated') {
+        refetch()
+      }
     }
     window.addEventListener('storage', storageHandler)
+
     return () => {
       window.removeEventListener('attendanceUpdated', handler)
       window.removeEventListener('storage', storageHandler)
     }
   }, [refetch])
 
-  // Listen for exception requests updates (from admin panel)
   useEffect(() => {
-    // Listen for admin updates (cross-tab and same tab)
     const handler = () => {
       console.log(
         'User: exceptionRequestsUpdated event received, refetching...'
@@ -272,8 +325,9 @@ const Attendance = ({ userId }) => {
       refetchExceptions()
     }
     window.addEventListener('exceptionRequestsUpdated', handler)
-    const storageHandler = (e) => {
-      if (e.key === 'exceptionRequestsUpdated') {
+
+    const storageHandler = (event) => {
+      if (event.key === 'exceptionRequestsUpdated') {
         console.log(
           'User: exceptionRequestsUpdated storage event, refetching...'
         )
@@ -281,209 +335,49 @@ const Attendance = ({ userId }) => {
       }
     }
     window.addEventListener('storage', storageHandler)
+
     return () => {
       window.removeEventListener('exceptionRequestsUpdated', handler)
       window.removeEventListener('storage', storageHandler)
     }
   }, [refetchExceptions])
 
+  useEffect(() => {
+    setExceptionPage((currentPage) => {
+      const maxPage = Math.max(1, exceptionTotalPages)
+      return Math.min(Math.max(currentPage, 1), maxPage)
+    })
+  }, [exceptionTotalPages])
+
   return (
     <>
       <Toaster toastOptions={{ duration: 4000 }} />
-      <div className="flex flex-col gap-6 lg:flex-row">
-        {/* Attendance History Table */}
-        <div className="attendance-section mt-6 flex-1 rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
-          <h2 className="mb-6 text-2xl font-bold text-gray-800">
-            Attendance History
-          </h2>
-
-          <div
-            ref={dropdownRef}
-            className="mb-4 mr-4 inline-block flex justify-end text-left"
-          >
-            <button
-              onClick={() => setShowDropdown((prev) => !prev)}
-              className="inline-flex justify-center rounded bg-indigo-600 px-4 py-2 font-semibold text-white transition hover:bg-indigo-700"
-            >
-              Export ▼
-            </button>
-            {showDropdown && (
-              <div className="absolute z-10 mt-2 w-44 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-                <button
-                  onClick={() => exportHandler('csv')}
-                  className="block w-full rounded-md px-4 py-2 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  Export as CSV
-                </button>
-                <button
-                  onClick={() => exportHandler('pdf')}
-                  className="block w-full rounded-md px-4 py-2 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-100 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  Export as PDF
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="overflow-x-auto rounded-xl">
-            {loading ? (
-              <div>Loading...</div>
-            ) : error ? (
-              <div className="text-red-500">Error: {error.message}</div>
-            ) : (
-              <>
-                <table className="min-w-full divide-y divide-gray-200 overflow-hidden rounded-xl">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      {[
-                        'Date',
-                        'Clock In',
-                        'Clock Out',
-                        'Duration',
-                        'Status',
-                      ].map((header) => (
-                        <th
-                          key={header}
-                          className="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-600"
-                        >
-                          {header}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 bg-white">
-                    {paginatedAttendances.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={5}
-                          className="py-6 text-center text-gray-400"
-                        >
-                          No attendance records found.
-                        </td>
-                      </tr>
-                    ) : (
-                      paginatedAttendances.map((record, idx) => (
-                        <tr
-                          key={record.id}
-                          className={
-                            idx % 2 === 0
-                              ? 'bg-gray-50 transition hover:bg-indigo-50'
-                              : 'transition hover:bg-indigo-50'
-                          }
-                        >
-                          <td className="whitespace-nowrap rounded-l-lg px-6 py-4 text-sm text-gray-900">
-                            {new Date(record.date).toLocaleDateString('en-GB', {
-                              timeZone: 'UTC',
-                            })}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                            {record.clockIn
-                              ? new Date(record.clockIn).toLocaleTimeString(
-                                  [],
-                                  {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  }
-                                )
-                              : '-'}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                            {record.clockOut
-                              ? new Date(record.clockOut).toLocaleTimeString(
-                                  [],
-                                  {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                  }
-                                )
-                              : '-'}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4 font-mono text-sm text-gray-900">
-                            {/* Office duration only (excluding breaks) */}
-                            {(() => {
-                              const breaks = record.breaks || []
-                              const totalBreakMs = breaks.reduce((sum, b) => {
-                                if (b.breakIn && b.breakOut) {
-                                  return (
-                                    sum +
-                                    (new Date(b.breakOut) - new Date(b.breakIn))
-                                  )
-                                }
-                                return sum
-                              }, 0)
-                              const officeMs =
-                                record.clockIn && record.clockOut
-                                  ? Math.max(
-                                      new Date(record.clockOut) -
-                                        new Date(record.clockIn) -
-                                        totalBreakMs,
-                                      0
-                                    )
-                                  : 0
-                              const h = Math.floor(officeMs / 1000 / 60 / 60)
-                              const m = Math.floor((officeMs / 1000 / 60) % 60)
-                              return record.clockIn && record.clockOut
-                                ? `${h}h ${m}m`
-                                : '-'
-                            })()}
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4 text-sm">
-                            <span
-                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold leading-5 
-                                ${
-                                  record.status === 'Present'
-                                    ? 'border-green-200 bg-green-100 text-green-800'
-                                    : record.status === 'Late'
-                                      ? 'border-yellow-200 bg-yellow-100 text-yellow-800'
-                                      : record.status === 'Leave'
-                                        ? 'border-blue-200 bg-blue-100 text-blue-800'
-                                        : 'border-red-200 bg-red-100 text-red-800'
-                                }`}
-                            >
-                              {record.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-
-                <div className="mt-4 flex items-center justify-between">
-                  <button
-                    className={buttonVariants({
-                      variant: 'secondary',
-                      size: 'sm',
-                    })}
-                    disabled={attendancePage === 1}
-                    onClick={() => setAttendancePage((prev) => prev - 1)}
-                  >
-                    Previous
-                  </button>
-                  <span className="text-sm text-gray-600">
-                    Page {attendancePage} of{' '}
-                    {Math.ceil(attendances.length / itemsPerPage)}
-                  </span>
-                  <button
-                    className={buttonVariants({
-                      variant: 'secondary',
-                      size: 'sm',
-                    })}
-                    disabled={
-                      attendancePage ===
-                      Math.ceil(attendances.length / itemsPerPage)
-                    }
-                    onClick={() => setAttendancePage((prev) => prev + 1)}
-                  >
-                    Next
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+      <div className="mt-4 flex flex-col gap-6 lg:flex-row">
+        <section className="attendance-section flex-1">
+          {loading ? (
+            <div className="rounded-md border bg-white px-4 py-6 text-sm text-gray-600">
+              Loading...
+            </div>
+          ) : error ? (
+            <div className="rounded-md border border-red-200 bg-red-50 px-4 py-6 text-sm text-red-700">
+              Error: {error.message}
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-md border bg-white">
+              <AdminDataTable
+                columns={attendanceColumns}
+                data={attendances}
+                emptyMessage="No attendance records found."
+                pagination
+                pageSizeOptions={[5, 10, 20]}
+                initialPageSize={5}
+              />
+            </div>
+          )}
+        </section>
 
         {/* Exception Management Section */}
-        <div className="mt-6 flex w-full flex-col rounded-lg bg-white p-4 shadow lg:w-1/3">
+        <Widget className="flex w-full flex-col p-4 lg:w-1/3">
           <h2 className="mb-4 text-lg font-bold text-gray-800">
             Exception Management
           </h2>
@@ -540,23 +434,32 @@ const Attendance = ({ userId }) => {
           </div>
           <div className="mt-4 flex items-center justify-between">
             <button
-              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-              disabled={exceptionPage === 1}
-              onClick={() => setExceptionPage((prev) => prev - 1)}
+              className={buttonVariants({
+                variant: 'primaryOutline',
+                size: 'sm',
+              })}
+              disabled={exceptionPage <= 1 || exceptionTotalPages === 0}
+              onClick={() => setExceptionPage((prev) => Math.max(prev - 1, 1))}
             >
               Previous
             </button>
             <span className="text-sm text-gray-600">
-              Page {exceptionPage} of{' '}
-              {Math.ceil(exceptionRequests.length / itemsPerPage)}
+              Page {exceptionDisplayPage} of {exceptionTotalPages}
             </span>
             <button
-              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
+              className={buttonVariants({
+                variant: 'primaryOutline',
+                size: 'sm',
+              })}
               disabled={
-                exceptionPage ===
-                Math.ceil(exceptionRequests.length / itemsPerPage)
+                exceptionTotalPages === 0 ||
+                exceptionPage >= exceptionTotalPages
               }
-              onClick={() => setExceptionPage((prev) => prev + 1)}
+              onClick={() =>
+                setExceptionPage((prev) =>
+                  Math.min(prev + 1, Math.max(exceptionTotalPages, 1))
+                )
+              }
             >
               Next
             </button>
@@ -578,7 +481,6 @@ const Attendance = ({ userId }) => {
                       .reverse()
                     setExceptionRequests(sorted)
                   }
-                  // Notify admin panel
                   window.dispatchEvent(new Event('exceptionRequestsUpdated'))
                   window.localStorage.setItem(
                     'exceptionRequestsUpdated',
@@ -588,10 +490,12 @@ const Attendance = ({ userId }) => {
               />
             </FormModal>
           )}
-        </div>
+        </Widget>
       </div>
     </>
   )
-}
+})
+
+Attendance.displayName = 'Attendance'
 
 export default Attendance

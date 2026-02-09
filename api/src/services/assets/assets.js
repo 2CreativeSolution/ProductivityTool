@@ -1,6 +1,39 @@
+import { ForbiddenError } from '@redwoodjs/graphql-server'
+
+import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 
-export const assets = () => {
+const resolveCurrentUserId = async (context) => {
+  const rawUserId = context?.currentUser?.id
+  const numericUserId = Number(rawUserId)
+
+  if (Number.isInteger(numericUserId)) {
+    return numericUserId
+  }
+
+  const currentUserEmail = context?.currentUser?.email
+  if (!currentUserEmail) {
+    throw new Error('Unable to resolve current user id')
+  }
+
+  const user = await db.user.findUnique({
+    where: { email: currentUserEmail },
+    select: { id: true },
+  })
+
+  if (!user?.id) {
+    throw new Error('Unable to resolve current user id')
+  }
+
+  return user.id
+}
+
+const isAdminUser = (context) =>
+  context?.currentUser?.roles?.includes('ADMIN') ?? false
+
+export const assets = (_args, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   return db.asset.findMany({
     include: {
       category: true,
@@ -17,7 +50,9 @@ export const assets = () => {
   })
 }
 
-export const asset = ({ id }) => {
+export const asset = ({ id }, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   return db.asset.findUnique({
     where: { id },
     include: {
@@ -34,7 +69,9 @@ export const asset = ({ id }) => {
   })
 }
 
-export const assetByAssetId = ({ assetId }) => {
+export const assetByAssetId = ({ assetId }, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   return db.asset.findUnique({
     where: { assetId },
     include: {
@@ -51,7 +88,9 @@ export const assetByAssetId = ({ assetId }) => {
   })
 }
 
-export const availableAssets = () => {
+export const availableAssets = (_args, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   return db.asset.findMany({
     where: {
       status: 'Available',
@@ -65,7 +104,9 @@ export const availableAssets = () => {
   })
 }
 
-export const assetsByCategory = ({ categoryId }) => {
+export const assetsByCategory = ({ categoryId }, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   return db.asset.findMany({
     where: {
       categoryId,
@@ -87,12 +128,22 @@ export const assetsByCategory = ({ categoryId }) => {
   })
 }
 
-export const assetsByUser = ({ userId }) => {
+export const assetsByUser = async ({ userId }, { context }) => {
+  requireAuth({}, context)
+
+  const currentUserId = await resolveCurrentUserId(context)
+  const admin = isAdminUser(context)
+  const requestedUserId = Number(userId)
+
+  if (!admin && requestedUserId !== currentUserId) {
+    throw new ForbiddenError("You don't have permission to access these assets")
+  }
+
   return db.asset.findMany({
     where: {
       assignments: {
         some: {
-          userId,
+          userId: requestedUserId,
           status: 'Active',
         },
       },
@@ -101,7 +152,7 @@ export const assetsByUser = ({ userId }) => {
       category: true,
       assignments: {
         where: {
-          userId,
+          userId: requestedUserId,
           status: 'Active',
         },
         include: {

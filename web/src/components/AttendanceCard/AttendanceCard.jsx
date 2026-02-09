@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import { ClockIcon } from '@heroicons/react/24/outline'
 
 import { buttonVariants } from 'src/components/ui/button'
+import { Widget } from 'src/components/ui/widget'
 
 const REQUIRED_HOURS = 9
 
@@ -131,15 +132,16 @@ const AttendanceCard = ({
   const afterOffice = new Date() > officeEnd
 
   return (
-    <div className="row-span-2 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
-      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-4">
-        <h2 className="text-lg font-semibold text-gray-800">
-          Today&apos;s Attendance
-        </h2>
+    <Widget
+      className="row-span-2 overflow-hidden"
+      header
+      title="Today's Attendance"
+      headerRight={
         <span className="inline-block rounded-full border border-blue-200 bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
           {new Date().toLocaleDateString()}
         </span>
-      </div>
+      }
+    >
       <div className="p-6">
         <div className="mb-6 text-center">
           <h3 className="mt-2 text-2xl font-bold text-gray-900">
@@ -397,7 +399,7 @@ const AttendanceCard = ({
           <span className="font-bold text-indigo-700">OH</span> = Overtime Hours
         </div>
       </div>
-    </div>
+    </Widget>
   )
 }
 

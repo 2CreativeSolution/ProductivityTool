@@ -10,7 +10,11 @@ import {
   AssetRequestDialog,
   ApprovalDialog,
 } from 'src/components/Dialog/Dialog'
-import { AdminDataTable, DataTableSelectFilterHeader } from 'src/components/ui'
+import {
+  AdminDataTable,
+  DataTableSelectFilterHeader,
+  buttonVariants,
+} from 'src/components/ui'
 
 const ASSETS_QUERY = gql`
   query AssetsQuery {
@@ -219,9 +223,18 @@ const DELETE_ASSET_MUTATION = gql`
   }
 `
 
-const AssetTracker = () => {
+const AssetTracker = ({
+  forcedTab = null,
+  hideHeader = false,
+  hideTabNavigation = false,
+  showHeaderRequestButton = true,
+  showRequestsInlineButton = true,
+  externalRequestDialogOpen,
+  onExternalRequestDialogChange,
+}) => {
   const { currentUser } = useAuth()
-  const [activeTab, setActiveTab] = useState('inventory')
+  const isAdmin = currentUser?.roles?.includes('ADMIN')
+  const [activeTabState, setActiveTabState] = useState('inventory')
   const [returnDialog, setReturnDialog] = useState({
     isOpen: false,
     assignment: null,
@@ -240,15 +253,19 @@ const AssetTracker = () => {
     data: assetsData,
     loading: assetsLoading,
     refetch: refetchAssets,
-  } = useQuery(ASSETS_QUERY)
+  } = useQuery(ASSETS_QUERY, { skip: !isAdmin })
   const { data: categoriesData, loading: categoriesLoading } = useQuery(
     ASSET_CATEGORIES_QUERY
   )
 
-  const isAdmin = currentUser?.roles?.includes('ADMIN')
+  const refetchAssetsSafe = (...args) =>
+    typeof refetchAssets === 'function'
+      ? refetchAssets(...args)
+      : Promise.resolve()
   const {
     data: assignmentsData,
     loading: assignmentsLoading,
+    error: assignmentsError,
     refetch: refetchAssignments,
   } = useQuery(isAdmin ? ACTIVE_ASSIGNMENTS_QUERY : MY_ASSIGNMENTS_QUERY)
   const {
@@ -257,10 +274,34 @@ const AssetTracker = () => {
     refetch: refetchRequests,
   } = useQuery(isAdmin ? ASSET_REQUESTS_QUERY : MY_ASSET_REQUESTS_QUERY)
 
+  const activeTab = forcedTab || activeTabState
+  const isRequestDialogControlled =
+    typeof externalRequestDialogOpen === 'boolean' &&
+    typeof onExternalRequestDialogChange === 'function'
+  const requestDialogIsOpen = isRequestDialogControlled
+    ? externalRequestDialogOpen
+    : requestDialog.isOpen
+
+  const openRequestDialog = () => {
+    if (isRequestDialogControlled) {
+      onExternalRequestDialogChange(true)
+      return
+    }
+    setRequestDialog({ isOpen: true })
+  }
+
+  const closeRequestDialog = () => {
+    if (isRequestDialogControlled) {
+      onExternalRequestDialogChange(false)
+      return
+    }
+    setRequestDialog({ isOpen: false })
+  }
+
   const [returnAsset] = useMutation(RETURN_ASSET_MUTATION, {
     onCompleted: () => {
       toast.success('Asset returned successfully')
-      refetchAssets()
+      refetchAssetsSafe()
       refetchAssignments()
     },
     onError: (error) => {
@@ -271,7 +312,7 @@ const AssetTracker = () => {
   const [deleteAsset] = useMutation(DELETE_ASSET_MUTATION, {
     onCompleted: (data) => {
       toast.success(`Asset ${data.deleteAsset.assetId} deleted successfully`)
-      refetchAssets()
+      refetchAssetsSafe()
       refetchAssignments()
     },
     onError: (error) => {
@@ -293,7 +334,7 @@ const AssetTracker = () => {
     onCompleted: () => {
       toast.success('Asset request approved successfully')
       refetchRequests()
-      refetchAssets()
+      refetchAssetsSafe()
       refetchAssignments()
     },
     onError: (error) => {
@@ -421,7 +462,7 @@ const AssetTracker = () => {
           input: requestData,
         },
       })
-      setRequestDialog({ isOpen: false })
+      closeRequestDialog()
     } catch (error) {
       console.error('Error creating request:', error)
     }
@@ -678,6 +719,327 @@ const AssetTracker = () => {
         ]
       : []),
   ]
+  const assignmentsTableData = isAdmin
+    ? assignmentsData?.activeAssetAssignments || []
+    : assignmentsData?.myAssetAssignments || []
+  const assignmentColumns = [
+    {
+      id: 'asset',
+      accessorFn: (row) => row.asset?.assetId || '',
+      header: 'Asset',
+      cell: ({ row }) => {
+        const assignment = row.original
+
+        return (
+          <div>
+            <div className="text-sm font-medium text-gray-900">
+              {assignment.asset?.assetId}
+            </div>
+            <div className="text-sm text-gray-500">
+              {assignment.asset?.name} - {assignment.asset?.model}
+            </div>
+            <div className="text-xs text-gray-400">
+              {assignment.asset?.category?.name || 'Uncategorized'}
+            </div>
+          </div>
+        )
+      },
+    },
+    ...(isAdmin
+      ? [
+          {
+            id: 'assignedTo',
+            accessorFn: (row) => row.user?.name || row.user?.email || '',
+            header: 'Assigned To',
+            cell: ({ row }) => (
+              <div>
+                <div className="text-sm font-medium text-gray-900">
+                  {row.original.user?.name || row.original.user?.email}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {row.original.user?.email}
+                </div>
+              </div>
+            ),
+          },
+        ]
+      : []),
+    {
+      accessorKey: 'department',
+      header: 'Department',
+      cell: ({ row }) =>
+        row.original.department ? (
+          <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+            {row.original.department}
+          </span>
+        ) : (
+          <span className="text-sm text-gray-400">Not specified</span>
+        ),
+    },
+    {
+      accessorKey: 'issueDate',
+      header: 'Issue Date',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {formatDate(row.original.issueDate)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'expectedReturnDate',
+      header: 'Expected Return',
+      cell: ({ row }) =>
+        row.original.expectedReturnDate ? (
+          <span
+            className={
+              new Date(row.original.expectedReturnDate) < new Date()
+                ? 'text-red-600'
+                : 'text-gray-500'
+            }
+          >
+            {formatDate(row.original.expectedReturnDate)}
+          </span>
+        ) : (
+          <span className="text-gray-400">No date set</span>
+        ),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      enableSorting: false,
+      cell: ({ row }) => (
+        <button
+          type="button"
+          onClick={() => handleReturnAsset(row.original.id)}
+          className={
+            isAdmin
+              ? 'text-indigo-600 hover:text-indigo-900'
+              : buttonVariants({ variant: 'outline', size: 'sm' })
+          }
+        >
+          {isAdmin ? 'Return Asset' : 'Return My Asset'}
+        </button>
+      ),
+    },
+  ]
+  const requestsTableData = isAdmin
+    ? requestsData?.assetRequests || []
+    : requestsData?.myAssetRequests || []
+  const renderRequestSortableHeader = (column, label) => {
+    const sorted = column.getIsSorted()
+    const indicator = sorted === 'asc' ? '↑' : sorted === 'desc' ? '↓' : '↕'
+
+    return (
+      <button
+        type="button"
+        className="inline-flex items-center gap-1 text-sm font-semibold text-white/90 transition hover:text-white"
+        onClick={() => column.toggleSorting(sorted === 'asc')}
+      >
+        <span>{label}</span>
+        <span className="text-xs text-white/70">{indicator}</span>
+      </button>
+    )
+  }
+
+  const requestColumns = [
+    {
+      accessorKey: 'reason',
+      header: 'Request Details',
+      cell: ({ row }) => {
+        const request = row.original
+
+        return (
+          <div>
+            <div className="mb-1 text-sm font-medium text-gray-900">
+              {request.reason}
+            </div>
+            {request.expectedDuration && (
+              <div className="text-xs text-gray-500">
+                Duration: {request.expectedDuration}
+              </div>
+            )}
+            {request.rejectionReason && (
+              <div className="mt-1 text-xs text-red-600">
+                Rejection: {request.rejectionReason}
+              </div>
+            )}
+            {request.fulfillmentNotes && (
+              <div className="mt-1 text-xs text-green-600">
+                Notes: {request.fulfillmentNotes}
+              </div>
+            )}
+          </div>
+        )
+      },
+    },
+    ...(isAdmin
+      ? [
+          {
+            id: 'requestedBy',
+            accessorFn: (row) => row.user?.name || row.user?.email || '',
+            header: 'Requested By',
+            cell: ({ row }) => (
+              <div>
+                <div className="text-sm font-medium text-gray-900">
+                  {row.original.user?.name || row.original.user?.email}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {row.original.user?.email}
+                </div>
+              </div>
+            ),
+          },
+        ]
+      : []),
+    {
+      id: 'assetType',
+      accessorFn: (row) =>
+        row.specificAsset?.assetId ||
+        row.assetCategory?.name ||
+        'Any available',
+      header: 'Asset Type',
+      cell: ({ row }) => {
+        const request = row.original
+
+        if (request.specificAsset) {
+          return (
+            <div>
+              <div className="text-sm font-medium text-gray-900">
+                {request.specificAsset.assetId}
+              </div>
+              <div className="text-sm text-gray-500">
+                {request.specificAsset.name} - {request.specificAsset.model}
+              </div>
+              <span className="mt-1 inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+                Specific Asset
+              </span>
+            </div>
+          )
+        }
+
+        if (request.assetCategory) {
+          return (
+            <div>
+              <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
+                {request.assetCategory.name}
+              </span>
+              <div className="mt-1 text-xs text-gray-500">Category Request</div>
+            </div>
+          )
+        }
+
+        return <span className="text-gray-400">Any available</span>
+      },
+    },
+    {
+      accessorKey: 'urgency',
+      header: ({ column }) => renderRequestSortableHeader(column, 'Urgency'),
+      sortingFn: (rowA, rowB, columnId) => {
+        const urgencyRank = {
+          Critical: 0,
+          High: 1,
+          Medium: 2,
+          Low: 3,
+        }
+        const a =
+          urgencyRank[rowA.getValue(columnId)] ?? Number.MAX_SAFE_INTEGER
+        const b =
+          urgencyRank[rowB.getValue(columnId)] ?? Number.MAX_SAFE_INTEGER
+        return a - b
+      },
+      cell: ({ row }) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            row.original.urgency === 'Critical'
+              ? 'bg-red-100 text-red-800'
+              : row.original.urgency === 'High'
+                ? 'bg-orange-100 text-orange-800'
+                : row.original.urgency === 'Medium'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-green-100 text-green-800'
+          }`}
+        >
+          {row.original.urgency}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => renderRequestSortableHeader(column, 'Status'),
+      sortingFn: (rowA, rowB, columnId) => {
+        const statusRank = {
+          Pending: 0,
+          Approved: 1,
+          Fulfilled: 2,
+          Rejected: 3,
+        }
+        const a = statusRank[rowA.getValue(columnId)] ?? Number.MAX_SAFE_INTEGER
+        const b = statusRank[rowB.getValue(columnId)] ?? Number.MAX_SAFE_INTEGER
+        return a - b
+      },
+      cell: ({ row }) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            row.original.status === 'Pending'
+              ? 'bg-yellow-100 text-yellow-800'
+              : row.original.status === 'Approved'
+                ? 'bg-blue-100 text-blue-800'
+                : row.original.status === 'Fulfilled'
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+          }`}
+        >
+          {row.original.status}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Date Requested',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {formatDate(row.original.createdAt)}
+        </span>
+      ),
+    },
+    ...(isAdmin
+      ? [
+          {
+            id: 'actions',
+            header: 'Actions',
+            enableSorting: false,
+            cell: ({ row }) => {
+              const request = row.original
+
+              if (request.status !== 'Pending') {
+                return <span className="text-gray-400">-</span>
+              }
+
+              return (
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setApprovalDialog({ isOpen: true, request })}
+                    className="text-green-600 hover:text-green-900"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleRejectRequest(request.id, 'Rejected by admin')
+                    }
+                    className="text-red-600 hover:text-red-900"
+                  >
+                    Reject
+                  </button>
+                </div>
+              )
+            },
+          },
+        ]
+      : []),
+  ]
 
   if (assetsLoading || categoriesLoading) {
     return (
@@ -691,60 +1053,68 @@ const AssetTracker = () => {
   return (
     <div className="w-full">
       <div className="w-full">
-        {/* Header */}
-        <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-          <div className="mb-6 flex items-start justify-between">
-            <div>
-              <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent">
-                Asset Management
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Track and manage company assets and assignments
-              </p>
+        {!hideHeader && (
+          <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
+            <div className="mb-6 flex items-start justify-between">
+              <div>
+                <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-4xl font-bold text-transparent">
+                  Asset Management
+                </h1>
+                <p className="mt-2 text-gray-600">
+                  Track and manage company assets and assignments
+                </p>
+              </div>
+              {showHeaderRequestButton && (
+                <button
+                  type="button"
+                  onClick={openRequestDialog}
+                  className="flex transform items-center space-x-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
+                >
+                  <i className="ri-add-line text-lg"></i>
+                  <span>Request Asset</span>
+                </button>
+              )}
             </div>
-            <button
-              onClick={() => setRequestDialog({ isOpen: true })}
-              className="flex transform items-center space-x-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
-            >
-              <i className="ri-add-line text-lg"></i>
-              <span>Request Asset</span>
-            </button>
-          </div>
 
-          {/* Tab Navigation */}
-          <div className="mb-6 flex space-x-6 border-b border-white/20 pb-4">
-            <button
-              onClick={() => setActiveTab('inventory')}
-              className={`border-b-2 pb-2 font-medium transition-colors duration-200 ${
-                activeTab === 'inventory'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:border-blue-600 hover:text-blue-600'
-              }`}
-            >
-              Asset Inventory
-            </button>
-            <button
-              onClick={() => setActiveTab('assignments')}
-              className={`border-b-2 pb-2 font-medium transition-colors duration-200 ${
-                activeTab === 'assignments'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:border-blue-600 hover:text-blue-600'
-              }`}
-            >
-              {isAdmin ? 'Active Assignments' : 'My Assets'}
-            </button>
-            <button
-              onClick={() => setActiveTab('requests')}
-              className={`border-b-2 pb-2 font-medium transition-colors duration-200 ${
-                activeTab === 'requests'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:border-blue-600 hover:text-blue-600'
-              }`}
-            >
-              {isAdmin ? 'Asset Requests' : 'My Requests'}
-            </button>
+            {!hideTabNavigation && (
+              <div className="mb-6 flex space-x-6 border-b border-white/20 pb-4">
+                <button
+                  type="button"
+                  onClick={() => setActiveTabState('inventory')}
+                  className={`border-b-2 pb-2 font-medium transition-colors duration-200 ${
+                    activeTab === 'inventory'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:border-blue-600 hover:text-blue-600'
+                  }`}
+                >
+                  Asset Inventory
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTabState('assignments')}
+                  className={`border-b-2 pb-2 font-medium transition-colors duration-200 ${
+                    activeTab === 'assignments'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:border-blue-600 hover:text-blue-600'
+                  }`}
+                >
+                  {isAdmin ? 'Active Assignments' : 'My Assets'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTabState('requests')}
+                  className={`border-b-2 pb-2 font-medium transition-colors duration-200 ${
+                    activeTab === 'requests'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:border-blue-600 hover:text-blue-600'
+                  }`}
+                >
+                  {isAdmin ? 'Asset Requests' : 'My Requests'}
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
         {/* Asset Inventory Tab */}
         {activeTab === 'inventory' && (
@@ -763,7 +1133,12 @@ const AssetTracker = () => {
         {/* Active Assignments Tab */}
         {activeTab === 'assignments' && (
           <>
-            {assignmentsLoading ? (
+            {assignmentsError ? (
+              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                Failed to load assignments. Please refresh the page and try
+                again.
+              </div>
+            ) : assignmentsLoading ? (
               <div className="flex items-center justify-center p-8">
                 <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-blue-600"></div>
                 <span className="ml-2 text-gray-600">
@@ -771,130 +1146,16 @@ const AssetTracker = () => {
                 </span>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Asset
-                      </th>
-                      {isAdmin && (
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                          Assigned To
-                        </th>
-                      )}
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Department
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Issue Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Expected Return
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {(isAdmin
-                      ? assignmentsData?.activeAssetAssignments
-                      : assignmentsData?.myAssetAssignments
-                    )?.map((assignment) => (
-                      <tr key={assignment.id} className="hover:bg-gray-50">
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {assignment.asset.assetId}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {assignment.asset.name} - {assignment.asset.model}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              {assignment.asset.category.name}
-                            </div>
-                          </div>
-                        </td>
-                        {isAdmin && (
-                          <td className="whitespace-nowrap px-6 py-4">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {assignment.user.name || assignment.user.email}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {assignment.user.email}
-                              </div>
-                            </div>
-                          </td>
-                        )}
-                        <td className="whitespace-nowrap px-6 py-4">
-                          {assignment.department ? (
-                            <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
-                              {assignment.department}
-                            </span>
-                          ) : (
-                            <span className="text-sm text-gray-400">
-                              Not specified
-                            </span>
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {formatDate(assignment.issueDate)}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {assignment.expectedReturnDate ? (
-                            <span
-                              className={
-                                new Date(assignment.expectedReturnDate) <
-                                new Date()
-                                  ? 'text-red-600'
-                                  : 'text-gray-500'
-                              }
-                            >
-                              {formatDate(assignment.expectedReturnDate)}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">No date set</span>
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                          {isAdmin ? (
-                            <button
-                              onClick={() => handleReturnAsset(assignment.id)}
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              Return Asset
-                            </button>
-                          ) : parseInt(assignment.user.id) ===
-                            parseInt(currentUser?.id) ? (
-                            <button
-                              onClick={() => handleReturnAsset(assignment.id)}
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              Return My Asset
-                            </button>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {(isAdmin
-              ? assignmentsData?.activeAssetAssignments
-              : assignmentsData?.myAssetAssignments
-            )?.length === 0 && (
-              <div className="py-8 text-center">
-                <p className="text-gray-500">
-                  {isAdmin
-                    ? 'No active asset assignments found.'
-                    : "You don't have any assigned assets."}
-                </p>
+              <div className="overflow-hidden rounded-md border bg-white">
+                <AdminDataTable
+                  columns={assignmentColumns}
+                  data={assignmentsTableData}
+                  emptyMessage={
+                    isAdmin
+                      ? 'No active asset assignments found.'
+                      : "You don't have any assigned assets."
+                  }
+                />
               </div>
             )}
           </>
@@ -904,10 +1165,11 @@ const AssetTracker = () => {
         {activeTab === 'requests' && (
           <>
             {/* Request Action Button */}
-            {!isAdmin && (
+            {!isAdmin && showRequestsInlineButton && (
               <div className="mb-6">
                 <button
-                  onClick={() => setRequestDialog({ isOpen: true })}
+                  type="button"
+                  onClick={openRequestDialog}
                   className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                 >
                   Request Asset
@@ -921,181 +1183,16 @@ const AssetTracker = () => {
                 <span className="ml-2 text-gray-600">Loading requests...</span>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Request Details
-                      </th>
-                      {isAdmin && (
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                          Requested By
-                        </th>
-                      )}
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Asset Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Urgency
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Date Requested
-                      </th>
-                      {isAdmin && (
-                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                          Actions
-                        </th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {(isAdmin
-                      ? requestsData?.assetRequests
-                      : requestsData?.myAssetRequests
-                    )?.map((request) => (
-                      <tr key={request.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
-                          <div>
-                            <div className="mb-1 text-sm font-medium text-gray-900">
-                              {request.reason}
-                            </div>
-                            {request.expectedDuration && (
-                              <div className="text-xs text-gray-500">
-                                Duration: {request.expectedDuration}
-                              </div>
-                            )}
-                            {request.rejectionReason && (
-                              <div className="mt-1 text-xs text-red-600">
-                                Rejection: {request.rejectionReason}
-                              </div>
-                            )}
-                            {request.fulfillmentNotes && (
-                              <div className="mt-1 text-xs text-green-600">
-                                Notes: {request.fulfillmentNotes}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        {isAdmin && (
-                          <td className="whitespace-nowrap px-6 py-4">
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {request.user.name || request.user.email}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {request.user.email}
-                              </div>
-                            </div>
-                          </td>
-                        )}
-                        <td className="whitespace-nowrap px-6 py-4">
-                          {request.specificAsset ? (
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {request.specificAsset.assetId}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {request.specificAsset.name} -{' '}
-                                {request.specificAsset.model}
-                              </div>
-                              <span className="mt-1 inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
-                                Specific Asset
-                              </span>
-                            </div>
-                          ) : request.assetCategory ? (
-                            <div>
-                              <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
-                                {request.assetCategory.name}
-                              </span>
-                              <div className="mt-1 text-xs text-gray-500">
-                                Category Request
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">Any available</span>
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                              request.urgency === 'Critical'
-                                ? 'bg-red-100 text-red-800'
-                                : request.urgency === 'High'
-                                  ? 'bg-orange-100 text-orange-800'
-                                  : request.urgency === 'Medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-green-100 text-green-800'
-                            }`}
-                          >
-                            {request.urgency}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                              request.status === 'Pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : request.status === 'Approved'
-                                  ? 'bg-blue-100 text-blue-800'
-                                  : request.status === 'Fulfilled'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {request.status}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {formatDate(request.createdAt)}
-                        </td>
-                        {isAdmin && (
-                          <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                            {request.status === 'Pending' && (
-                              <div className="flex space-x-2">
-                                <button
-                                  onClick={() =>
-                                    setApprovalDialog({ isOpen: true, request })
-                                  }
-                                  className="text-green-600 hover:text-green-900"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleRejectRequest(
-                                      request.id,
-                                      'Rejected by admin'
-                                    )
-                                  }
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {(isAdmin
-              ? requestsData?.assetRequests
-              : requestsData?.myAssetRequests
-            )?.length === 0 && (
-              <div className="py-8 text-center">
-                <p className="text-gray-500">
-                  {isAdmin
-                    ? 'No asset requests found.'
-                    : "You haven't made any asset requests yet."}
-                </p>
+              <div className="overflow-hidden rounded-md border bg-white">
+                <AdminDataTable
+                  columns={requestColumns}
+                  data={requestsTableData}
+                  emptyMessage={
+                    isAdmin
+                      ? 'No asset requests found.'
+                      : "You haven't made any asset requests yet."
+                  }
+                />
               </div>
             )}
           </>
@@ -1130,8 +1227,8 @@ const AssetTracker = () => {
 
         {/* Asset Request Dialog */}
         <AssetRequestDialog
-          isOpen={requestDialog.isOpen}
-          onClose={() => setRequestDialog({ isOpen: false })}
+          isOpen={requestDialogIsOpen}
+          onClose={closeRequestDialog}
           onSubmit={handleCreateRequest}
           categories={categoriesData?.assetCategories || []}
           assets={assetsData?.assets || []}
