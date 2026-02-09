@@ -26,6 +26,7 @@ import { toast } from '@redwoodjs/web/toast'
 import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import PageHeader from 'src/components/PageHeader/PageHeader'
+import { SummaryMetricCard } from 'src/components/ui'
 import { buttonVariants } from 'src/components/ui/button'
 
 const GET_MY_SUPPLY_REQUESTS = gql`
@@ -229,6 +230,19 @@ const SupplyRequestManager = () => {
       acc[request.status] = (acc[request.status] || 0) + 1
       return acc
     }, {}) || {}
+  const totalRequests = requestsData?.mySupplyRequests?.length || 0
+  const pendingCount = statusCounts.PENDING || 0
+  const approvedCount = statusCounts.APPROVED || 0
+  const rejectedCount = statusCounts.REJECTED || 0
+  const pendingRate = totalRequests
+    ? Math.round((pendingCount / totalRequests) * 100)
+    : 0
+  const approvedRate = totalRequests
+    ? Math.round((approvedCount / totalRequests) * 100)
+    : 0
+  const rejectedRate = totalRequests
+    ? Math.round((rejectedCount / totalRequests) * 100)
+    : 0
 
   return (
     <>
@@ -247,68 +261,43 @@ const SupplyRequestManager = () => {
           </button>
         </PageHeader>
 
-        {/* Header Support Content */}
-        <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-          {/* Stats */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-blue-100 p-3">
-                  <DocumentTextIcon className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
-                    Total Requests
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {requestsData?.mySupplyRequests?.length || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Stats */}
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <SummaryMetricCard
+            size="sm"
+            title="Total Requests"
+            value={totalRequests.toLocaleString('en-US')}
+            subtitle="Submitted requests"
+            icon={<DocumentTextIcon />}
+            trend={{ direction: 'neutral', label: 'all' }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-yellow-100 p-3">
-                  <ClockIcon className="h-6 w-6 text-yellow-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {statusCounts.PENDING || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Pending"
+            value={pendingCount.toLocaleString('en-US')}
+            subtitle="Waiting for review"
+            icon={<ClockIcon />}
+            trend={{ direction: 'neutral', label: `${pendingRate}%` }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-green-100 p-3">
-                  <CheckCircleIcon className="h-6 w-6 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Approved</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {statusCounts.APPROVED || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Approved"
+            value={approvedCount.toLocaleString('en-US')}
+            subtitle="Accepted requests"
+            icon={<CheckCircleIcon />}
+            trend={{ direction: 'positive', label: `${approvedRate}%` }}
+          />
 
-            <div className="rounded-xl border border-white/20 bg-white/50 p-4 backdrop-blur-sm">
-              <div className="flex items-center">
-                <div className="rounded-lg bg-red-100 p-3">
-                  <XCircleIcon className="h-6 w-6 text-red-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Rejected</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {statusCounts.REJECTED || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SummaryMetricCard
+            size="sm"
+            title="Rejected"
+            value={rejectedCount.toLocaleString('en-US')}
+            subtitle="Declined requests"
+            icon={<XCircleIcon />}
+            trend={{ direction: 'negative', label: `${rejectedRate}%` }}
+          />
         </div>
 
         {/* Request Form Modal */}
