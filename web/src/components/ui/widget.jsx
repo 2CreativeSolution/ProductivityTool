@@ -10,9 +10,14 @@ const widgetVariants = cva('rounded-2xl border border-gray-200 bg-white', {
       true: 'shadow-lg',
       false: '',
     },
+    mode: {
+      regular: '',
+      compact: 'p-0',
+    },
   },
   defaultVariants: {
     shadow: false,
+    mode: 'regular',
   },
 })
 
@@ -25,6 +30,7 @@ const Widget = forwardRef(
     {
       className,
       shadow = false,
+      mode = 'regular',
       header = false,
       headerContent,
       title,
@@ -58,7 +64,7 @@ const Widget = forwardRef(
     return (
       <section
         ref={ref}
-        className={cn(widgetVariants({ shadow }), className)}
+        className={cn(widgetVariants({ shadow, mode }), className)}
         {...props}
       >
         {shouldRenderHeader ? renderedHeader : null}

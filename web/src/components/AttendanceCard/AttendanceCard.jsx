@@ -226,7 +226,7 @@ const AttendanceCard = ({
         )}
         {afterOffice && !overtimeToday?.clockIn && (
           <button
-            className="w-full rounded-lg bg-indigo-500 py-3 text-lg font-semibold text-white shadow transition hover:bg-indigo-600 disabled:opacity-50"
+            className={`${buttonVariants({ variant: 'primary' })} w-full text-lg`}
             onClick={onOvertimeClockIn}
             disabled={loading}
           >

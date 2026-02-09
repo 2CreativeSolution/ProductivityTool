@@ -13,6 +13,7 @@ import AttendanceCard from 'src/components/AttendanceCard/AttendanceCard'
 import PageHeader from 'src/components/PageHeader/PageHeader'
 import { SummaryMetricCard } from 'src/components/ui'
 import UpcomingBookings from 'src/components/UpcomingBookings/UpcomingBookings'
+import { parseBookingDateTime } from 'src/lib/bookingDateTime'
 
 const CLOCK_IN_MUTATION = gql`
   mutation ClockIn($userId: Int!, $date: DateTime!, $clockIn: DateTime!) {
@@ -273,9 +274,10 @@ const DashboardPage = () => {
   const todayAttendance =
     weeklyAttendances.find((a) => a.date.startsWith(utcDateString)) || null
 
-  const upcomingBookingsCount = bookings.filter(
-    (booking) => new Date(booking.endTime) > now
-  ).length
+  const upcomingBookingsCount = bookings.filter((booking) => {
+    const bookingEndTime = parseBookingDateTime(booking.endTime)
+    return bookingEndTime && bookingEndTime > now
+  }).length
   const weeklyAttendanceCount = weeklyAttendances.filter((attendance) =>
     Boolean(attendance.clockIn)
   ).length
@@ -285,6 +287,7 @@ const DashboardPage = () => {
   const approvedVacationCount = vacationRequests.filter(
     (request) => request.status === 'Approved'
   ).length
+  const totalVacationCount = vacationRequests.length
   const activeVacationCount = vacationRequests.filter((request) => {
     if (request.status !== 'Approved') {
       return false
@@ -341,15 +344,15 @@ const DashboardPage = () => {
     {
       key: 'vacation',
       to: routes.meVacation(),
-      title: 'Vacation Planner',
-      value: vacationSummaryLoading ? '...' : approvedVacationCount.toString(),
+      title: 'Vacation Requests',
+      value: vacationSummaryLoading ? '...' : totalVacationCount.toString(),
       subtitle: vacationSummaryLoading
-        ? 'Pending requests'
-        : `Pending requests: ${pendingVacationCount}`,
+        ? 'Approved and pending requests'
+        : `Approved: ${approvedVacationCount} | Pending: ${pendingVacationCount}`,
       icon: <Plane />,
       trend: {
         direction: activeVacationCount > 0 ? 'positive' : 'neutral',
-        label: `Active: ${activeVacationCount}`,
+        label: `Active now: ${activeVacationCount}`,
         showIcon: false,
       },
     },

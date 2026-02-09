@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import {
   ArrowPathIcon,
@@ -11,12 +11,7 @@ import { useQuery, gql } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
 import { Input } from 'src/components/Forms/Input/Input'
-import {
-  AdminDataTable,
-  Button,
-  SummaryMetricCard,
-  Widget,
-} from 'src/components/ui'
+import { AdminDataTable, Button, SummaryMetricCard } from 'src/components/ui'
 
 const USER_ASSET_REPORT_QUERY = gql`
   query UserAssetReport($startDate: DateTime, $endDate: DateTime) {
@@ -188,6 +183,11 @@ const AssetReports = ({
   onBackToEmployees,
   onBackToDepartments,
   hideAdminTabs = false,
+  hideMyInlineExportButton = false,
+  onMyReportExportReady,
+  hideOverviewInlineExportButton = false,
+  onOverviewExportReady,
+  onEmployeeReportExportReady,
 }) => {
   const { currentUser } = useAuth()
   const [reportDateRange, setReportDateRange] = useState({
@@ -422,6 +422,274 @@ const AssetReports = ({
     },
   ]
 
+  const overviewCategoryColumns = [
+    {
+      accessorKey: 'categoryName',
+      header: 'Category',
+      cell: ({ row }) => (
+        <span className="text-sm font-medium text-gray-900">
+          {row.original.categoryName}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'count',
+      header: 'Total',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">{row.original.count}</span>
+      ),
+    },
+    {
+      accessorKey: 'activeCount',
+      header: 'Active',
+      cell: ({ row }) => (
+        <span className="text-sm text-green-600">
+          {row.original.activeCount}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'returnedCount',
+      header: 'Returned',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {row.original.returnedCount}
+        </span>
+      ),
+    },
+  ]
+
+  const overviewAssignmentColumns = [
+    {
+      id: 'asset',
+      header: 'Asset',
+      cell: ({ row }) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {row.original.asset.assetId}
+          </div>
+          <div className="text-sm text-gray-500">
+            {row.original.asset.name} - {row.original.asset.model}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'category',
+      header: 'Category',
+      cell: ({ row }) => (
+        <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
+          {row.original.asset.category.name}
+        </span>
+      ),
+    },
+    {
+      id: 'user',
+      header: 'User',
+      cell: ({ row }) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {row.original.user?.name || row.original.user?.email || 'N/A'}
+          </div>
+          {row.original.user?.email && row.original.user?.name && (
+            <div className="text-sm text-gray-500">
+              {row.original.user.email}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'department',
+      header: 'Department',
+      cell: ({ row }) =>
+        row.original.department ? (
+          <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+            {row.original.department}
+          </span>
+        ) : (
+          <span className="text-sm text-gray-400">Not specified</span>
+        ),
+    },
+    {
+      accessorKey: 'issueDate',
+      header: 'Issue Date',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {formatDate(row.original.issueDate)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'returnDate',
+      header: 'Return Date',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {row.original.returnDate ? formatDate(row.original.returnDate) : '-'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            row.original.status === 'Active'
+              ? 'bg-green-100 text-green-800'
+              : row.original.status === 'Returned'
+                ? 'bg-gray-100 text-gray-800'
+                : 'bg-yellow-100 text-yellow-800'
+          }`}
+        >
+          {row.original.status}
+        </span>
+      ),
+    },
+  ]
+
+  const employeesWithAssetHistory = (allUsersData?.users || []).filter(
+    (user) => (user.assetAssignments?.length || 0) > 0
+  )
+
+  const employeeListColumns = [
+    {
+      id: 'employee',
+      accessorFn: (row) => row.name || row.email || '',
+      header: 'Employee',
+      cell: ({ row }) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {row.original.name || row.original.email}
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'email',
+      header: 'Email',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">{row.original.email}</span>
+      ),
+    },
+    {
+      id: 'activeAssets',
+      accessorFn: (row) =>
+        row.assetAssignments?.filter(
+          (assignment) => assignment.status === 'Active'
+        ).length || 0,
+      header: 'Active Assets',
+      cell: ({ row }) => (
+        <span className="text-sm font-semibold text-blue-600">
+          {row.original.assetAssignments?.filter(
+            (assignment) => assignment.status === 'Active'
+          ).length || 0}
+        </span>
+      ),
+    },
+    {
+      id: 'totalAssignments',
+      accessorFn: (row) => row.assetAssignments?.length || 0,
+      header: 'Total Assignments',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {row.original.assetAssignments?.length || 0}
+        </span>
+      ),
+    },
+    {
+      id: 'actions',
+      header: () => <div className="text-right">Actions</div>,
+      enableSorting: false,
+      cell: ({ row }) => (
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleUserSelect(row.original)}
+          >
+            View Report
+          </Button>
+        </div>
+      ),
+    },
+  ]
+
+  const employeeAssignmentHistoryColumns = [
+    {
+      id: 'asset',
+      header: 'Asset',
+      cell: ({ row }) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {row.original.asset.assetId}
+          </div>
+          <div className="text-sm text-gray-500">
+            {row.original.asset.name} - {row.original.asset.model}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'category',
+      header: 'Category',
+      cell: ({ row }) => (
+        <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
+          {row.original.asset.category.name}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'issueDate',
+      header: 'Issue Date',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {formatDate(row.original.issueDate)}
+        </span>
+      ),
+    },
+    {
+      id: 'returnDate',
+      header: 'Return Date',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {row.original.returnDate
+            ? formatDate(row.original.returnDate)
+            : row.original.expectedReturnDate
+              ? `Expected: ${formatDate(row.original.expectedReturnDate)}`
+              : 'Not set'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            row.original.status === 'Active'
+              ? 'bg-green-100 text-green-800'
+              : row.original.status === 'Returned'
+                ? 'bg-blue-100 text-blue-800'
+                : 'bg-gray-100 text-gray-800'
+          }`}
+        >
+          {row.original.status}
+        </span>
+      ),
+    },
+    {
+      id: 'value',
+      header: 'Value',
+      cell: ({ row }) => (
+        <span className="text-sm text-gray-500">
+          {formatCurrency(row.original.asset.purchasePrice)}
+        </span>
+      ),
+    },
+  ]
+
   const getDepartmentAssets = () => {
     if (!departmentData?.assetAssignments || !resolvedSelectedDepartment) {
       return []
@@ -443,54 +711,129 @@ const AssetReports = ({
     return Array.from(departments).sort()
   }
 
-  const exportToCSV = (data, filename) => {
-    if (!data?.length) return
+  const exportToCSV = useCallback(
+    (data, filename) => {
+      if (!data?.length) return
 
-    const headers = [
-      'Asset ID',
-      'Asset Name',
-      'Category',
-      isAdmin ? 'Employee' : '',
-      isAdmin ? 'Email' : '',
-      'Department',
-      'Issue Date',
-      'Expected Return',
-      'Return Date',
-      'Status',
-      'Value',
-    ].filter(Boolean)
+      const headers = [
+        'Asset ID',
+        'Asset Name',
+        'Category',
+        isAdmin ? 'Employee' : '',
+        isAdmin ? 'Email' : '',
+        'Department',
+        'Issue Date',
+        'Expected Return',
+        'Return Date',
+        'Status',
+        'Value',
+      ].filter(Boolean)
 
-    const csvContent = [
-      headers.join(','),
-      ...data.map((assignment) =>
-        [
-          assignment.asset.assetId,
-          `"${assignment.asset.name}"`,
-          assignment.asset.category.name,
-          isAdmin
-            ? `"${assignment.user?.name || assignment.user?.email || 'N/A'}"`
-            : '',
-          isAdmin ? assignment.user?.email || 'N/A' : '',
-          assignment.department || 'N/A',
-          formatDate(assignment.issueDate),
-          formatDate(assignment.expectedReturnDate),
-          formatDate(assignment.returnDate),
-          assignment.status,
-          assignment.asset.purchasePrice || 0,
-        ]
-          .filter((_, index) => isAdmin || ![3, 4].includes(index))
-          .join(',')
-      ),
-    ].join('\n')
+      const csvContent = [
+        headers.join(','),
+        ...data.map((assignment) =>
+          [
+            assignment.asset.assetId,
+            `"${assignment.asset.name}"`,
+            assignment.asset.category.name,
+            isAdmin
+              ? `"${assignment.user?.name || assignment.user?.email || 'N/A'}"`
+              : '',
+            isAdmin ? assignment.user?.email || 'N/A' : '',
+            assignment.department || 'N/A',
+            formatDate(assignment.issueDate),
+            formatDate(assignment.expectedReturnDate),
+            formatDate(assignment.returnDate),
+            assignment.status,
+            assignment.asset.purchasePrice || 0,
+          ]
+            .filter((_, index) => isAdmin || ![3, 4].includes(index))
+            .join(',')
+        ),
+      ].join('\n')
 
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    a.click()
-    window.URL.revokeObjectURL(url)
-  }
+      const blob = new Blob([csvContent], { type: 'text/csv' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      a.click()
+      window.URL.revokeObjectURL(url)
+    },
+    [isAdmin]
+  )
+
+  const exportMyReportCSV = useCallback(() => {
+    if (!report?.assignments?.length) return
+
+    exportToCSV(
+      report.assignments.map((assignment) => ({
+        ...assignment,
+        user: currentUser,
+      })),
+      `my-asset-report-${reportDateRange.startDate}-to-${reportDateRange.endDate}.csv`
+    )
+  }, [
+    currentUser,
+    exportToCSV,
+    report?.assignments,
+    reportDateRange.endDate,
+    reportDateRange.startDate,
+  ])
+
+  useEffect(() => {
+    if (typeof onMyReportExportReady !== 'function') return
+    onMyReportExportReady(exportMyReportCSV)
+    return () => onMyReportExportReady(null)
+  }, [exportMyReportCSV, onMyReportExportReady])
+
+  const exportOverviewReportCSV = useCallback(() => {
+    if (!report?.assignments?.length) return
+
+    exportToCSV(
+      report.assignments,
+      `all-users-report-${reportDateRange.startDate}-to-${reportDateRange.endDate}.csv`
+    )
+  }, [
+    exportToCSV,
+    report?.assignments,
+    reportDateRange.endDate,
+    reportDateRange.startDate,
+  ])
+
+  useEffect(() => {
+    if (typeof onOverviewExportReady !== 'function') return
+    onOverviewExportReady(exportOverviewReportCSV)
+    return () => onOverviewExportReady(null)
+  }, [exportOverviewReportCSV, onOverviewExportReady])
+
+  const exportEmployeeReportCSV = useCallback(() => {
+    if (!selectedUserData?.user?.assetAssignments?.length) return
+
+    exportToCSV(
+      selectedUserData.user.assetAssignments.map((assignment) => ({
+        ...assignment,
+        user: selectedUserData.user,
+      })),
+      `${selectedUserData.user.name || 'user'}-asset-report-${new Date().toISOString().split('T')[0]}.csv`
+    )
+  }, [exportToCSV, selectedUserData?.user])
+
+  useEffect(() => {
+    if (typeof onEmployeeReportExportReady !== 'function') return
+
+    if (!selectedUserData?.user?.assetAssignments?.length) {
+      onEmployeeReportExportReady(null)
+      return () => onEmployeeReportExportReady(null)
+    }
+
+    onEmployeeReportExportReady(exportEmployeeReportCSV)
+    return () => onEmployeeReportExportReady(null)
+  }, [
+    exportEmployeeReportCSV,
+    onEmployeeReportExportReady,
+    selectedUserData?.user?.assetAssignments?.length,
+  ])
 
   if (reportLoading || (isAdmin && usersLoading)) {
     return (
@@ -547,74 +890,6 @@ const AssetReports = ({
       {/* Regular User Report */}
       {!isAdmin && (
         <>
-          {/* Date Range Filters */}
-          <Widget className="mb-8 pt-4">
-            <div className="flex flex-wrap items-end gap-4 px-6 pb-4">
-              <div className="min-w-[180px] flex-1">
-                <label
-                  htmlFor="asset-report-start-date"
-                  className="mb-2 block text-sm font-semibold text-gray-700"
-                >
-                  Start Date
-                </label>
-                <Input
-                  framework="native"
-                  size="sm"
-                  id="asset-report-start-date"
-                  type="date"
-                  value={reportDateRange.startDate}
-                  onChange={(e) =>
-                    handleReportDateChange('startDate', e.target.value)
-                  }
-                />
-              </div>
-              <div className="min-w-[180px] flex-1">
-                <label
-                  htmlFor="asset-report-end-date"
-                  className="mb-2 block text-sm font-semibold text-gray-700"
-                >
-                  End Date
-                </label>
-                <Input
-                  framework="native"
-                  size="sm"
-                  id="asset-report-end-date"
-                  type="date"
-                  value={reportDateRange.endDate}
-                  onChange={(e) =>
-                    handleReportDateChange('endDate', e.target.value)
-                  }
-                />
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  onClick={handleGenerateReport}
-                  variant="primary"
-                  size="sm"
-                >
-                  Update Table
-                </Button>
-                {report?.assignments?.length > 0 && (
-                  <Button
-                    onClick={() =>
-                      exportToCSV(
-                        report.assignments.map((assignment) => ({
-                          ...assignment,
-                          user: currentUser,
-                        })),
-                        `my-asset-report-${reportDateRange.startDate}-to-${reportDateRange.endDate}.csv`
-                      )
-                    }
-                    variant="primaryOutline"
-                    size="sm"
-                  >
-                    Export CSV
-                  </Button>
-                )}
-              </div>
-            </div>
-          </Widget>
-
           {/* User Report Content */}
           {report && (
             <>
@@ -625,9 +900,68 @@ const AssetReports = ({
 
               {/* Assignment History */}
               <div>
-                <h4 className="mb-4 text-lg font-semibold text-gray-900">
-                  My Assignment History
-                </h4>
+                <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+                  <h4 className="text-lg font-semibold text-gray-900">
+                    My Assignment History
+                  </h4>
+                  <div className="flex flex-wrap items-end justify-end gap-3">
+                    <div className="w-48">
+                      <label
+                        htmlFor="asset-report-start-date"
+                        className="mb-2 block text-sm font-semibold text-gray-700"
+                      >
+                        Start Date
+                      </label>
+                      <Input
+                        framework="native"
+                        size="sm"
+                        id="asset-report-start-date"
+                        type="date"
+                        value={reportDateRange.startDate}
+                        onChange={(e) =>
+                          handleReportDateChange('startDate', e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="w-48">
+                      <label
+                        htmlFor="asset-report-end-date"
+                        className="mb-2 block text-sm font-semibold text-gray-700"
+                      >
+                        End Date
+                      </label>
+                      <Input
+                        framework="native"
+                        size="sm"
+                        id="asset-report-end-date"
+                        type="date"
+                        value={reportDateRange.endDate}
+                        onChange={(e) =>
+                          handleReportDateChange('endDate', e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        onClick={handleGenerateReport}
+                        variant="primary"
+                        size="sm"
+                      >
+                        Update Table
+                      </Button>
+                      {report?.assignments?.length > 0 &&
+                        !hideMyInlineExportButton && (
+                          <Button
+                            onClick={exportMyReportCSV}
+                            variant="primaryOutline"
+                            size="sm"
+                          >
+                            Export CSV
+                          </Button>
+                        )}
+                    </div>
+                  </div>
+                </div>
                 <AdminDataTable
                   className="overflow-hidden rounded-md border bg-white"
                   columns={myAssignmentHistoryColumns}
@@ -647,65 +981,65 @@ const AssetReports = ({
           {activeReportTab === 'overview' && (
             <>
               {/* Date Range Filters */}
-              <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                <h3 className="mb-4 text-lg font-semibold text-gray-900">
+              <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+                <h3 className="text-lg font-semibold text-gray-900">
                   Report Filters
                 </h3>
-                <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
-                  <div>
+                <div className="flex flex-wrap items-end justify-end gap-3">
+                  <div className="w-48">
                     <label
                       htmlFor="asset-admin-report-start-date"
                       className="mb-2 block text-sm font-semibold text-gray-700"
                     >
                       Start Date
                     </label>
-                    <input
+                    <Input
+                      framework="native"
+                      size="sm"
                       id="asset-admin-report-start-date"
                       type="date"
                       value={reportDateRange.startDate}
                       onChange={(e) =>
                         handleReportDateChange('startDate', e.target.value)
                       }
-                      className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  <div>
+                  <div className="w-48">
                     <label
                       htmlFor="asset-admin-report-end-date"
                       className="mb-2 block text-sm font-semibold text-gray-700"
                     >
                       End Date
                     </label>
-                    <input
+                    <Input
+                      framework="native"
+                      size="sm"
                       id="asset-admin-report-end-date"
                       type="date"
                       value={reportDateRange.endDate}
                       onChange={(e) =>
                         handleReportDateChange('endDate', e.target.value)
                       }
-                      className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
-                  <div className="flex space-x-2">
-                    <button
+                  <div className="flex flex-wrap gap-3">
+                    <Button
                       onClick={handleGenerateReport}
-                      className="flex-1 rounded-xl bg-blue-600 px-4 py-3 font-medium text-white transition-all duration-200 hover:bg-blue-700"
+                      variant="primary"
+                      size="sm"
                     >
-                      Generate Report
-                    </button>
-                    {report?.assignments?.length > 0 && (
-                      <button
-                        onClick={() =>
-                          exportToCSV(
-                            report.assignments,
-                            `all-users-report-${reportDateRange.startDate}-to-${reportDateRange.endDate}.csv`
-                          )
-                        }
-                        className="rounded-xl bg-green-600 px-4 py-3 font-medium text-white transition-all duration-200 hover:bg-green-700"
-                      >
-                        Export CSV
-                      </button>
-                    )}
+                      Update Table
+                    </Button>
+                    {report?.assignments?.length > 0 &&
+                      !hideOverviewInlineExportButton && (
+                        <Button
+                          onClick={exportOverviewReportCSV}
+                          variant="primaryOutline"
+                          size="sm"
+                        >
+                          Export CSV
+                        </Button>
+                      )}
                   </div>
                 </div>
               </div>
@@ -717,159 +1051,34 @@ const AssetReports = ({
 
                   {/* Assets by Category */}
                   {report.assetsByCategory.length > 0 && (
-                    <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
+                    <div className="mb-8">
                       <h4 className="mb-4 text-lg font-semibold text-gray-900">
                         Assets by Category
                       </h4>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Category
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Total
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Active
-                              </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Returned
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-200 bg-white">
-                            {report.assetsByCategory.map((category) => (
-                              <tr
-                                key={category.categoryName}
-                                className="hover:bg-gray-50"
-                              >
-                                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                                  {category.categoryName}
-                                </td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                  {category.count}
-                                </td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-green-600">
-                                  {category.activeCount}
-                                </td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                  {category.returnedCount}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                      <div className="overflow-hidden rounded-md border bg-white">
+                        <AdminDataTable
+                          columns={overviewCategoryColumns}
+                          data={report.assetsByCategory}
+                          emptyMessage="No category summary data found."
+                        />
                       </div>
                     </div>
                   )}
 
                   {/* Assignment History */}
-                  <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
+                  <div className="mb-8">
                     <h4 className="mb-4 text-lg font-semibold text-gray-900">
                       All User Assignment History
                     </h4>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Asset
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Category
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              User
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Department
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Issue Date
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Return Date
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Status
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white">
-                          {report.assignments.map((assignment) => (
-                            <tr
-                              key={assignment.id}
-                              className="hover:bg-gray-50"
-                            >
-                              <td className="whitespace-nowrap px-6 py-4">
-                                <div>
-                                  <div className="text-sm font-medium text-gray-900">
-                                    {assignment.asset.assetId}
-                                  </div>
-                                  <div className="text-sm text-gray-500">
-                                    {assignment.asset.name} -{' '}
-                                    {assignment.asset.model}
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4">
-                                <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
-                                  {assignment.asset.category.name}
-                                </span>
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4">
-                                <div>
-                                  <div className="text-sm font-medium text-gray-900">
-                                    {assignment.user?.name ||
-                                      assignment.user?.email ||
-                                      'N/A'}
-                                  </div>
-                                  {assignment.user?.email &&
-                                    assignment.user?.name && (
-                                      <div className="text-sm text-gray-500">
-                                        {assignment.user.email}
-                                      </div>
-                                    )}
-                                </div>
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4">
-                                {assignment.department ? (
-                                  <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
-                                    {assignment.department}
-                                  </span>
-                                ) : (
-                                  <span className="text-sm text-gray-400">
-                                    Not specified
-                                  </span>
-                                )}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                {formatDate(assignment.issueDate)}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                {assignment.returnDate
-                                  ? formatDate(assignment.returnDate)
-                                  : '-'}
-                              </td>
-                              <td className="whitespace-nowrap px-6 py-4">
-                                <span
-                                  className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                                    assignment.status === 'Active'
-                                      ? 'bg-green-100 text-green-800'
-                                      : assignment.status === 'Returned'
-                                        ? 'bg-gray-100 text-gray-800'
-                                        : 'bg-yellow-100 text-yellow-800'
-                                  }`}
-                                >
-                                  {assignment.status}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <div className="overflow-hidden rounded-md border bg-white">
+                      <AdminDataTable
+                        columns={overviewAssignmentColumns}
+                        data={report.assignments}
+                        emptyMessage="No assignment history found."
+                        pagination
+                        pageSizeOptions={[10, 20, 50]}
+                        initialPageSize={10}
+                      />
                     </div>
                   </div>
                 </>
@@ -879,38 +1088,19 @@ const AssetReports = ({
 
           {/* Employee List Tab */}
           {activeReportTab === 'employees' && (
-            <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
+            <div className="mb-8">
               <h4 className="mb-4 text-lg font-semibold text-gray-900">
                 Employee List
               </h4>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {allUsersData?.users?.map((user) => (
-                  <button
-                    type="button"
-                    key={user.id}
-                    onClick={() => handleUserSelect(user)}
-                    className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 text-left shadow-sm transition-all duration-200 hover:shadow-md"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h5 className="text-sm font-medium text-gray-900">
-                          {user.name || user.email}
-                        </h5>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-medium text-blue-600">
-                          {user.assetAssignments?.filter(
-                            (a) => a.status === 'Active'
-                          ).length || 0}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          Active Assets
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                ))}
+              <div className="overflow-hidden rounded-md border bg-white">
+                <AdminDataTable
+                  columns={employeeListColumns}
+                  data={employeesWithAssetHistory}
+                  emptyMessage="No employees with asset assignments found."
+                  pagination
+                  pageSizeOptions={[10, 20, 50]}
+                  initialPageSize={10}
+                />
               </div>
             </div>
           )}
@@ -993,123 +1183,21 @@ const AssetReports = ({
                     </div>
                   </div>
 
-                  {/* Export Button */}
-                  {selectedUserData.user.assetAssignments?.length > 0 && (
-                    <div className="mb-4 flex justify-end">
-                      <button
-                        onClick={() =>
-                          exportToCSV(
-                            selectedUserData.user.assetAssignments.map(
-                              (assignment) => ({
-                                ...assignment,
-                                user: selectedUserData.user,
-                              })
-                            ),
-                            `${selectedUserData.user.name || 'user'}-asset-report-${new Date().toISOString().split('T')[0]}.csv`
-                          )
-                        }
-                        className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        Export Employee Assets to CSV
-                      </button>
-                    </div>
-                  )}
-
                   {/* Assets Table */}
-                  <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
+                  <div className="mb-8">
                     <h4 className="mb-4 text-lg font-semibold text-gray-900">
                       Asset Assignment History
                     </h4>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Asset
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Category
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Issue Date
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Return Date
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Status
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                              Value
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white">
-                          {selectedUserData.user.assetAssignments?.map(
-                            (assignment) => (
-                              <tr
-                                key={assignment.id}
-                                className="hover:bg-gray-50"
-                              >
-                                <td className="whitespace-nowrap px-6 py-4">
-                                  <div>
-                                    <div className="text-sm font-medium text-gray-900">
-                                      {assignment.asset.assetId}
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                      {assignment.asset.name} -{' '}
-                                      {assignment.asset.model}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="whitespace-nowrap px-6 py-4">
-                                  <span className="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
-                                    {assignment.asset.category.name}
-                                  </span>
-                                </td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                  {formatDate(assignment.issueDate)}
-                                </td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                  {assignment.returnDate
-                                    ? formatDate(assignment.returnDate)
-                                    : assignment.expectedReturnDate
-                                      ? `Expected: ${formatDate(assignment.expectedReturnDate)}`
-                                      : 'Not set'}
-                                </td>
-                                <td className="whitespace-nowrap px-6 py-4">
-                                  <span
-                                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                                      assignment.status === 'Active'
-                                        ? 'bg-green-100 text-green-800'
-                                        : assignment.status === 'Returned'
-                                          ? 'bg-blue-100 text-blue-800'
-                                          : 'bg-gray-100 text-gray-800'
-                                    }`}
-                                  >
-                                    {assignment.status}
-                                  </span>
-                                </td>
-                                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                  {formatCurrency(
-                                    assignment.asset.purchasePrice
-                                  )}
-                                </td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
+                    <div className="overflow-hidden rounded-md border bg-white">
+                      <AdminDataTable
+                        columns={employeeAssignmentHistoryColumns}
+                        data={selectedUserData.user.assetAssignments || []}
+                        emptyMessage="This employee has no asset assignments."
+                        pagination
+                        pageSizeOptions={[10, 20, 50]}
+                        initialPageSize={10}
+                      />
                     </div>
-
-                    {(!selectedUserData.user.assetAssignments ||
-                      selectedUserData.user.assetAssignments.length === 0) && (
-                      <div className="py-8 text-center">
-                        <p className="text-gray-500">
-                          This employee has no asset assignments.
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
               ) : (

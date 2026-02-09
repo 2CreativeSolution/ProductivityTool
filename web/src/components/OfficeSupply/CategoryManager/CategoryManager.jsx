@@ -10,20 +10,20 @@ import {
 } from '@heroicons/react/24/outline'
 import { gql } from 'graphql-tag'
 
-import {
-  Form,
-  FormError,
-  FieldError,
-  Label,
-  TextField,
-  TextAreaField,
-  Submit,
-} from '@redwoodjs/forms'
 import { useQuery, useMutation } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
-import { SummaryMetricCard } from 'src/components/ui'
+import {
+  AppDialog,
+  AppDialogContent,
+  Button,
+  Input,
+  Label,
+  SummaryMetricCard,
+  Widget,
+} from 'src/components/ui'
+import { DialogClose } from 'src/components/ui/dialog'
 
 const GET_CATEGORIES = gql`
   query GetOfficeSupplyCategoriesForManager {
@@ -76,6 +76,11 @@ const DELETE_CATEGORY = gql`
 const CategoryManager = ({ openCreateTrigger = 0 }) => {
   const [showForm, setShowForm] = useState(false)
   const [editingCategory, setEditingCategory] = useState(null)
+  const [formValues, setFormValues] = useState({
+    name: '',
+    description: '',
+  })
+  const [formError, setFormError] = useState('')
   const { hasRole } = useAuth()
 
   const isAdmin = hasRole('ADMIN')
@@ -85,7 +90,7 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
   const [createCategory] = useMutation(CREATE_CATEGORY, {
     onCompleted: () => {
       toast.success('Category created successfully!')
-      setShowForm(false)
+      closeFormModal()
       refetch()
     },
     onError: (error) => {
@@ -96,8 +101,7 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
   const [updateCategory] = useMutation(UPDATE_CATEGORY, {
     onCompleted: () => {
       toast.success('Category updated successfully!')
-      setShowForm(false)
-      setEditingCategory(null)
+      closeFormModal()
       refetch()
     },
     onError: (error) => {
@@ -141,8 +145,38 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
   }
 
   const handleEdit = (category) => {
+    setFormValues({
+      name: category?.name || '',
+      description: category?.description || '',
+    })
+    setFormError('')
     setEditingCategory(category)
     setShowForm(true)
+  }
+
+  const closeFormModal = () => {
+    setShowForm(false)
+    setEditingCategory(null)
+    setFormValues({ name: '', description: '' })
+    setFormError('')
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+
+    const name = formValues.name.trim()
+    const description = formValues.description.trim()
+
+    if (!name) {
+      setFormError('Category name is required.')
+      return
+    }
+
+    setFormError('')
+    onSubmit({
+      name,
+      description: description || null,
+    })
   }
 
   useEffect(() => {
@@ -151,6 +185,8 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
     }
 
     setEditingCategory(null)
+    setFormValues({ name: '', description: '' })
+    setFormError('')
     setShowForm(true)
   }, [isAdmin, openCreateTrigger])
 
@@ -246,79 +282,90 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
           </div>
 
           {/* Category Form Modal - Admin Only */}
-          {showForm && isAdmin && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-              <div className="w-full max-w-2xl rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-                <h3 className="mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent">
-                  {editingCategory ? 'Edit Category' : 'Add New Category'}
-                </h3>
-
-                <Form onSubmit={onSubmit} className="space-y-6">
-                  <FormError
-                    error={null}
-                    wrapperClassName="rw-form-error-wrapper"
-                    titleClassName="rw-form-error-title"
-                    listClassName="rw-form-error-list"
-                  />
-
-                  {/* Category Name */}
+          {isAdmin && (
+            <AppDialog
+              open={showForm}
+              onOpenChange={(open) => !open && closeFormModal()}
+            >
+              <AppDialogContent
+                size="md"
+                header
+                footer
+                title={editingCategory ? 'Edit Category' : 'Add New Category'}
+                description="Create and maintain office supply categories."
+                footerContent={
+                  <div className="flex items-center justify-end gap-3">
+                    <DialogClose asChild>
+                      <Button type="button" variant="outline">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button
+                      type="submit"
+                      form="category-form"
+                      variant="primary"
+                    >
+                      {editingCategory ? 'Update Category' : 'Create Category'}
+                    </Button>
+                  </div>
+                }
+              >
+                <form
+                  id="category-form"
+                  onSubmit={handleSubmit}
+                  className="space-y-6"
+                >
+                  {formError ? (
+                    <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                      {formError}
+                    </div>
+                  ) : null}
                   <div className="space-y-2">
                     <Label
-                      name="name"
+                      htmlFor="category-name"
                       className="text-sm font-semibold text-gray-700"
                     >
                       Category Name *
                     </Label>
-                    <TextField
-                      name="name"
-                      defaultValue={editingCategory?.name}
-                      className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    <Input
+                      id="category-name"
+                      value={formValues.name}
+                      onChange={(event) =>
+                        setFormValues((prev) => ({
+                          ...prev,
+                          name: event.target.value,
+                        }))
+                      }
+                      className="h-auto w-full rounded-xl border border-gray-200 bg-white px-4 py-3"
                       placeholder="Enter category name"
-                      validation={{ required: true }}
+                      required
                     />
-                    <FieldError name="name" className="text-sm text-red-500" />
                   </div>
 
-                  {/* Description */}
                   <div className="space-y-2">
                     <Label
-                      name="description"
+                      htmlFor="category-description"
                       className="text-sm font-semibold text-gray-700"
                     >
                       Description
                     </Label>
-                    <TextAreaField
-                      name="description"
-                      defaultValue={editingCategory?.description}
-                      className="w-full resize-none rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                      rows="3"
+                    <textarea
+                      id="category-description"
+                      value={formValues.description}
+                      onChange={(event) =>
+                        setFormValues((prev) => ({
+                          ...prev,
+                          description: event.target.value,
+                        }))
+                      }
+                      className="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                      rows={3}
                       placeholder="Enter category description..."
                     />
-                    <FieldError
-                      name="description"
-                      className="text-sm text-red-500"
-                    />
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex justify-end space-x-4 border-t border-gray-200 pt-6">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowForm(false)
-                        setEditingCategory(null)
-                      }}
-                      className="rounded-xl bg-gray-100 px-6 py-3 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-200"
-                    >
-                      Cancel
-                    </button>
-                    <Submit className="transform rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl">
-                      {editingCategory ? 'Update Category' : 'Create Category'}
-                    </Submit>
-                  </div>
-                </Form>
-              </div>
-            </div>
+                </form>
+              </AppDialogContent>
+            </AppDialog>
           )}
 
           {/* Categories List */}
@@ -337,7 +384,12 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
               <FolderIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
               <p>No categories found.</p>
               <button
-                onClick={() => setShowForm(true)}
+                onClick={() => {
+                  setEditingCategory(null)
+                  setFormValues({ name: '', description: '' })
+                  setFormError('')
+                  setShowForm(true)
+                }}
                 className="mt-4 transform rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
               >
                 Create Your First Category
@@ -346,9 +398,9 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {data?.officeSupplyCategories?.map((category) => (
-                <div
+                <Widget
                   key={category.id}
-                  className="rounded-xl border border-white/20 bg-white/50 p-6 backdrop-blur-sm transition-all duration-200 hover:bg-white/60 hover:shadow-lg"
+                  className="bg-white/50 p-6 backdrop-blur-sm transition-all duration-200 hover:bg-white/60 hover:shadow-lg"
                 >
                   <div className="mb-4 flex items-start justify-between">
                     <div className="flex items-center">
@@ -422,7 +474,7 @@ const CategoryManager = ({ openCreateTrigger = 0 }) => {
                       </div>
                     </div>
                   )}
-                </div>
+                </Widget>
               ))}
             </div>
           )}

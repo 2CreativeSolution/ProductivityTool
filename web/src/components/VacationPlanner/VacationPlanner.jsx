@@ -13,8 +13,8 @@ import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import ConfirmDialog from 'src/components/ConfirmDialog/ConfirmDialog'
-import FormModal from 'src/components/FormModal/FormModal'
 import { AdminDataTable, Pill } from 'src/components/ui'
+import { AppDialog, AppDialogContent, DialogClose } from 'src/components/ui'
 import { buttonVariants } from 'src/components/ui/button'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
@@ -80,7 +80,13 @@ const CANCEL_VACATION_REQUEST = gql`
   }
 `
 
-const VacationForm = ({ onSuccess, onCancel }) => {
+const VacationForm = ({
+  onSuccess,
+  onCancel,
+  formId,
+  hideSubmitButton,
+  onLoadingChange,
+}) => {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [reason, setReason] = useState('')
@@ -121,6 +127,10 @@ const VacationForm = ({ onSuccess, onCancel }) => {
     }
   )
 
+  useEffect(() => {
+    onLoadingChange?.(loading)
+  }, [loading, onLoadingChange])
+
   const handleSubmit = (e) => {
     e.preventDefault()
     setFormError(null)
@@ -145,7 +155,7 @@ const VacationForm = ({ onSuccess, onCancel }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form id={formId} onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label
           htmlFor="vacation-start-date"
@@ -199,40 +209,56 @@ const VacationForm = ({ onSuccess, onCancel }) => {
 
       {formError && <p className="text-sm text-red-600">{formError}</p>}
 
-      <div className="flex justify-end space-x-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
-          disabled={loading}
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-          disabled={loading}
-        >
-          {loading ? 'Submitting...' : 'Submit Request'}
-        </button>
-      </div>
+      {!hideSubmitButton && (
+        <div className="flex justify-end space-x-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            disabled={loading}
+          >
+            {loading ? 'Submitting...' : 'Submit Request'}
+          </button>
+        </div>
+      )}
     </form>
   )
 }
 
 const VacationPlanner = forwardRef(
-  ({ hideHeaderRequestButton = false }, ref) => {
+  (
+    {
+      hideHeaderRequestButton = false,
+      hideHeaderViewToggle = false,
+      viewMode: controlledViewMode,
+      onViewModeChange,
+    },
+    ref
+  ) => {
     const [showModal, setShowModal] = useState(false)
+    const [requestSubmitting, setRequestSubmitting] = useState(false)
     const [showCancelDialog, setShowCancelDialog] = useState(false)
     const [cancelRequestId, setCancelRequestId] = useState(null)
     const [cancelDialogType, setCancelDialogType] = useState('delete') // 'delete' or 'cancel'
-    const [viewMode, setViewMode] = useState('list') // 'list' or 'calendar'
+    const [internalViewMode, setInternalViewMode] = useState('list') // 'list' or 'calendar'
     const [showResubmitModal, setShowResubmitModal] = useState(false)
     const [resubmitRequest, setResubmitRequest] = useState(null)
+    const [resubmitSubmitting, setResubmitSubmitting] = useState(false)
 
-    useImperativeHandle(ref, () => ({
-      openRequestModal: () => setShowModal(true),
-    }))
+    const viewMode = controlledViewMode ?? internalViewMode
+    const setViewMode = (nextMode) => {
+      onViewModeChange?.(nextMode)
+      if (controlledViewMode === undefined) {
+        setInternalViewMode(nextMode)
+      }
+    }
 
     const { data, loading, error, refetch } = useQuery(USER_VACATION_REQUESTS, {
       onCompleted: (data) => {
@@ -381,6 +407,64 @@ const VacationPlanner = forwardRef(
       Math.ceil(
         (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)
       ) + 1
+
+    const exportVacationCSV = () => {
+      if (!vacationRequests.length) {
+        toast('No vacation requests to export.')
+        return
+      }
+
+      const headers = [
+        'ID',
+        'Start Date',
+        'End Date',
+        'Duration Days',
+        'Status',
+        'Reason',
+        'Rejection Reason',
+        'Created At',
+      ]
+
+      const escapeCsv = (value) => {
+        const stringValue =
+          value === null || value === undefined ? '' : String(value)
+        return `"${stringValue.replace(/"/g, '""')}"`
+      }
+
+      const rows = vacationRequests.map((request) => [
+        request.id,
+        formatDate(request.startDate),
+        formatDate(request.endDate),
+        getDurationDays(request.startDate, request.endDate),
+        request.status,
+        request.reason,
+        request.rejectionReason || '',
+        formatDate(request.createdAt),
+      ])
+
+      const csvContent = [headers, ...rows]
+        .map((row) => row.map(escapeCsv).join(','))
+        .join('\n')
+
+      const blob = new Blob([csvContent], {
+        type: 'text/csv;charset=utf-8;',
+      })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      const timestamp = new Date().toISOString().slice(0, 10)
+
+      link.href = url
+      link.setAttribute('download', `vacation-requests-${timestamp}.csv`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    }
+
+    useImperativeHandle(ref, () => ({
+      openRequestModal: () => setShowModal(true),
+      exportVacationCSV,
+    }))
 
     const vacationRequestColumns = [
       {
@@ -545,51 +629,64 @@ const VacationPlanner = forwardRef(
       })
     }, [loading, error, data])
 
+    const shouldRenderHeaderControls =
+      !hideHeaderViewToggle || !hideHeaderRequestButton
+    const shouldRenderTopBar =
+      shouldRenderHeaderControls || Boolean(activeVacation)
+
     return (
       <div className="vacation-planner">
         <Toaster toastOptions={{ duration: 3000 }} />
 
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            {activeVacation && (
-              <Pill className="bg-green-100 text-green-800">
-                Currently on vacation
-              </Pill>
-            )}
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="flex rounded-lg bg-gray-100 p-1">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`rounded-md px-3 py-1 text-sm font-medium ${
-                  viewMode === 'list'
-                    ? 'bg-white text-indigo-600 shadow'
-                    : 'text-gray-600 hover:text-gray-800'
-                }`}
-              >
-                List
-              </button>
-              <button
-                onClick={() => setViewMode('calendar')}
-                className={`rounded-md px-3 py-1 text-sm font-medium ${
-                  viewMode === 'calendar'
-                    ? 'bg-white text-indigo-600 shadow'
-                    : 'text-gray-600 hover:text-gray-800'
-                }`}
-              >
-                Calendar
-              </button>
+        {shouldRenderTopBar && (
+          <div
+            className={`mb-6 flex items-center ${shouldRenderHeaderControls ? 'justify-between' : 'justify-start'}`}
+          >
+            <div>
+              {activeVacation && (
+                <Pill className="bg-green-100 text-green-800">
+                  Currently on vacation
+                </Pill>
+              )}
             </div>
-            {!hideHeaderRequestButton && (
-              <button
-                onClick={() => setShowModal(true)}
-                className={buttonVariants({ variant: 'primary' })}
-              >
-                Request Time Off
-              </button>
+            {shouldRenderHeaderControls && (
+              <div className="flex items-center space-x-3">
+                {!hideHeaderViewToggle && (
+                  <div className="flex rounded-lg bg-gray-100 p-1">
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`rounded-md px-3 py-1 text-sm font-medium ${
+                        viewMode === 'list'
+                          ? 'bg-white text-indigo-600 shadow'
+                          : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      List
+                    </button>
+                    <button
+                      onClick={() => setViewMode('calendar')}
+                      className={`rounded-md px-3 py-1 text-sm font-medium ${
+                        viewMode === 'calendar'
+                          ? 'bg-white text-indigo-600 shadow'
+                          : 'text-gray-600 hover:text-gray-800'
+                      }`}
+                    >
+                      Calendar
+                    </button>
+                  </div>
+                )}
+                {!hideHeaderRequestButton && (
+                  <button
+                    onClick={() => setShowModal(true)}
+                    className={buttonVariants({ variant: 'primary' })}
+                  >
+                    Request Time Off
+                  </button>
+                )}
+              </div>
             )}
           </div>
-        </div>
+        )}
 
         {loading ? (
           <div className="py-8 text-center">Loading...</div>
@@ -648,18 +745,42 @@ const VacationPlanner = forwardRef(
           </div>
         )}
 
-        {showModal && (
-          <FormModal onClose={() => setShowModal(false)}>
-            <h2 className="mb-4 text-xl font-bold">Request Time Off</h2>
+        <AppDialog open={showModal} onOpenChange={setShowModal}>
+          <AppDialogContent
+            header
+            title="Request Time Off"
+            description="Submit a new vacation request for approval."
+            scrollable
+            footerContent={
+              <div className="flex items-center justify-end gap-3">
+                <DialogClose asChild>
+                  <button className={buttonVariants({ variant: 'outline' })}>
+                    Cancel
+                  </button>
+                </DialogClose>
+                <button
+                  className={buttonVariants({ variant: 'primary' })}
+                  type="submit"
+                  form="vacation-request-form"
+                  disabled={requestSubmitting}
+                >
+                  {requestSubmitting ? 'Submitting...' : 'Submit Request'}
+                </button>
+              </div>
+            }
+          >
             <VacationForm
+              formId="vacation-request-form"
+              hideSubmitButton
+              onLoadingChange={setRequestSubmitting}
               onSuccess={() => {
                 setShowModal(false)
                 refetch()
               }}
               onCancel={() => setShowModal(false)}
             />
-          </FormModal>
-        )}
+          </AppDialogContent>
+        </AppDialog>
 
         {showCancelDialog && (
           <ConfirmDialog
@@ -683,32 +804,65 @@ const VacationPlanner = forwardRef(
         )}
 
         {/* Resubmission Modal */}
-        {showResubmitModal && resubmitRequest && (
-          <FormModal
-            isOpen={showResubmitModal}
-            onClose={() => setShowResubmitModal(false)}
-          >
-            <ResubmissionForm
-              originalRequest={resubmitRequest}
-              onSuccess={() => {
-                setShowResubmitModal(false)
-                setResubmitRequest(null)
-                refetch()
-              }}
-              onCancel={() => {
-                setShowResubmitModal(false)
-                setResubmitRequest(null)
-              }}
-            />
-          </FormModal>
-        )}
+        <AppDialog open={showResubmitModal} onOpenChange={setShowResubmitModal}>
+          {resubmitRequest ? (
+            <AppDialogContent
+              header
+              title="Resubmit Vacation Request"
+              description="Update your request details and resubmit for approval."
+              scrollable
+              footerContent={
+                <div className="flex items-center justify-end gap-3">
+                  <DialogClose asChild>
+                    <button className={buttonVariants({ variant: 'outline' })}>
+                      Cancel
+                    </button>
+                  </DialogClose>
+                  <button
+                    className={buttonVariants({ variant: 'primary' })}
+                    type="submit"
+                    form="vacation-resubmit-form"
+                    disabled={resubmitSubmitting}
+                  >
+                    {resubmitSubmitting
+                      ? 'Resubmitting...'
+                      : 'Resubmit Request'}
+                  </button>
+                </div>
+              }
+            >
+              <ResubmissionForm
+                formId="vacation-resubmit-form"
+                hideSubmitButton
+                onLoadingChange={setResubmitSubmitting}
+                originalRequest={resubmitRequest}
+                onSuccess={() => {
+                  setShowResubmitModal(false)
+                  setResubmitRequest(null)
+                  refetch()
+                }}
+                onCancel={() => {
+                  setShowResubmitModal(false)
+                  setResubmitRequest(null)
+                }}
+              />
+            </AppDialogContent>
+          ) : null}
+        </AppDialog>
       </div>
     )
   }
 )
 
 // Resubmission Form Component
-const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
+const ResubmissionForm = ({
+  originalRequest,
+  onSuccess,
+  onCancel,
+  formId,
+  hideSubmitButton,
+  onLoadingChange,
+}) => {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [reason, setReason] = useState(originalRequest?.reason || '')
@@ -727,6 +881,10 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
       },
     }
   )
+
+  useEffect(() => {
+    onLoadingChange?.(loading)
+  }, [loading, onLoadingChange])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -763,16 +921,6 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="mb-2 text-lg font-semibold text-gray-900">
-          Resubmit Vacation Request
-        </h3>
-        <p className="text-sm text-gray-600">
-          Your previous request was rejected. Please modify your request and
-          resubmit.
-        </p>
-      </div>
-
       {/* Show original request details */}
       <div className="rounded-lg border bg-gray-50 p-4">
         <h4 className="mb-2 font-medium text-gray-900">Previous Request:</h4>
@@ -794,7 +942,7 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form id={formId} onSubmit={handleSubmit} className="space-y-4">
         {formError && (
           <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {formError}
@@ -857,23 +1005,25 @@ const ResubmissionForm = ({ originalRequest, onSuccess, onCancel }) => {
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            disabled={loading}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? 'Resubmitting...' : 'Resubmit Request'}
-          </button>
-        </div>
+        {!hideSubmitButton && (
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? 'Resubmitting...' : 'Resubmit Request'}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   )

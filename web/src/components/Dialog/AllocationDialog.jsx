@@ -1,4 +1,8 @@
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
+
+import { AppDialog, AppDialogContent } from 'src/components/ui/app-dialog'
+import { Button } from 'src/components/ui/button'
+import { DialogClose } from 'src/components/ui/dialog'
 
 const AllocationDialog = ({
   isOpen,
@@ -7,6 +11,8 @@ const AllocationDialog = ({
   project,
   users = [],
 }) => {
+  const idPrefix = useId()
+  const formId = `${idPrefix}-allocation-form`
   const [formData, setFormData] = useState({
     userId: '',
     role: '',
@@ -15,6 +21,7 @@ const AllocationDialog = ({
   })
 
   const [errors, setErrors] = useState({})
+  const [submitting, setSubmitting] = useState(false)
 
   const roles = [
     'Project Manager',
@@ -70,12 +77,14 @@ const AllocationDialog = ({
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!validateForm()) {
       return
     }
+
+    setSubmitting(true)
 
     const submitData = {
       projectId: project.id,
@@ -85,8 +94,12 @@ const AllocationDialog = ({
       isActive: formData.isActive,
     }
 
-    onSubmit(submitData)
-    handleReset()
+    try {
+      await Promise.resolve(onSubmit(submitData))
+      handleReset()
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleReset = () => {
@@ -112,35 +125,46 @@ const AllocationDialog = ({
       )
   )
 
-  if (!isOpen || !project) return null
+  if (!project) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white">
-        <div className="flex items-center justify-between border-b border-gray-200 p-6">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Allocate Team Member
-            </h2>
-            <p className="mt-1 text-sm text-gray-600">
-              {project.name} ({project.code})
-            </p>
+    <AppDialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <AppDialogContent
+        size="md"
+        scrollable
+        header
+        footer
+        title="Allocate Team Member"
+        description={`${project.name} (${project.code})`}
+        footerContent={
+          <div className="flex items-center justify-end gap-3">
+            <DialogClose asChild>
+              <Button type="button" variant="outline" disabled={submitting}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              type="submit"
+              variant="primary"
+              form={formId}
+              disabled={submitting || availableUsers.length === 0}
+            >
+              {submitting ? 'Allocating...' : 'Allocate Member'}
+            </Button>
           </div>
-          <button
-            onClick={handleClose}
-            className="text-2xl text-gray-400 hover:text-gray-600"
-          >
-            ×
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4 p-6">
+        }
+      >
+        <form id={formId} onSubmit={handleSubmit} className="space-y-4">
           {/* Team Member Selection */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor={`${idPrefix}-userId`}
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
               Team Member *
             </label>
             <select
+              id={`${idPrefix}-userId`}
               name="userId"
               value={formData.userId}
               onChange={handleChange}
@@ -167,10 +191,14 @@ const AllocationDialog = ({
 
           {/* Role */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor={`${idPrefix}-role`}
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
               Role *
             </label>
             <select
+              id={`${idPrefix}-role`}
               name="role"
               value={formData.role}
               onChange={handleChange}
@@ -192,10 +220,14 @@ const AllocationDialog = ({
 
           {/* Hours Allocated */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor={`${idPrefix}-hoursAllocated`}
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
               Hours per Day *
             </label>
             <input
+              id={`${idPrefix}-hoursAllocated`}
               type="number"
               name="hoursAllocated"
               value={formData.hoursAllocated}
@@ -221,13 +253,17 @@ const AllocationDialog = ({
           {/* Active Status */}
           <div className="flex items-center">
             <input
+              id={`${idPrefix}-isActive`}
               type="checkbox"
               name="isActive"
               checked={formData.isActive}
               onChange={handleChange}
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <label className="ml-2 text-sm text-gray-700">
+            <label
+              htmlFor={`${idPrefix}-isActive`}
+              className="ml-2 text-sm text-gray-700"
+            >
               Active allocation (team member can log time immediately)
             </label>
           </div>
@@ -261,27 +297,9 @@ const AllocationDialog = ({
               </div>
             </div>
           )}
-
-          {/* Action Buttons */}
-          <div className="flex space-x-3 pt-4">
-            <button
-              type="submit"
-              disabled={availableUsers.length === 0}
-              className="flex-1 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:bg-gray-400"
-            >
-              Allocate Member
-            </button>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="flex-1 rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              Cancel
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+      </AppDialogContent>
+    </AppDialog>
   )
 }
 

@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react'
 
 import { useQuery, useMutation } from '@redwoodjs/web'
 
+import { buttonVariants } from 'src/components/ui/button'
+import { Widget } from 'src/components/ui/widget'
+import {
+  parseBookingDateTime,
+  toBookingDateTimeInput,
+} from 'src/lib/bookingDateTime'
+
 const BOOKINGS_QUERY = gql`
   query UpcomingBookingsQuery($userId: Int!) {
     bookings(userId: $userId) {
@@ -37,8 +44,9 @@ const FINISH_BOOKING_MUTATION = gql`
 
 const getStatus = (startTime, endTime) => {
   const now = new Date()
-  const start = new Date(startTime)
-  const end = new Date(endTime)
+  const start = parseBookingDateTime(startTime)
+  const end = parseBookingDateTime(endTime)
+  if (!start || !end) return 'Expired'
   if (now < start) return 'Upcoming'
   if (now >= start && now <= end) return 'Ongoing'
   if (now > end) return 'Expired'
@@ -54,7 +62,8 @@ const statusColor = (status) => {
 
 // Date card formatter: "Mon 12"
 const dateCard = (dateStr) => {
-  const date = new Date(dateStr)
+  const date = parseBookingDateTime(dateStr)
+  if (!date) return null
   const weekday = date.toLocaleDateString(undefined, { weekday: 'short' })
   const day = date.getDate()
   return (
@@ -83,11 +92,13 @@ const MeetingList = ({
   return (
     <>
       {paginated.length === 0 ? (
-        <div className="text-sm text-gray-400">No meetings.</div>
+        <div className="p-4 text-sm text-gray-400">No meetings.</div>
       ) : (
         <div className="divide-y divide-gray-200">
           {paginated.map((b) => {
             const status = getStatus(b.startTime, b.endTime)
+            const startTime = parseBookingDateTime(b.startTime)
+            const endTime = parseBookingDateTime(b.endTime)
             return (
               <div key={b.id} className="flex items-start p-4">
                 {dateCard(b.startTime)}
@@ -95,15 +106,19 @@ const MeetingList = ({
                   <div className="flex justify-between">
                     <h3 className="font-medium text-gray-900">{b.title}</h3>
                     <span className="text-sm text-gray-500">
-                      {new Date(b.startTime).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}{' '}
+                      {startTime
+                        ? startTime.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '-'}{' '}
                       -{' '}
-                      {new Date(b.endTime).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {endTime
+                        ? endTime.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '-'}
                     </span>
                   </div>
                   <p className="mt-1 text-sm text-gray-600">{b.notes}</p>
@@ -257,7 +272,10 @@ const UpcomingBookings = ({ userId }) => {
 
   const handleFinishClick = (booking) => {
     finishBooking({
-      variables: { id: booking.id, endTime: new Date().toISOString() },
+      variables: {
+        id: booking.id,
+        endTime: toBookingDateTimeInput(new Date()),
+      },
     })
   }
 
@@ -276,19 +294,25 @@ const UpcomingBookings = ({ userId }) => {
   )
 
   return (
-    <div className="border-primary/30 col-span-1 overflow-hidden rounded-xl border-2 bg-white p-4 shadow-lg lg:col-span-2">
-      <div className="mb-4 gap-2">
-        <p className="pr-30 text-3xl font-bold text-blue-600">My Bookings</p>
-        <div className="flex  justify-end">
+    <section className="col-span-1 lg:col-span-2">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-slate-900">My Bookings</h2>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setShowPast(false)}
-            className={`rounded px-4 py-2 ${!showPast ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={buttonVariants({
+              variant: showPast ? 'outline' : 'primary',
+              size: 'sm',
+            })}
           >
             Upcoming & Ongoing
           </button>
           <button
             onClick={() => setShowPast(true)}
-            className={`rounded px-4 py-2 ${showPast ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={buttonVariants({
+              variant: showPast ? 'primary' : 'outline',
+              size: 'sm',
+            })}
           >
             Past Meetings
           </button>
@@ -297,34 +321,30 @@ const UpcomingBookings = ({ userId }) => {
 
       {!showPast ? (
         <>
-          <div className="mb-8 rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-4">
-            <h3 className="mb-2 text-lg font-semibold text-yellow-700">
-              Upcoming Meetings
-            </h3>
+          <Widget
+            mode="compact"
+            className="mb-4"
+            header
+            title="Upcoming Meetings"
+          >
             <MeetingList
               bookings={upcoming}
               onDeleteClick={handleDeleteClick}
               showDelete={true}
             />
-          </div>
-          <div className="rounded-lg border-l-4 border-green-500 bg-green-50 p-4">
-            <h3 className="mb-2 text-lg font-semibold text-green-700">
-              Ongoing Meetings
-            </h3>
+          </Widget>
+          <Widget mode="compact" header title="Ongoing Meetings">
             <MeetingList
               bookings={ongoing}
               onFinishClick={handleFinishClick}
               showDelete={false}
             />
-          </div>
+          </Widget>
         </>
       ) : (
-        <div className="rounded-lg border-l-4 border-gray-400 bg-gray-50 p-4">
-          <h3 className="mb-2 text-lg font-semibold text-gray-700">
-            Past Meetings
-          </h3>
+        <Widget mode="compact" header title="Past Meetings">
           <MeetingList bookings={expired} showDelete={false} />
-        </div>
+        </Widget>
       )}
 
       {/* Popup Card */}
@@ -353,7 +373,7 @@ const UpcomingBookings = ({ userId }) => {
           </div>
         </div>
       )}
-    </div>
+    </section>
   )
 }
 

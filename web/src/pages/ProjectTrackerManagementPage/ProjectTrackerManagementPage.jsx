@@ -1,3 +1,5 @@
+import { useRef } from 'react'
+
 import { Metadata } from '@redwoodjs/web'
 import { gql, useQuery } from '@redwoodjs/web'
 
@@ -5,6 +7,7 @@ import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import PageHeader from 'src/components/PageHeader/PageHeader'
 import ProjectManagement from 'src/components/ProjectTracker/ProjectManagement'
+import { Button } from 'src/components/ui'
 
 const PROJECTS_OVERVIEW_QUERY = gql`
   query ProjectsOverviewQueryForManagementPage {
@@ -65,6 +68,7 @@ const getPriorityBadgeColor = (priority) => {
 }
 
 const ProjectTrackerManagementPage = () => {
+  const projectManagementRef = useRef(null)
   const {
     data: projectsData,
     loading: projectsLoading,
@@ -82,8 +86,18 @@ const ProjectTrackerManagementPage = () => {
         <PageHeader
           title="Projects · Management"
           description="Create projects, allocate team members, and manage scope"
-        />
+        >
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => projectManagementRef.current?.openNewProject?.()}
+          >
+            New Project
+          </Button>
+        </PageHeader>
         <ProjectManagement
+          ref={projectManagementRef}
           projects={projectsData?.activeProjects || []}
           loading={projectsLoading}
           onRefresh={refetchProjects}

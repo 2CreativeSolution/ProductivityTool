@@ -11,6 +11,10 @@ import { useAuth } from 'src/auth'
 import BookingLog from 'src/components/BookingLog/BookingLog'
 import { buttonVariants } from 'src/components/ui/button'
 import { Widget } from 'src/components/ui/widget'
+import {
+  parseBookingDateTime,
+  toBookingDateTimeInput,
+} from 'src/lib/bookingDateTime'
 
 import 'react-calendar/dist/Calendar.css'
 
@@ -104,8 +108,11 @@ export const BookingForm = ({ refetchBookings }) => {
         return false
       }
 
-      const bookingStart = new Date(booking.startTime)
-      const bookingEnd = new Date(booking.endTime)
+      const bookingStart = parseBookingDateTime(booking.startTime)
+      const bookingEnd = parseBookingDateTime(booking.endTime)
+      if (!bookingStart || !bookingEnd) {
+        return false
+      }
       // Check if slot overlaps with booking
       return (
         (slotStart >= bookingStart && slotStart < bookingEnd) ||
@@ -171,8 +178,8 @@ export const BookingForm = ({ refetchBookings }) => {
           input: {
             title,
             userId: currentUser.id,
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
+            startTime: toBookingDateTimeInput(startTime),
+            endTime: toBookingDateTimeInput(endTime),
             notes,
             meetingRoomId: selectRoomId ? Number(selectRoomId) : null,
           },

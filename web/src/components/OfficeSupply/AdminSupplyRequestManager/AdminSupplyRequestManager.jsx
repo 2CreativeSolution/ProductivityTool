@@ -1,55 +1,31 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   CheckCircleIcon,
-  XCircleIcon,
   ClockIcon,
-  ExclamationTriangleIcon,
-  MagnifyingGlassIcon,
-  UserIcon,
-  DocumentTextIcon,
   CurrencyDollarIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline'
 import { gql } from 'graphql-tag'
 
-import { useQuery, useMutation } from '@redwoodjs/web'
+import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
-import { Pill, SummaryMetricCard } from 'src/components/ui'
-
-import SupplyRequestCard from '../SupplyRequestCard/SupplyRequestCard'
-
-const GET_PENDING_REQUESTS = gql`
-  query GetPendingSupplyRequests {
-    pendingSupplyRequests {
-      id
-      quantityRequested
-      justification
-      urgency
-      status
-      createdAt
-      totalCost
-      isOverdue
-      user {
-        id
-        name
-        email
-      }
-      supply {
-        id
-        name
-        stockCount
-        unitPrice
-        category {
-          name
-        }
-      }
-    }
-  }
-`
+import {
+  AdminDataTable,
+  AppDialog,
+  AppDialogContent,
+  Button,
+  DataTableSelectFilterHeader,
+  Label,
+  Pill,
+  SummaryMetricCard,
+} from 'src/components/ui'
+import { buttonVariants } from 'src/components/ui/button'
 
 const GET_ALL_REQUESTS = gql`
-  query GetAllSupplyRequests {
+  query GetAllSupplyRequestsForAdminTable {
     supplyRequests {
       id
       quantityRequested
@@ -101,52 +77,166 @@ const REJECT_REQUEST = gql`
   }
 `
 
+const formatCurrency = (value) => {
+  if (value == null) return '-'
+
+  return `$${Number(value).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`
+}
+
+const formatDate = (value) => {
+  if (!value) return '-'
+  return new Date(value).toLocaleDateString('en-US')
+}
+
+const urgencyPillClass = (urgency) => {
+  switch (urgency) {
+    case 'HIGH':
+      return 'bg-red-100 text-red-800'
+    case 'MEDIUM':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'LOW':
+      return 'bg-green-100 text-green-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const statusPillClass = (status) => {
+  switch (status) {
+    case 'PENDING':
+      return 'bg-yellow-100 text-yellow-800'
+    case 'APPROVED':
+      return 'bg-green-100 text-green-800'
+    case 'REJECTED':
+      return 'bg-red-100 text-red-800'
+    default:
+      return 'bg-gray-100 text-gray-800'
+  }
+}
+
+const hasInsufficientStock = (request) => {
+  const requested = Number(request?.quantityRequested || 0)
+  const available = Number(request?.supply?.stockCount || 0)
+  return available < requested
+}
+
 const AdminSupplyRequestManager = () => {
-  const [activeTab, setActiveTab] = useState('pending')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [urgencyFilter, setUrgencyFilter] = useState('')
   const [processingRequest, setProcessingRequest] = useState(null)
   const [approverNotes, setApproverNotes] = useState('')
   const [actionType, setActionType] = useState('')
 
   const {
-    data: pendingData,
-    loading: pendingLoading,
-    refetch: refetchPending,
-  } = useQuery(GET_PENDING_REQUESTS)
-  const {
-    data: allData,
-    loading: allLoading,
+    data,
+    loading,
+    error,
     refetch: refetchAll,
   } = useQuery(GET_ALL_REQUESTS, {
-    skip: activeTab === 'pending',
+    fetchPolicy: 'network-only',
   })
 
-  const [approveRequest] = useMutation(APPROVE_REQUEST, {
-    onCompleted: () => {
-      toast.success('Request approved successfully!')
-      setProcessingRequest(null)
-      setApproverNotes('')
-      refetchPending()
-      refetchAll()
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+  const requests = useMemo(() => data?.supplyRequests || [], [data])
+  const sortedRequests = useMemo(
+    () =>
+      [...requests].sort(
+        (left, right) => new Date(right.createdAt) - new Date(left.createdAt)
+      ),
+    [requests]
+  )
 
-  const [rejectRequest] = useMutation(REJECT_REQUEST, {
-    onCompleted: () => {
-      toast.success('Request rejected successfully!')
-      setProcessingRequest(null)
-      setApproverNotes('')
-      refetchPending()
-      refetchAll()
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-  })
+  const [approveRequest, { loading: approveLoading }] = useMutation(
+    APPROVE_REQUEST,
+    {
+      onCompleted: () => {
+        toast.success('Request approved successfully.')
+        closeActionModal()
+        refetchAll()
+      },
+      onError: (mutationError) => {
+        toast.error(mutationError.message)
+      },
+    }
+  )
+
+  const [rejectRequest, { loading: rejectLoading }] = useMutation(
+    REJECT_REQUEST,
+    {
+      onCompleted: () => {
+        toast.success('Request rejected successfully.')
+        closeActionModal()
+        refetchAll()
+      },
+      onError: (mutationError) => {
+        toast.error(mutationError.message)
+      },
+    }
+  )
+
+  const statusFilterOptions = useMemo(() => {
+    const statuses = new Set(
+      requests.map((request) => request.status).filter(Boolean)
+    )
+
+    return Array.from(statuses).map((status) => ({
+      label: status,
+      value: status,
+    }))
+  }, [requests])
+
+  const urgencyFilterOptions = useMemo(() => {
+    const urgencies = new Set(
+      sortedRequests.map((request) => request.urgency).filter(Boolean)
+    )
+
+    return Array.from(urgencies).map((urgency) => ({
+      label: urgency,
+      value: urgency,
+    }))
+  }, [sortedRequests])
+
+  const stats = useMemo(() => {
+    const pending = sortedRequests.filter(
+      (request) => request.status === 'PENDING'
+    ).length
+    const approved = sortedRequests.filter(
+      (request) => request.status === 'APPROVED'
+    ).length
+    const rejected = sortedRequests.filter(
+      (request) => request.status === 'REJECTED'
+    ).length
+    const overdue = sortedRequests.filter(
+      (request) => request.isOverdue && request.status === 'PENDING'
+    ).length
+    const totalValue = sortedRequests.reduce(
+      (sum, request) => sum + (request.totalCost || 0),
+      0
+    )
+    const total = sortedRequests.length
+
+    return {
+      pending,
+      approved,
+      rejected,
+      overdue,
+      totalValue,
+      total,
+    }
+  }, [sortedRequests])
+
+  const pendingRate = stats.total
+    ? Math.round((stats.pending / stats.total) * 100)
+    : 0
+  const approvedRate = stats.total
+    ? Math.round((stats.approved / stats.total) * 100)
+    : 0
+  const rejectedRate = stats.total
+    ? Math.round((stats.rejected / stats.total) * 100)
+    : 0
+  const overdueRate = stats.total
+    ? Math.round((stats.overdue / stats.total) * 100)
+    : 0
 
   const handleApprove = (request) => {
     setProcessingRequest(request)
@@ -158,107 +248,66 @@ const AdminSupplyRequestManager = () => {
     setActionType('reject')
   }
 
+  const closeActionModal = () => {
+    setProcessingRequest(null)
+    setApproverNotes('')
+    setActionType('')
+  }
+
   const submitAction = () => {
+    if (!processingRequest) return
+
     if (actionType === 'approve') {
+      const requested = Number(processingRequest.quantityRequested || 0)
+      const available = Number(processingRequest.supply?.stockCount || 0)
+
+      if (available < requested) {
+        toast.error(
+          `Insufficient stock: requested ${requested}, available ${available}.`
+        )
+        return
+      }
+
       approveRequest({
         variables: {
           id: processingRequest.id,
           approverNotes: approverNotes.trim() || null,
         },
       })
-    } else {
-      if (!approverNotes.trim()) {
-        toast.error('Please provide a reason for rejection')
-        return
-      }
-      rejectRequest({
-        variables: {
-          id: processingRequest.id,
-          approverNotes: approverNotes.trim(),
-        },
-      })
+      return
     }
-  }
 
-  const getUrgencyColor = (urgency) => {
-    switch (urgency) {
-      case 'HIGH':
-        return 'bg-red-100 text-red-800'
-      case 'MEDIUM':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'LOW':
-        return 'bg-green-100 text-green-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
+    if (!approverNotes.trim()) {
+      toast.error('Please provide a reason for rejection.')
+      return
     }
+
+    rejectRequest({
+      variables: {
+        id: processingRequest.id,
+        approverNotes: approverNotes.trim(),
+      },
+    })
   }
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'APPROVED':
-        return 'bg-green-100 text-green-800 border-green-200'
-      case 'REJECTED':
-        return 'bg-red-100 text-red-800 border-red-200'
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center">
+        Loading requests...
+      </div>
+    )
   }
 
-  const currentData =
-    activeTab === 'pending'
-      ? pendingData?.pendingSupplyRequests
-      : allData?.supplyRequests
-  const currentLoading = activeTab === 'pending' ? pendingLoading : allLoading
-
-  const filteredRequests = currentData?.filter((request) => {
-    const matchesSearch =
-      request.supply.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.justification.toLowerCase().includes(searchTerm.toLowerCase())
-
-    const matchesUrgency = !urgencyFilter || request.urgency === urgencyFilter
-
-    return matchesSearch && matchesUrgency
-  })
-
-  const stats = {
-    pending: pendingData?.pendingSupplyRequests?.length || 0,
-    total: allData?.supplyRequests?.length || 0,
-    approved:
-      allData?.supplyRequests?.filter((r) => r.status === 'APPROVED').length ||
-      0,
-    rejected:
-      allData?.supplyRequests?.filter((r) => r.status === 'REJECTED').length ||
-      0,
-    overdue:
-      currentData?.filter((r) => r.isOverdue && r.status === 'PENDING')
-        .length || 0,
-    totalValue:
-      currentData?.reduce(
-        (sum, request) => sum + (request.totalCost || 0),
-        0
-      ) || 0,
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-red-700">
+        Error loading requests: {error.message}
+      </div>
+    )
   }
-  const totalRequestsForRates = stats.total || currentData?.length || 0
-  const pendingRate = totalRequestsForRates
-    ? Math.round((stats.pending / totalRequestsForRates) * 100)
-    : 0
-  const approvedRate = totalRequestsForRates
-    ? Math.round((stats.approved / totalRequestsForRates) * 100)
-    : 0
-  const rejectedRate = totalRequestsForRates
-    ? Math.round((stats.rejected / totalRequestsForRates) * 100)
-    : 0
-  const overdueRate = totalRequestsForRates
-    ? Math.round((stats.overdue / totalRequestsForRates) * 100)
-    : 0
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      {/* Stats */}
+    <div className="mx-auto max-w-7xl space-y-6">
       <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <SummaryMetricCard
           size="sm"
@@ -268,7 +317,6 @@ const AdminSupplyRequestManager = () => {
           icon={<ClockIcon />}
           trend={{ direction: 'neutral', label: `${pendingRate}%` }}
         />
-
         <SummaryMetricCard
           size="sm"
           title="Approved"
@@ -277,7 +325,6 @@ const AdminSupplyRequestManager = () => {
           icon={<CheckCircleIcon />}
           trend={{ direction: 'positive', label: `${approvedRate}%` }}
         />
-
         <SummaryMetricCard
           size="sm"
           title="Rejected"
@@ -286,7 +333,6 @@ const AdminSupplyRequestManager = () => {
           icon={<XCircleIcon />}
           trend={{ direction: 'negative', label: `${rejectedRate}%` }}
         />
-
         <SummaryMetricCard
           size="sm"
           title="Overdue"
@@ -295,7 +341,6 @@ const AdminSupplyRequestManager = () => {
           icon={<ExclamationTriangleIcon />}
           trend={{ direction: 'negative', label: `${overdueRate}%` }}
         />
-
         <SummaryMetricCard
           size="sm"
           title="Total Value"
@@ -305,120 +350,321 @@ const AdminSupplyRequestManager = () => {
           })}`}
           subtitle="Value of listed requests"
           icon={<CurrencyDollarIcon />}
-          trend={{
-            direction: 'positive',
-            label: activeTab === 'pending' ? 'pending' : 'all',
-          }}
+          trend={{ direction: 'positive', label: 'all' }}
         />
       </div>
 
-      {/* Tabs */}
-      <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 shadow-xl backdrop-blur-lg">
-        <div className="flex">
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`flex-1 rounded-tl-2xl px-6 py-4 text-center font-semibold transition-all duration-200 ${
-              activeTab === 'pending'
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'text-gray-600 hover:bg-white/10'
-            }`}
-          >
-            Pending Requests ({stats.pending})
-          </button>
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`flex-1 rounded-tr-2xl px-6 py-4 text-center font-semibold transition-all duration-200 ${
-              activeTab === 'all'
-                ? 'bg-blue-600 text-white shadow-lg'
-                : 'text-gray-600 hover:bg-white/10'
-            }`}
-          >
-            All Requests ({stats.total})
-          </button>
-        </div>
+      <div className="overflow-hidden rounded-md border bg-white">
+        <AdminDataTable
+          columns={[
+            {
+              accessorKey: 'supply.name',
+              header: 'Supply',
+              cell: ({ row }) => (
+                <div>
+                  <div className="font-semibold text-slate-900">
+                    {row.original.supply?.name || '-'}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    Category: {row.original.supply?.category?.name || '-'}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              accessorKey: 'user.name',
+              header: 'Requester',
+              cell: ({ row }) => (
+                <div>
+                  <div className="font-semibold text-slate-900">
+                    {row.original.user?.name || '-'}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {row.original.user?.email || '-'}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              accessorKey: 'quantityRequested',
+              header: 'Req Qty',
+            },
+            {
+              accessorKey: 'supply.stockCount',
+              header: 'Stock',
+              cell: ({ row }) => row.original.supply?.stockCount ?? '-',
+            },
+            {
+              accessorKey: 'supply.unitPrice',
+              header: 'Unit Price',
+              cell: ({ row }) => formatCurrency(row.original.supply?.unitPrice),
+            },
+            {
+              accessorKey: 'totalCost',
+              header: 'Total Cost',
+              cell: ({ row }) => formatCurrency(row.original.totalCost),
+            },
+            {
+              accessorKey: 'urgency',
+              header: ({ column }) => (
+                <DataTableSelectFilterHeader
+                  column={column}
+                  label="Urgency"
+                  options={urgencyFilterOptions}
+                  allLabel="All"
+                />
+              ),
+              filterFn: (row, id, value) => row.getValue(id) === value,
+              cell: ({ row }) => (
+                <Pill
+                  variant="default"
+                  size="sm"
+                  className={urgencyPillClass(row.original.urgency)}
+                >
+                  {row.original.urgency}
+                </Pill>
+              ),
+            },
+            {
+              accessorKey: 'status',
+              header: ({ column }) => (
+                <DataTableSelectFilterHeader
+                  column={column}
+                  label="Status"
+                  options={statusFilterOptions}
+                  allLabel="All"
+                />
+              ),
+              filterFn: (row, id, value) => row.getValue(id) === value,
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <Pill
+                    variant="default"
+                    size="sm"
+                    className={statusPillClass(row.original.status)}
+                  >
+                    {row.original.status}
+                  </Pill>
+                  {row.original.isOverdue &&
+                  row.original.status === 'PENDING' ? (
+                    <Pill
+                      variant="default"
+                      size="sm"
+                      className="bg-red-100 text-red-700"
+                    >
+                      Overdue
+                    </Pill>
+                  ) : null}
+                </div>
+              ),
+            },
+            {
+              accessorFn: (row) => (row.isOverdue ? 'Yes' : 'No'),
+              id: 'overdue',
+              header: ({ column }) => (
+                <DataTableSelectFilterHeader
+                  column={column}
+                  label="Overdue"
+                  options={[
+                    { label: 'Yes', value: 'Yes' },
+                    { label: 'No', value: 'No' },
+                  ]}
+                  allLabel="All"
+                />
+              ),
+              filterFn: (row, id, value) => row.getValue(id) === value,
+            },
+            {
+              accessorKey: 'createdAt',
+              header: 'Requested',
+              cell: ({ row }) => formatDate(row.original.createdAt),
+            },
+            {
+              accessorKey: 'approvedAt',
+              header: 'Approved/Rejected',
+              cell: ({ row }) => formatDate(row.original.approvedAt),
+            },
+            {
+              accessorKey: 'justification',
+              header: 'Justification',
+              enableSorting: false,
+              cell: ({ row }) => (
+                <div
+                  className="max-w-[16rem] whitespace-normal break-words text-sm leading-5 text-slate-700"
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                  title={row.original.justification || ''}
+                >
+                  {row.original.justification || '-'}
+                </div>
+              ),
+            },
+            {
+              accessorKey: 'approverNotes',
+              header: 'Approver Notes',
+              enableSorting: false,
+              cell: ({ row }) => (
+                <div
+                  className="max-w-[16rem] whitespace-normal break-words text-sm leading-5 text-slate-700"
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                  title={row.original.approverNotes || ''}
+                >
+                  {row.original.approverNotes || '-'}
+                </div>
+              ),
+            },
+            {
+              id: 'actions',
+              header: () => <div className="text-right">Actions</div>,
+              enableSorting: false,
+              cell: ({ row }) => {
+                const request = row.original
+                if (request.status !== 'PENDING') {
+                  return (
+                    <div className="text-right text-xs text-slate-500">-</div>
+                  )
+                }
+                const insufficientStock = hasInsufficientStock(request)
+
+                return (
+                  <div className="flex items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      className="text-sm font-medium text-[#322e85] transition hover:text-[#2b2773] disabled:cursor-not-allowed disabled:text-gray-400"
+                      disabled={insufficientStock}
+                      title={
+                        insufficientStock
+                          ? `Insufficient stock (${request.supply?.stockCount ?? 0} available, ${request.quantityRequested} requested)`
+                          : 'Approve'
+                      }
+                      onClick={() => handleApprove(request)}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      type="button"
+                      className={buttonVariants({
+                        variant: 'destructive',
+                        size: 'xs',
+                      })}
+                      onClick={() => handleReject(request)}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )
+              },
+            },
+          ]}
+          data={sortedRequests}
+          emptyMessage="No supply requests found."
+          pagination
+          pageSizeOptions={[10, 20, 50, 100]}
+          initialPageSize={10}
+        />
       </div>
 
-      {/* Filters */}
-      <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {/* Search */}
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search requests..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-white/50 py-3 pl-10 pr-4 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Urgency Filter */}
-          <select
-            value={urgencyFilter}
-            onChange={(e) => setUrgencyFilter(e.target.value)}
-            className="rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Urgencies</option>
-            <option value="HIGH">High Priority</option>
-            <option value="MEDIUM">Medium Priority</option>
-            <option value="LOW">Low Priority</option>
-          </select>
-
-          {/* Clear Filters */}
-          <button
-            onClick={() => {
-              setSearchTerm('')
-              setUrgencyFilter('')
-            }}
-            className="rounded-xl bg-gray-100 px-4 py-3 font-medium text-gray-700 transition-all duration-200 hover:bg-gray-200"
-          >
-            Clear Filters
-          </button>
-        </div>
-      </div>
-
-      {/* Action Modal */}
-      {processingRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="w-full max-w-2xl rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-            <h3 className="mb-4 text-2xl font-bold text-gray-900">
-              {actionType === 'approve' ? 'Approve Request' : 'Reject Request'}
-            </h3>
-
-            <div className="mb-6 rounded-xl bg-white/50 p-4 backdrop-blur-sm">
-              <h4 className="font-semibold text-gray-900">
-                {processingRequest.supply.name}
-              </h4>
-              <p className="text-sm text-gray-600">
-                Requested by: {processingRequest.user.name} (
-                {processingRequest.user.email})
-              </p>
-              <p className="text-sm text-gray-600">
-                Quantity: {processingRequest.quantityRequested} items
-              </p>
-              <p className="text-sm text-gray-600">
-                Current Stock: {processingRequest.supply.stockCount} items
-              </p>
-              {processingRequest.supply.unitPrice && (
-                <p className="text-sm text-gray-600">
-                  Total Cost: ${processingRequest.totalCost?.toFixed(2)}
-                </p>
-              )}
+      <AppDialog
+        open={Boolean(processingRequest)}
+        onOpenChange={(open) => !open && closeActionModal()}
+      >
+        <AppDialogContent
+          size="md"
+          header
+          footer
+          title={
+            actionType === 'approve' ? 'Approve Request' : 'Reject Request'
+          }
+          description="Review request details and add notes before submitting."
+          footerContent={
+            <div className="flex items-center justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeActionModal}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant={actionType === 'approve' ? 'primary' : 'destructive'}
+                disabled={
+                  approveLoading ||
+                  rejectLoading ||
+                  (actionType === 'approve' &&
+                    processingRequest &&
+                    hasInsufficientStock(processingRequest))
+                }
+                onClick={submitAction}
+              >
+                {actionType === 'approve' ? (
+                  <span className="inline-flex items-center gap-2">
+                    <CheckCircleIcon className="h-4 w-4" />
+                    Approve Request
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2">
+                    <XCircleIcon className="h-4 w-4" />
+                    Reject Request
+                  </span>
+                )}
+              </Button>
             </div>
-
+          }
+        >
+          {processingRequest ? (
             <div className="space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+              <div className="rounded-xl bg-gray-50 p-4">
+                <h4 className="font-semibold text-gray-900">
+                  {processingRequest.supply?.name || '-'}
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Requested by: {processingRequest.user?.name || '-'} (
+                  {processingRequest.user?.email || '-'})
+                </p>
+                <p className="text-sm text-gray-600">
+                  Quantity: {processingRequest.quantityRequested} items
+                </p>
+                <p className="text-sm text-gray-600">
+                  Current Stock: {processingRequest.supply?.stockCount ?? '-'}{' '}
+                  items
+                </p>
+                <p className="text-sm text-gray-600">
+                  Total Cost: {formatCurrency(processingRequest.totalCost)}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="approver-notes">
                   {actionType === 'approve'
                     ? 'Notes (Optional)'
                     : 'Rejection Reason *'}
-                </label>
+                </Label>
+                {actionType === 'approve' &&
+                hasInsufficientStock(processingRequest) ? (
+                  <p className="text-sm text-red-600">
+                    Cannot approve: requested{' '}
+                    {processingRequest.quantityRequested} but only{' '}
+                    {processingRequest.supply?.stockCount ?? 0} available.
+                  </p>
+                ) : null}
                 <textarea
+                  id="approver-notes"
                   value={approverNotes}
-                  onChange={(e) => setApproverNotes(e.target.value)}
-                  className="w-full resize-none rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                  rows="4"
+                  onChange={(event) => setApproverNotes(event.target.value)}
+                  className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                  rows={4}
                   placeholder={
                     actionType === 'approve'
                       ? 'Add any notes for the requester...'
@@ -426,140 +672,10 @@ const AdminSupplyRequestManager = () => {
                   }
                 />
               </div>
-
-              <div className="flex justify-end space-x-4">
-                <button
-                  onClick={() => {
-                    setProcessingRequest(null)
-                    setApproverNotes('')
-                    setActionType('')
-                  }}
-                  className="rounded-xl bg-gray-100 px-6 py-3 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={submitAction}
-                  className={`transform rounded-xl px-8 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl ${
-                    actionType === 'approve'
-                      ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
-                      : 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700'
-                  }`}
-                >
-                  {actionType === 'approve'
-                    ? 'Approve Request'
-                    : 'Reject Request'}
-                </button>
-              </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Requests List */}
-      <div className="space-y-4">
-        {currentLoading ? (
-          <div className="rounded-2xl border border-white/20 bg-white/10 p-8 text-center shadow-xl backdrop-blur-lg">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-            <p className="mt-4 text-gray-600">Loading requests...</p>
-          </div>
-        ) : filteredRequests?.length === 0 ? (
-          <div className="rounded-2xl border border-white/20 bg-white/10 p-8 text-center text-gray-600 shadow-xl backdrop-blur-lg">
-            <DocumentTextIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-            <p>No requests found matching your criteria.</p>
-          </div>
-        ) : (
-          filteredRequests?.map((request) => (
-            <SupplyRequestCard
-              key={request.id}
-              icon={<UserIcon className="h-6 w-6 text-blue-600" />}
-              title={request.supply.name}
-              subtitle={request.supply.category.name}
-              metrics={
-                <>
-                  <span className="text-sm font-medium">
-                    {request.quantityRequested} items
-                  </span>
-                  <span className="text-sm text-gray-600">
-                    Stock: {request.supply.stockCount} items
-                  </span>
-                  {request.supply.unitPrice && (
-                    <span className="text-sm text-gray-600">
-                      Cost: ${request.totalCost?.toFixed(2)}
-                    </span>
-                  )}
-                </>
-              }
-              badges={
-                <>
-                  <Pill className={getUrgencyColor(request.urgency)}>
-                    {request.urgency}
-                  </Pill>
-                  {activeTab === 'all' && (
-                    <Pill className={getStatusColor(request.status)}>
-                      {request.status}
-                    </Pill>
-                  )}
-                  {request.isOverdue && request.status === 'PENDING' && (
-                    <span className="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800">
-                      Overdue
-                    </span>
-                  )}
-                </>
-              }
-              details={
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium">Requested by:</span>{' '}
-                      {request.user.name}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium">Email:</span>{' '}
-                      {request.user.email}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium">Date:</span>{' '}
-                      {new Date(request.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium">Justification:</span>
-                    </p>
-                    <p className="mt-1 text-sm text-gray-700">
-                      {request.justification}
-                    </p>
-                  </div>
-                </div>
-              }
-              notes={request.approverNotes}
-              footer={
-                request.status === 'PENDING' ? (
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => handleReject(request)}
-                      className="flex items-center space-x-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-red-700"
-                    >
-                      <XCircleIcon className="h-4 w-4" />
-                      <span>Reject</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleApprove(request)}
-                      className="flex items-center space-x-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-green-700"
-                    >
-                      <CheckCircleIcon className="h-4 w-4" />
-                      <span>Approve</span>
-                    </button>
-                  </div>
-                ) : null
-              }
-            />
-          ))
-        )}
-      </div>
+          ) : null}
+        </AppDialogContent>
+      </AppDialog>
     </div>
   )
 }

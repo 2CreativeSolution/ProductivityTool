@@ -2,17 +2,11 @@ import { useEffect } from 'react'
 
 import { navigate, routes } from '@redwoodjs/router'
 
-import { useAuth } from 'src/auth'
-
 const AssetTrackerLegacyPage = () => {
-  const { hasRole } = useAuth()
-  const isAdmin = Boolean(hasRole && hasRole('ADMIN'))
-
   useEffect(() => {
-    navigate(isAdmin ? routes.assetsInventory() : routes.assetsAssignments(), {
-      replace: true,
-    })
-  }, [isAdmin])
+    // Legacy route kept for old bookmarks; canonical entrypoint is `/assets`.
+    navigate(routes.assets(), { replace: true })
+  }, [])
 
   return null
 }

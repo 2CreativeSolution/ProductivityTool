@@ -11,10 +11,10 @@ import { Router, Route, Set, PrivateSet } from '@redwoodjs/router'
 
 import ScaffoldLayout from 'src/layouts/ScaffoldLayout'
 import AdminDiagnosticsToolsPage from 'src/pages/AdminDiagnosticsToolsPage/AdminDiagnosticsToolsPage'
+import AdminMeetingRoomsPage from 'src/pages/AdminMeetingRoomsPage/AdminMeetingRoomsPage'
 import AssetsAssignmentsPage from 'src/pages/AssetsAssignmentsPage/AssetsAssignmentsPage'
 import AssetsIndexPage from 'src/pages/AssetsIndexPage/AssetsIndexPage'
 import AssetsInventoryPage from 'src/pages/AssetsInventoryPage/AssetsInventoryPage'
-import AssetsManagementPage from 'src/pages/AssetsManagementPage/AssetsManagementPage'
 import AssetsReportsDepartmentDetailPage from 'src/pages/AssetsReportsDepartmentDetailPage/AssetsReportsDepartmentDetailPage'
 import AssetsReportsDepartmentsPage from 'src/pages/AssetsReportsDepartmentsPage/AssetsReportsDepartmentsPage'
 import AssetsReportsEmployeeDetailPage from 'src/pages/AssetsReportsEmployeeDetailPage/AssetsReportsEmployeeDetailPage'
@@ -29,6 +29,7 @@ import MeBookingsPage from 'src/pages/MeBookingsPage/MeBookingsPage'
 import MeVacationPage from 'src/pages/MeVacationPage/MeVacationPage'
 import ProjectTrackerEmployeesPage from 'src/pages/ProjectTrackerEmployeesPage/ProjectTrackerEmployeesPage'
 import ProjectTrackerManagementPage from 'src/pages/ProjectTrackerManagementPage/ProjectTrackerManagementPage'
+import ProjectTrackerMyReportsPage from 'src/pages/ProjectTrackerMyReportsPage/ProjectTrackerMyReportsPage'
 import ProjectTrackerReportsPage from 'src/pages/ProjectTrackerReportsPage/ProjectTrackerReportsPage'
 
 import { useAuth } from './auth'
@@ -55,6 +56,7 @@ const Routes = () => {
         <Route path="/assets/reports" page={AssetsReportsIndexPage} name="assetsReports" />
         <Route path="/assets/reports/my" page={AssetsReportsMyPage} name="assetsReportsMy" />
         <Route path="/project" page={ProjectTrackerPage} name="projectTracker" />
+        <Route path="/project/my-reports" page={ProjectTrackerMyReportsPage} name="projectTrackerMyReports" />
 
         {/* Office Supplies Management */}
         <Route path="/supply-requests" page={OfficeSupplySupplyRequestsPage} name="supplyRequests" />
@@ -72,6 +74,7 @@ const Routes = () => {
 
       <PrivateSet unauthenticated="login" roles={['ADMIN']}>
         <Route path="/admin" page={AdminPanelPage} name="adminPanel" />
+        <Route path="/admin/meeting-rooms" page={AdminMeetingRoomsPage} name="adminMeetingRooms" />
         <Route path="/admin/diagnostics-tools" page={AdminDiagnosticsToolsPage} name="adminDiagnosticsTools" />
         <Route path="/admin/users/new" page={UserNewUserPage} name="newUser" />
         <Route path="/admin/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
@@ -81,7 +84,6 @@ const Routes = () => {
         <Route path="/admin/supply-requests" page={OfficeSupplyAdminSupplyRequestsPage} name="adminSupplyRequests" />
         <Route path="/admin/supply-categories" page={OfficeSupplySupplyCategoriesPage} name="adminSupplyCategories" />
         <Route path="/assets/inventory" page={AssetsInventoryPage} name="assetsInventory" />
-        <Route path="/assets/management" page={AssetsManagementPage} name="assetsManagement" />
         <Route path="/assets/reports/overview" page={AssetsReportsOverviewPage} name="assetsReportsOverview" />
         <Route path="/assets/reports/employees" page={AssetsReportsEmployeesPage} name="assetsReportsEmployees" />
         <Route path="/assets/reports/employees/{userId:Int}" page={AssetsReportsEmployeeDetailPage} name="assetsReportsEmployee" />

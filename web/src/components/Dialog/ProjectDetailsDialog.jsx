@@ -3,6 +3,11 @@ import React, { useState } from 'react'
 import { useMutation, gql } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { AppDialog, AppDialogContent } from 'src/components/ui/app-dialog'
+import { Button } from 'src/components/ui/button'
+import { DialogClose } from 'src/components/ui/dialog'
+import { Pill } from 'src/components/ui/pill'
+
 const DELETE_ALLOCATION_MUTATION = gql`
   mutation DeleteProjectAllocation($id: Int!) {
     deleteProjectAllocation(id: $id) {
@@ -19,33 +24,39 @@ const DELETE_ALLOCATION_MUTATION = gql`
 
 // Confirmation Dialog Component
 const ConfirmationDialog = ({ isOpen, onClose, onConfirm, title, message }) => {
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-50">
-      <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6">
-        <h3 className="mb-2 text-lg font-medium text-gray-900">{title}</h3>
-        <p className="mb-6 text-sm text-gray-600">{message}</p>
-        <div className="flex justify-end space-x-3">
-          <button
-            onClick={onClose}
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-          >
-            Remove
-          </button>
-        </div>
-      </div>
-    </div>
+    <AppDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <AppDialogContent
+        size="sm"
+        header
+        footer
+        title={title}
+        description={message}
+        footerContent={
+          <div className="flex items-center justify-end gap-3">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="button" variant="destructive" onClick={onConfirm}>
+              Remove
+            </Button>
+          </div>
+        }
+      />
+    </AppDialog>
   )
 }
 
-const ProjectDetailsDialog = ({ isOpen, onClose, project, onRefresh }) => {
+const ProjectDetailsDialog = ({
+  isOpen,
+  onClose,
+  project,
+  onRefresh,
+  onEdit,
+  onDelete,
+}) => {
   const [removeDialog, setRemoveDialog] = useState({
     isOpen: false,
     allocationId: null,
@@ -78,7 +89,7 @@ const ProjectDetailsDialog = ({ isOpen, onClose, project, onRefresh }) => {
     }
   }
 
-  if (!isOpen || !project) return null
+  if (!project) return null
 
   const getStatusBadgeColor = (status) => {
     const colors = {
@@ -117,301 +128,299 @@ const ProjectDetailsDialog = ({ isOpen, onClose, project, onRefresh }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-600 bg-opacity-50">
-      <div className="mx-4 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white shadow-xl">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900">
-                {project.name}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Project Code: {project.code}
-              </p>
+    <AppDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <AppDialogContent
+        size="xl"
+        scrollable
+        header
+        footer
+        title={project.name}
+        description={`Project Code: ${project.code}`}
+        footerContent={
+          <div className="flex w-full flex-nowrap items-center justify-between gap-3">
+            <div className="flex shrink-0 flex-nowrap items-center gap-2">
+              {onDelete ? (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={onDelete}
+                  className="px-3 sm:px-6"
+                >
+                  Delete
+                </Button>
+              ) : null}
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+            <div className="flex shrink-0 flex-nowrap items-center justify-end gap-2">
+              {onEdit ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={onEdit}
+                  className="px-3 sm:px-6"
+                >
+                  Edit
+                </Button>
+              ) : null}
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="px-3 sm:px-6"
+                >
+                  Close
+                </Button>
+              </DialogClose>
+            </div>
           </div>
-        </div>
+        }
+      >
+        {/* Project Overview */}
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="space-y-4">
+            <h4 className="text-lg font-medium text-gray-900">
+              Project Information
+            </h4>
 
-        <div className="p-6">
-          {/* Project Overview */}
-          <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="space-y-4">
-              <h4 className="text-lg font-medium text-gray-900">
-                Project Information
-              </h4>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-500">
+                  Status:
+                </span>
+                <Pill size="sm" className={getStatusBadgeColor(project.status)}>
+                  {project.status}
+                </Pill>
+              </div>
 
-              <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-500">
+                  Priority:
+                </span>
+                <Pill
+                  size="sm"
+                  className={getPriorityBadgeColor(project.priority)}
+                >
+                  {project.priority}
+                </Pill>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-500">
+                  Start Date:
+                </span>
+                <span className="text-sm text-gray-900">
+                  {new Date(project.startDate).toLocaleDateString('en-GB', {
+                    timeZone: 'UTC',
+                  })}
+                </span>
+              </div>
+
+              {project.endDate && (
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-gray-500">
-                    Status:
-                  </span>
-                  <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(project.status)}`}
-                  >
-                    {project.status}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">
-                    Priority:
-                  </span>
-                  <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getPriorityBadgeColor(project.priority)}`}
-                  >
-                    {project.priority}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">
-                    Start Date:
+                    End Date:
                   </span>
                   <span className="text-sm text-gray-900">
-                    {new Date(project.startDate).toLocaleDateString('en-GB', {
+                    {new Date(project.endDate).toLocaleDateString('en-GB', {
                       timeZone: 'UTC',
                     })}
                   </span>
                 </div>
+              )}
 
-                {project.endDate && (
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-500">
-                      End Date:
-                    </span>
-                    <span className="text-sm text-gray-900">
-                      {new Date(project.endDate).toLocaleDateString('en-GB', {
-                        timeZone: 'UTC',
-                      })}
-                    </span>
-                  </div>
-                )}
-
-                {project.manager && (
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-500">
-                      Manager:
-                    </span>
-                    <span className="text-sm text-gray-900">
-                      {project.manager.name}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-lg font-medium text-gray-900">
-                Allocation Summary
-              </h4>
-
-              <div className="space-y-3">
+              {project.manager && (
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-gray-500">
-                    Active Team Members:
-                  </span>
-                  <span className="text-sm font-semibold text-blue-600">
-                    {getActiveAllocationsCount()}
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">
-                    Total Hours/Day:
-                  </span>
-                  <span className="text-sm font-semibold text-blue-600">
-                    {getTotalAllocatedHours()}h
-                  </span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">
-                    Total Allocations:
+                    Manager:
                   </span>
                   <span className="text-sm text-gray-900">
-                    {project.allocations?.length || 0}
+                    {project.manager.name}
                   </span>
                 </div>
-
-                {project.budget && (
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-500">
-                      Budget:
-                    </span>
-                    <span className="text-sm text-gray-900">
-                      ${project.budget.toLocaleString()}
-                    </span>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Project Description */}
-          {project.description && (
-            <div className="mb-8">
-              <h4 className="mb-3 text-lg font-medium text-gray-900">
-                Description
-              </h4>
-              <p className="text-sm leading-relaxed text-gray-600">
-                {project.description}
+          <div className="space-y-4">
+            <h4 className="text-lg font-medium text-gray-900">
+              Allocation Summary
+            </h4>
+
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-500">
+                  Active Team Members:
+                </span>
+                <span className="text-sm font-semibold text-blue-600">
+                  {getActiveAllocationsCount()}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-500">
+                  Total Hours/Day:
+                </span>
+                <span className="text-sm font-semibold text-blue-600">
+                  {getTotalAllocatedHours()}h
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-500">
+                  Total Allocations:
+                </span>
+                <span className="text-sm text-gray-900">
+                  {project.allocations?.length || 0}
+                </span>
+              </div>
+
+              {project.budget && (
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">
+                    Budget:
+                  </span>
+                  <span className="text-sm text-gray-900">
+                    ${project.budget.toLocaleString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Project Description */}
+        {project.description && (
+          <div className="mb-8">
+            <h4 className="mb-3 text-lg font-medium text-gray-900">
+              Description
+            </h4>
+            <p className="text-sm leading-relaxed text-gray-600">
+              {project.description}
+            </p>
+          </div>
+        )}
+
+        {/* Team Allocations */}
+        <div className="mb-8">
+          <h4 className="mb-4 text-lg font-medium text-gray-900">
+            Team Allocations
+          </h4>
+
+          {project.allocations && project.allocations.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      Team Member
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      Role
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      Hours/Day
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      Allocated Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {project.allocations.map((allocation) => (
+                    <tr key={allocation.id}>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
+                            {allocation.user.name.charAt(0)}
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">
+                              {allocation.user.name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {allocation.user.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                        {allocation.role || 'N/A'}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                        {allocation.hoursAllocated || 0}h
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                        {allocation.allocatedDate
+                          ? new Date(
+                              allocation.allocatedDate
+                            ).toLocaleDateString('en-GB', { timeZone: 'UTC' })
+                          : 'N/A'}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <Pill
+                          size="sm"
+                          variant={allocation.isActive ? 'success' : 'default'}
+                        >
+                          {allocation.isActive ? 'Active' : 'Inactive'}
+                        </Pill>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="primaryOutline"
+                          onClick={() =>
+                            handleRemoveAllocation(
+                              allocation.id,
+                              allocation.user.name
+                            )
+                          }
+                          title="Remove from project"
+                        >
+                          Remove
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <div className="mb-2 text-4xl text-gray-400">👥</div>
+              <p className="text-gray-500">
+                No team members allocated to this project yet.
               </p>
             </div>
           )}
+        </div>
 
-          {/* Team Allocations */}
-          <div className="mb-8">
+        {/* Recent Updates Summary */}
+        {project.dailyUpdates && project.dailyUpdates.length > 0 && (
+          <div className="mb-6">
             <h4 className="mb-4 text-lg font-medium text-gray-900">
-              Team Allocations
+              Recent Updates
             </h4>
-
-            {project.allocations && project.allocations.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Team Member
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Role
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Hours/Day
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Allocated Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {project.allocations.map((allocation) => (
-                      <tr key={allocation.id}>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white">
-                              {allocation.user.name.charAt(0)}
-                            </div>
-                            <div className="ml-3">
-                              <div className="text-sm font-medium text-gray-900">
-                                {allocation.user.name}
-                              </div>
-                              <div className="text-sm text-gray-500">
-                                {allocation.user.email}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                          {allocation.role || 'N/A'}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                          {allocation.hoursAllocated || 0}h
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                          {allocation.allocatedDate
-                            ? new Date(
-                                allocation.allocatedDate
-                              ).toLocaleDateString('en-GB', { timeZone: 'UTC' })
-                            : 'N/A'}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4">
-                          <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                              allocation.isActive
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}
-                          >
-                            {allocation.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                          <button
-                            onClick={() =>
-                              handleRemoveAllocation(
-                                allocation.id,
-                                allocation.user.name
-                              )
-                            }
-                            className="text-red-600 hover:text-red-900"
-                            title="Remove from project"
-                          >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="py-8 text-center">
-                <div className="mb-2 text-4xl text-gray-400">👥</div>
-                <p className="text-gray-500">
-                  No team members allocated to this project yet.
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Recent Updates Summary */}
-          {project.dailyUpdates && project.dailyUpdates.length > 0 && (
-            <div className="mb-6">
-              <h4 className="mb-4 text-lg font-medium text-gray-900">
-                Recent Updates
-              </h4>
-              <div className="rounded-lg bg-gray-50 p-4">
-                <p className="text-sm text-gray-600">
-                  Total daily updates: {project.dailyUpdates.length}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Last update:{' '}
-                  {new Date(
-                    project.dailyUpdates[0]?.updateDate
-                  ).toLocaleDateString('en-US', { timeZone: 'UTC' })}
-                </p>
-              </div>
+            <div className="rounded-lg bg-gray-50 p-4">
+              <p className="text-sm text-gray-600">
+                Total daily updates: {project.dailyUpdates.length}
+              </p>
+              <p className="text-sm text-gray-600">
+                Last update:{' '}
+                {new Date(
+                  project.dailyUpdates[0]?.updateDate
+                ).toLocaleDateString('en-US', { timeZone: 'UTC' })}
+              </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </AppDialogContent>
 
-        {/* Footer */}
-        <div className="flex justify-end border-t border-gray-200 px-6 py-4">
-          <button
-            onClick={onClose}
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-
-      {/* Remove Confirmation Dialog */}
       <ConfirmationDialog
         isOpen={removeDialog.isOpen}
         onClose={() =>
@@ -421,7 +430,7 @@ const ProjectDetailsDialog = ({ isOpen, onClose, project, onRefresh }) => {
         title="Remove Team Member"
         message={`Are you sure you want to remove ${removeDialog.userName} from this project? This action cannot be undone.`}
       />
-    </div>
+    </AppDialog>
   )
 }
 

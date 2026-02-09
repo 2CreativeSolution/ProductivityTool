@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useQuery, useMutation, gql } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
@@ -47,7 +47,12 @@ const CREATE_ASSET_ASSIGNMENT_MUTATION = gql`
   }
 `
 
-const AssetAssignmentForm = ({ onSuccess }) => {
+const AssetAssignmentForm = ({
+  onSuccess,
+  formId = 'asset-assignment-form',
+  showSubmitButton = true,
+  onFormStateChange,
+}) => {
   const { currentUser } = useAuth()
   const [selectedAsset, setSelectedAsset] = useState('')
   const [selectedUser, setSelectedUser] = useState('')
@@ -82,6 +87,11 @@ const AssetAssignmentForm = ({ onSuccess }) => {
       },
     }
   )
+
+  useEffect(() => {
+    const canSubmit = Boolean(selectedAsset && selectedUser)
+    onFormStateChange?.({ canSubmit, submitting: creating })
+  }, [selectedAsset, selectedUser, creating, onFormStateChange])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -121,13 +131,17 @@ const AssetAssignmentForm = ({ onSuccess }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form id={formId} onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label
+            htmlFor={`${formId}-asset`}
+            className="mb-1 block text-sm font-medium text-gray-700"
+          >
             Select Asset
           </label>
           <select
+            id={`${formId}-asset`}
             value={selectedAsset}
             onChange={(e) => setSelectedAsset(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -143,10 +157,14 @@ const AssetAssignmentForm = ({ onSuccess }) => {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label
+            htmlFor={`${formId}-user`}
+            className="mb-1 block text-sm font-medium text-gray-700"
+          >
             Assign to User
           </label>
           <select
+            id={`${formId}-user`}
             value={selectedUser}
             onChange={(e) => setSelectedUser(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -162,12 +180,16 @@ const AssetAssignmentForm = ({ onSuccess }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label
+            htmlFor={`${formId}-department`}
+            className="mb-1 block text-sm font-medium text-gray-700"
+          >
             Department
           </label>
           <select
+            id={`${formId}-department`}
             value={selectedDepartment}
             onChange={(e) => setSelectedDepartment(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -180,23 +202,16 @@ const AssetAssignmentForm = ({ onSuccess }) => {
             ))}
           </select>
         </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Expected Return Date (Optional)
-          </label>
-          <input
-            type="date"
-            value={expectedReturnDate}
-            onChange={(e) => setExpectedReturnDate(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label
+            htmlFor={`${formId}-condition`}
+            className="mb-1 block text-sm font-medium text-gray-700"
+          >
             Asset Condition
           </label>
           <select
+            id={`${formId}-condition`}
             value={condition}
             onChange={(e) => setCondition(e.target.value)}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -209,11 +224,31 @@ const AssetAssignmentForm = ({ onSuccess }) => {
         </div>
       </div>
 
+      <div className="max-w-xs">
+        <label
+          htmlFor={`${formId}-expected-return-date`}
+          className="mb-1 block text-sm font-medium text-gray-700"
+        >
+          Expected Return Date (Optional)
+        </label>
+        <input
+          id={`${formId}-expected-return-date`}
+          type="date"
+          value={expectedReturnDate}
+          onChange={(e) => setExpectedReturnDate(e.target.value)}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label
+          htmlFor={`${formId}-issue-notes`}
+          className="mb-1 block text-sm font-medium text-gray-700"
+        >
           Issue Notes (Optional)
         </label>
         <textarea
+          id={`${formId}-issue-notes`}
           value={issueNotes}
           onChange={(e) => setIssueNotes(e.target.value)}
           placeholder="Any notes about this asset assignment..."
@@ -222,15 +257,17 @@ const AssetAssignmentForm = ({ onSuccess }) => {
         />
       </div>
 
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={creating || !selectedAsset || !selectedUser}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {creating ? 'Assigning...' : 'Assign Asset'}
-        </button>
-      </div>
+      {showSubmitButton && (
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={creating || !selectedAsset || !selectedUser}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {creating ? 'Assigning...' : 'Assign Asset'}
+          </button>
+        </div>
+      )}
     </form>
   )
 }
