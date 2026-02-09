@@ -108,13 +108,6 @@ const AppSidebar = ({ showQuickAccess = false }) => {
           matchPrefix: '/assets/inventory',
         },
         {
-          key: 'assetsManagement',
-          label: 'Management',
-          to: routes.assetsManagement(),
-          icon: 'ri-settings-5-line',
-          matchPrefix: '/assets/management',
-        },
-        {
           key: 'assetsReportsOverview',
           label: 'Overview Reports',
           to: routes.assetsReportsOverview(),

@@ -205,6 +205,7 @@ const ProjectManagement = forwardRef(
         })
       } catch (error) {
         console.error('Error updating project:', error)
+        throw error
       }
     }
 

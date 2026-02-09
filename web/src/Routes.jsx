@@ -15,7 +15,6 @@ import AdminMeetingRoomsPage from 'src/pages/AdminMeetingRoomsPage/AdminMeetingR
 import AssetsAssignmentsPage from 'src/pages/AssetsAssignmentsPage/AssetsAssignmentsPage'
 import AssetsIndexPage from 'src/pages/AssetsIndexPage/AssetsIndexPage'
 import AssetsInventoryPage from 'src/pages/AssetsInventoryPage/AssetsInventoryPage'
-import AssetsManagementPage from 'src/pages/AssetsManagementPage/AssetsManagementPage'
 import AssetsReportsDepartmentDetailPage from 'src/pages/AssetsReportsDepartmentDetailPage/AssetsReportsDepartmentDetailPage'
 import AssetsReportsDepartmentsPage from 'src/pages/AssetsReportsDepartmentsPage/AssetsReportsDepartmentsPage'
 import AssetsReportsEmployeeDetailPage from 'src/pages/AssetsReportsEmployeeDetailPage/AssetsReportsEmployeeDetailPage'
@@ -85,7 +84,6 @@ const Routes = () => {
         <Route path="/admin/supply-requests" page={OfficeSupplyAdminSupplyRequestsPage} name="adminSupplyRequests" />
         <Route path="/admin/supply-categories" page={OfficeSupplySupplyCategoriesPage} name="adminSupplyCategories" />
         <Route path="/assets/inventory" page={AssetsInventoryPage} name="assetsInventory" />
-        <Route path="/assets/management" page={AssetsManagementPage} name="assetsManagement" />
         <Route path="/assets/reports/overview" page={AssetsReportsOverviewPage} name="assetsReportsOverview" />
         <Route path="/assets/reports/employees" page={AssetsReportsEmployeesPage} name="assetsReportsEmployees" />
         <Route path="/assets/reports/employees/{userId:Int}" page={AssetsReportsEmployeeDetailPage} name="assetsReportsEmployee" />
