@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 
+import { BriefcaseIcon, ClockIcon } from '@heroicons/react/24/outline'
+
 import { useQuery, useMutation, gql } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
+
+import { SummaryMetricCard } from 'src/components/ui'
 
 const EMPLOYEES_QUERY = gql`
   query EmployeesQuery {
@@ -380,25 +384,25 @@ const EmployeeManagement = () => {
               </div>
 
               {/* Quick Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-4 text-center">
-                  <div className="mb-1 text-3xl font-bold text-blue-600">
-                    {getActiveProjectsCount(
-                      selectedEmployee.projectAllocations
-                    )}
-                  </div>
-                  <div className="text-sm font-medium text-blue-700">
-                    Active Projects
-                  </div>
-                </div>
-                <div className="rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-green-100 p-4 text-center">
-                  <div className="mb-1 text-3xl font-bold text-green-600">
-                    {getTotalHours(selectedEmployee.projectAllocations)}h
-                  </div>
-                  <div className="text-sm font-medium text-green-700">
-                    Total Hours/Day
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <SummaryMetricCard
+                  size="sm"
+                  title="Active Projects"
+                  value={getActiveProjectsCount(
+                    selectedEmployee.projectAllocations
+                  ).toLocaleString('en-US')}
+                  subtitle="Current active allocations"
+                  icon={<BriefcaseIcon />}
+                  trend={{ direction: 'neutral', label: 'active' }}
+                />
+                <SummaryMetricCard
+                  size="sm"
+                  title="Total Hours / Day"
+                  value={`${getTotalHours(selectedEmployee.projectAllocations)}h`}
+                  subtitle="Allocated working hours"
+                  icon={<ClockIcon />}
+                  trend={{ direction: 'positive', label: 'daily' }}
+                />
               </div>
 
               {/* Current Project Allocations */}

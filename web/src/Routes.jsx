@@ -14,6 +14,9 @@ import AdminDiagnosticsToolsPage from 'src/pages/AdminDiagnosticsToolsPage/Admin
 import MeAttendancePage from 'src/pages/MeAttendancePage/MeAttendancePage'
 import MeBookingsPage from 'src/pages/MeBookingsPage/MeBookingsPage'
 import MeVacationPage from 'src/pages/MeVacationPage/MeVacationPage'
+import ProjectTrackerEmployeesPage from 'src/pages/ProjectTrackerEmployeesPage/ProjectTrackerEmployeesPage'
+import ProjectTrackerManagementPage from 'src/pages/ProjectTrackerManagementPage/ProjectTrackerManagementPage'
+import ProjectTrackerReportsPage from 'src/pages/ProjectTrackerReportsPage/ProjectTrackerReportsPage'
 
 import { useAuth } from './auth'
 
@@ -33,12 +36,12 @@ const Routes = () => {
         <Route path="/me/vacation" page={MeVacationPage} name="meVacation" />
         <Route path="/form" page={FormPage} name="form" />
         <Route path="/asset-tracker" page={AssetTrackerPage} name="assetTracker" />
-        <Route path="/project-tracker" page={ProjectTrackerPage} name="projectTracker" />
+        <Route path="/project" page={ProjectTrackerPage} name="projectTracker" />
+        <Route path="/project/reports" page={ProjectTrackerReportsPage} name="projectTrackerReports" />
 
         {/* Office Supplies Management */}
         <Route path="/office-supplies" page={OfficeSupplyOfficeSupplyInventoryPage} name="officeSupplies" />
         <Route path="/supply-requests" page={OfficeSupplySupplyRequestsPage} name="supplyRequests" />
-        <Route path="/supply-categories" page={OfficeSupplySupplyCategoriesPage} name="supplyCategories" />
 
         <Set wrap={ScaffoldLayout} title="Bookings" titleTo="bookings" buttonLabel="New Booking" buttonTo="newBooking">
           <Route path="/bookings/new" page={BookingNewBookingPage} name="newBooking" />
@@ -56,10 +59,13 @@ const Routes = () => {
         <Route path="/admin/diagnostics-tools" page={AdminDiagnosticsToolsPage} name="adminDiagnosticsTools" />
         <Route path="/admin/users/new" page={UserNewUserPage} name="newUser" />
         <Route path="/admin/users/{id:Int}/edit" page={UserEditUserPage} name="editUser" />
-        <Route path="/admin/users/{id:Int}" page={UserUserPage} name="user" />
+        <Route path="/admin/users/{id:Int}" page={UserEditUserPage} name="user" />
         <Route path="/admin/users" page={UserUsersPage} name="users" />
+        <Route path="/admin/vacation-requests" page={AdminVacationRequestsPage} name="adminVacationRequests" />
         <Route path="/admin/supply-requests" page={OfficeSupplyAdminSupplyRequestsPage} name="adminSupplyRequests" />
         <Route path="/admin/supply-categories" page={OfficeSupplySupplyCategoriesPage} name="adminSupplyCategories" />
+        <Route path="/project/management" page={ProjectTrackerManagementPage} name="projectTrackerManagement" />
+        <Route path="/project/employees" page={ProjectTrackerEmployeesPage} name="projectTrackerEmployees" />
       </PrivateSet>
 
       <Route notfound page={NotFoundPage} />

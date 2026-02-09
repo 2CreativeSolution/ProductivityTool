@@ -144,10 +144,7 @@ const ChangePasswordForm = () => {
 
   return (
     <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-      <form
-        onSubmit={handleSubmit}
-        className="rounded-xl border border-slate-200 bg-white px-6 py-6 shadow-sm"
-      >
+      <form onSubmit={handleSubmit}>
         <h2 className="text-lg font-semibold text-slate-900">
           Update Password
         </h2>
@@ -240,7 +237,7 @@ const ChangePasswordForm = () => {
         </div>
       </form>
 
-      <aside className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-5">
+      <aside>
         <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
           Password Strength
         </h3>

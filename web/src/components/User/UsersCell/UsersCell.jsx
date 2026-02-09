@@ -13,6 +13,14 @@ export const QUERY = gql`
   }
 `
 
+export const beforeQuery = () => {
+  return {
+    variables: {},
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+  }
+}
+
 export const Loading = () => <div>Loading...</div>
 
 export const Empty = () => {
@@ -30,6 +38,6 @@ export const Failure = ({ error }) => (
   <div className="rw-cell-error">{error?.message}</div>
 )
 
-export const Success = ({ users }) => {
-  return <Users users={users} />
+export const Success = ({ users, searchTerm }) => {
+  return <Users users={users} searchTerm={searchTerm} />
 }

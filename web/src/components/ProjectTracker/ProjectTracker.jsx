@@ -171,100 +171,102 @@ const ProjectTracker = () => {
   }, [activeTab, isAdmin])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 pt-32 md:p-6">
-      <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="mb-8 rounded-2xl border border-white/20 bg-white/10 p-4 shadow-xl backdrop-blur-lg md:p-8">
-          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <h1 className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent md:text-4xl">
-                Project Management
-              </h1>
-              <p className="mt-2 text-sm text-gray-600 md:text-base">
-                Track daily allocations, project progress, and meeting schedules
-              </p>
-            </div>
-
-            {/* Date Selector for Daily View */}
-            {activeTab === 'daily' && (
-              <div className="flex w-full flex-col gap-2 rounded-xl border border-white/20 bg-white/50 px-4 py-3 backdrop-blur-sm sm:w-auto sm:flex-row sm:items-center sm:gap-4">
-                <label className="text-sm font-semibold text-gray-700">
-                  Date:
-                </label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-auto"
-                />
-              </div>
-            )}
+    <div className="mx-auto max-w-7xl space-y-6">
+      {/* Header */}
+      <div>
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 md:text-4xl">
+              Project Management
+            </h1>
+            <p className="mt-2 text-sm text-gray-600 md:text-base">
+              Track daily allocations, project progress, and meeting schedules
+            </p>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="relative">
-            <div className="mb-6 flex flex-wrap gap-2 overflow-x-auto border-b border-white/20 pb-4 sm:gap-6">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  ref={(el) => (tabsRef.current[tab.id] = el)}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex items-center gap-2 whitespace-nowrap px-2 pb-2 text-sm font-medium transition-colors duration-200 sm:px-0 md:text-base ${
-                    activeTab === tab.id
-                      ? 'text-blue-600'
-                      : 'text-gray-600 hover:text-blue-600'
-                  }`}
-                >
-                  <span className="text-base md:text-lg">{tab.icon}</span>
-                  <span className="hidden sm:inline">{tab.name}</span>
-                  <span className="text-xs sm:hidden">
-                    {tab.name.split(' ')[0]}
-                  </span>
-                </button>
-              ))}
-            </div>
-            {/* Animated sliding indicator */}
-            <div
-              className="absolute bottom-0 h-0.5 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 shadow-sm transition-all duration-300 ease-out"
-              style={{
-                left: `${indicatorStyle.left}px`,
-                width: `${indicatorStyle.width}px`,
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Tab Content */}
-        <div className="space-y-6">
+          {/* Date Selector for Daily View */}
           {activeTab === 'daily' && (
-            <DailyAllocation
-              allocations={allocationsData?.dailyAllocations || []}
-              loading={allocationsLoading}
-              selectedDate={selectedDate}
-              currentUser={currentUser}
-              onRefresh={refetchAllocations}
-              formatDate={formatDate}
-              getStatusBadgeColor={getStatusBadgeColor}
-              getPriorityBadgeColor={getPriorityBadgeColor}
-            />
-          )}
-
-          {activeTab === 'management' && isAdmin && (
-            <ProjectManagement
-              projects={projectsData?.activeProjects || []}
-              loading={projectsLoading}
-              onRefresh={refetchProjects}
-              getStatusBadgeColor={getStatusBadgeColor}
-              getPriorityBadgeColor={getPriorityBadgeColor}
-            />
-          )}
-
-          {activeTab === 'employees' && isAdmin && <EmployeeManagement />}
-
-          {activeTab === 'reports' && (
-            <ProjectReports currentUser={currentUser} isAdmin={isAdmin} />
+            <div className="flex w-full flex-col gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+              <label
+                htmlFor="project-tracker-selected-date"
+                className="text-sm font-semibold text-gray-700"
+              >
+                Date:
+              </label>
+              <input
+                id="project-tracker-selected-date"
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-auto"
+              />
+            </div>
           )}
         </div>
+
+        {/* Tab Navigation */}
+        <div className="relative">
+          <div className="mb-6 flex flex-wrap gap-2 overflow-x-auto border-b border-gray-200 pb-4 sm:gap-6">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                ref={(el) => (tabsRef.current[tab.id] = el)}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative flex items-center gap-2 whitespace-nowrap px-2 pb-2 text-sm font-medium transition-colors duration-200 sm:px-0 md:text-base ${
+                  activeTab === tab.id
+                    ? 'text-blue-600'
+                    : 'text-gray-600 hover:text-blue-600'
+                }`}
+              >
+                <span className="text-base md:text-lg">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.name}</span>
+                <span className="text-xs sm:hidden">
+                  {tab.name.split(' ')[0]}
+                </span>
+              </button>
+            ))}
+          </div>
+          {/* Animated sliding indicator */}
+          <div
+            className="absolute bottom-0 h-0.5 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 shadow-sm transition-all duration-300 ease-out"
+            style={{
+              left: `${indicatorStyle.left}px`,
+              width: `${indicatorStyle.width}px`,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="space-y-6">
+        {activeTab === 'daily' && (
+          <DailyAllocation
+            allocations={allocationsData?.dailyAllocations || []}
+            loading={allocationsLoading}
+            selectedDate={selectedDate}
+            currentUser={currentUser}
+            onRefresh={refetchAllocations}
+            formatDate={formatDate}
+            getStatusBadgeColor={getStatusBadgeColor}
+            getPriorityBadgeColor={getPriorityBadgeColor}
+          />
+        )}
+
+        {activeTab === 'management' && isAdmin && (
+          <ProjectManagement
+            projects={projectsData?.activeProjects || []}
+            loading={projectsLoading}
+            onRefresh={refetchProjects}
+            getStatusBadgeColor={getStatusBadgeColor}
+            getPriorityBadgeColor={getPriorityBadgeColor}
+          />
+        )}
+
+        {activeTab === 'employees' && isAdmin && <EmployeeManagement />}
+
+        {activeTab === 'reports' && (
+          <ProjectReports currentUser={currentUser} isAdmin={isAdmin} />
+        )}
       </div>
     </div>
   )

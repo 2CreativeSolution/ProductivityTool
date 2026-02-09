@@ -9,7 +9,6 @@ import {
 import { Link } from '@redwoodjs/router'
 import { Metadata, useQuery, useMutation, gql } from '@redwoodjs/web'
 
-import AdminVacationManager from 'src/components/AdminVacationManager/AdminVacationManager'
 import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import PageHeader from 'src/components/PageHeader/PageHeader'
@@ -560,11 +559,6 @@ const AdminPanelPage = () => {
             key={meetingRoomsKey}
             onChanged={handleMeetingRoomsChanged}
           />
-        </div>
-
-        {/* Vacation Management Section */}
-        <div className="mt-8">
-          <AdminVacationManager />
         </div>
       </AppContentShell>
     </>

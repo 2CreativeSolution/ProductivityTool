@@ -1,8 +1,16 @@
 import React, { useState } from 'react'
 
+import {
+  ArrowPathIcon,
+  CheckCircleIcon,
+  DocumentTextIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline'
+
 import { useQuery, gql } from '@redwoodjs/web'
 
 import { useAuth } from 'src/auth'
+import { SummaryMetricCard } from 'src/components/ui'
 
 const USER_ASSET_REPORT_QUERY = gql`
   query UserAssetReport($startDate: DateTime, $endDate: DateTime) {
@@ -261,6 +269,62 @@ const AssetReports = () => {
     setActiveReportTab('department')
   }
 
+  const renderAssignmentSummaryCards = (summaryReport) => {
+    if (!summaryReport) return null
+
+    const totalAssignments = summaryReport.totalAssignments || 0
+    const activeRate = totalAssignments
+      ? Math.round((summaryReport.activeAssignments / totalAssignments) * 100)
+      : 0
+    const returnedRate = totalAssignments
+      ? Math.round((summaryReport.returnedAssignments / totalAssignments) * 100)
+      : 0
+    const overdueRate = totalAssignments
+      ? Math.round((summaryReport.overdueAssignments / totalAssignments) * 100)
+      : 0
+
+    return (
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryMetricCard
+          size="sm"
+          title="Total Assignments"
+          value={totalAssignments.toLocaleString('en-US')}
+          subtitle="All assignment records"
+          icon={<DocumentTextIcon />}
+          trend={{ direction: 'neutral', label: 'all' }}
+        />
+        <SummaryMetricCard
+          size="sm"
+          title="Currently Active"
+          value={(summaryReport.activeAssignments || 0).toLocaleString('en-US')}
+          subtitle="Assets currently assigned"
+          icon={<CheckCircleIcon />}
+          trend={{ direction: 'positive', label: `${activeRate}%` }}
+        />
+        <SummaryMetricCard
+          size="sm"
+          title="Returned Assets"
+          value={(summaryReport.returnedAssignments || 0).toLocaleString(
+            'en-US'
+          )}
+          subtitle="Assignments completed"
+          icon={<ArrowPathIcon />}
+          trend={{ direction: 'neutral', label: `${returnedRate}%` }}
+        />
+        <SummaryMetricCard
+          size="sm"
+          title="Overdue Returns"
+          value={(summaryReport.overdueAssignments || 0).toLocaleString(
+            'en-US'
+          )}
+          subtitle="Past expected return date"
+          icon={<ExclamationTriangleIcon />}
+          trend={{ direction: 'negative', label: `${overdueRate}%` }}
+        />
+      </div>
+    )
+  }
+
   const getDepartmentAssets = () => {
     if (!departmentData?.assetAssignments || !selectedDepartment) return []
     return departmentData.assetAssignments.filter(
@@ -458,36 +522,7 @@ const AssetReports = () => {
             {report && (
               <>
                 {/* Summary Statistics */}
-                <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-                  <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {report.totalAssignments}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Total Assignments
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                    <div className="text-2xl font-bold text-green-600">
-                      {report.activeAssignments}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      Currently Active
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                    <div className="text-2xl font-bold text-gray-600">
-                      {report.returnedAssignments}
-                    </div>
-                    <div className="text-sm text-gray-600">Returned Assets</div>
-                  </div>
-                  <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                    <div className="text-2xl font-bold text-red-600">
-                      {report.overdueAssignments}
-                    </div>
-                    <div className="text-sm text-gray-600">Overdue Returns</div>
-                  </div>
-                </div>
+                {renderAssignmentSummaryCards(report)}
 
                 {/* Assignment History */}
                 <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
@@ -631,40 +666,7 @@ const AssetReports = () => {
                 {report && (
                   <>
                     {/* Summary Statistics */}
-                    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-                      <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                        <div className="text-2xl font-bold text-blue-600">
-                          {report.totalAssignments}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          Total Assignments
-                        </div>
-                      </div>
-                      <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                        <div className="text-2xl font-bold text-green-600">
-                          {report.activeAssignments}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          Currently Active
-                        </div>
-                      </div>
-                      <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                        <div className="text-2xl font-bold text-gray-600">
-                          {report.returnedAssignments}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          Returned Assets
-                        </div>
-                      </div>
-                      <div className="rounded-2xl border border-white/20 bg-white/10 p-6 shadow-xl backdrop-blur-lg">
-                        <div className="text-2xl font-bold text-red-600">
-                          {report.overdueAssignments}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          Overdue Returns
-                        </div>
-                      </div>
-                    </div>
+                    {renderAssignmentSummaryCards(report)}
 
                     {/* Assets by Category */}
                     {report.assetsByCategory.length > 0 && (

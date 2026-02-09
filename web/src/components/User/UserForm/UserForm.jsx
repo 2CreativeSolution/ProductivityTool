@@ -10,7 +10,8 @@ import {
 } from '@redwoodjs/forms'
 
 import { useAuth } from 'src/auth'
-import { buttonVariants } from 'src/components/ui/button'
+import { Button, buttonVariants } from 'src/components/ui/button'
+import { Pill } from 'src/components/ui/pill'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const ROLE_OPTIONS = ['USER', 'ADMIN', 'MANAGER', 'TEAM_LEAD']
@@ -96,6 +97,11 @@ const UserForm = (props) => {
     props.onSave(normalizedData, props?.user?.id)
   }
 
+  const onCancelAccountEdit = () => {
+    setAccountDraftValues(accountInitialValues)
+    setShowAccountEditor(false)
+  }
+
   if (isAccountForm) {
     const accountTitle = props.formTitle || 'Account Settings'
     const showFormTitle = props.showFormTitle ?? true
@@ -133,81 +139,64 @@ const UserForm = (props) => {
         )}
 
         {!props.editorOnly && !showAccountEditor ? (
-          <div className="flex items-start justify-between gap-6">
-            <div className="space-y-8">
-              <div className="space-y-2">
-                <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
-                  Full Name
-                </h2>
-                <p className="text-sm font-medium text-slate-900">
-                  {props.user?.name || 'Not set'}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
-                    Email Address
-                  </h2>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      isEmailVerified
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-amber-100 text-amber-700'
-                    }`}
-                  >
-                    {isEmailVerified ? 'Verified' : 'Unverified'}
-                  </span>
-                </div>
-                <p className="text-sm font-medium text-slate-900">
-                  {props.user?.email}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
-                  Roles
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {summaryRolePillValues.map((role) => (
-                    <span
-                      key={role}
-                      className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700"
-                    >
-                      {role.replaceAll('_', ' ')}
-                    </span>
-                  ))}
-                </div>
-                {!summaryRolePillValues.length && (
-                  <p className="text-xs text-amber-700">Role is missing.</p>
-                )}
-              </div>
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
+                Full Name
+              </h2>
+              <p className="text-sm font-medium text-slate-900">
+                {props.user?.name || 'Not set'}
+              </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowAccountEditor(true)}
-              className={buttonVariants({
-                variant: 'primaryOutline',
-                size: 'sm',
-              })}
-            >
-              Change
-            </button>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
+                  Email Address
+                </h2>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                    isEmailVerified
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-amber-100 text-amber-700'
+                  }`}
+                >
+                  {isEmailVerified ? 'Verified' : 'Unverified'}
+                </span>
+              </div>
+              <p className="text-sm font-medium text-slate-900">
+                {props.user?.email}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
+                Roles
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {summaryRolePillValues.map((role) => (
+                  <Pill key={role} className="uppercase tracking-wide">
+                    {role.replaceAll('_', ' ')}
+                  </Pill>
+                ))}
+              </div>
+              {!summaryRolePillValues.length && (
+                <p className="text-xs text-amber-700">Role is missing.</p>
+              )}
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowAccountEditor(true)}
+                className={buttonVariants({ variant: 'secondary' })}
+              >
+                Edit
+              </button>
+            </div>
           </div>
         ) : (
           <Form onSubmit={onSubmit} error={props.error} className="space-y-5">
-            {!props.editorOnly && (
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowAccountEditor(false)}
-                  className="text-sm font-medium text-[#322e85] underline underline-offset-4 hover:text-[#2b2773]"
-                >
-                  Hide
-                </button>
-              </div>
-            )}
-
             <FormError
               error={props.error}
               wrapperClassName="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-red-700"
@@ -321,12 +310,9 @@ const UserForm = (props) => {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {rolePillValues.map((role) => (
-                    <span
-                      key={role}
-                      className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700"
-                    >
+                    <Pill key={role} className="uppercase tracking-wide">
                       {role.replaceAll('_', ' ')}
-                    </span>
+                    </Pill>
                   ))}
                 </div>
               )}
@@ -342,14 +328,29 @@ const UserForm = (props) => {
               )}
             </>
 
-            <Submit
-              disabled={
-                props.loading || !hasAccountChanges || !hasRequiredAccountValues
-              }
-              className={buttonVariants({ variant: 'primary' })}
-            >
-              {submitLabel}
-            </Submit>
+            <div className="flex items-center gap-3">
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={
+                  props.loading ||
+                  !hasAccountChanges ||
+                  !hasRequiredAccountValues
+                }
+              >
+                {submitLabel}
+              </Button>
+              {!props.editorOnly && (
+                <Button
+                  type="button"
+                  onClick={onCancelAccountEdit}
+                  disabled={props.loading}
+                  variant="secondaryOutline"
+                >
+                  Cancel
+                </Button>
+              )}
+            </div>
           </Form>
         )}
       </>
