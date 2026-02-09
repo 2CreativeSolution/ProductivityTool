@@ -17,11 +17,13 @@ const AppSidebar = ({ showQuickAccess = false }) => {
 
   const [homeOpen, setHomeOpen] = useState(showQuickAccess)
   const [resourcesOpen, setResourcesOpen] = useState(false)
+  const [projectsOpen, setProjectsOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileHomeOpen, setMobileHomeOpen] = useState(showQuickAccess)
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false)
+  const [mobileProjectsOpen, setMobileProjectsOpen] = useState(false)
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false)
   const [mobileAdminOpen, setMobileAdminOpen] = useState(false)
   const [desktopExpanded, setDesktopExpanded] = useState(() => {
@@ -89,6 +91,47 @@ const AppSidebar = ({ showQuickAccess = false }) => {
     ],
     []
   )
+
+  const projectItems = useMemo(() => {
+    const items = [
+      {
+        key: 'projectTrackerDaily',
+        label: 'Daily Tracker',
+        to: routes.projectTracker(),
+        icon: 'ri-calendar-check-line',
+        matchPrefix: '/project',
+        exact: true,
+      },
+      {
+        key: 'projectTrackerReports',
+        label: 'Reports',
+        to: routes.projectTrackerReports(),
+        icon: 'ri-bar-chart-box-line',
+        matchPrefix: '/project/reports',
+      },
+    ]
+
+    if (isAdmin) {
+      items.push(
+        {
+          key: 'projectTrackerManagement',
+          label: 'Management',
+          to: routes.projectTrackerManagement(),
+          icon: 'ri-settings-5-line',
+          matchPrefix: '/project/management',
+        },
+        {
+          key: 'projectTrackerEmployees',
+          label: 'Employees',
+          to: routes.projectTrackerEmployees(),
+          icon: 'ri-group-line',
+          matchPrefix: '/project/employees',
+        }
+      )
+    }
+
+    return items
+  }, [isAdmin])
 
   const settingsItems = useMemo(() => {
     if (!currentUser?.id) return []
@@ -196,7 +239,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
   )
   const settingsActive = settingsItems.some((item) => isItemActive(item))
   const adminActive = adminItems.some((item) => isItemActive(item))
-  const projectsActive = pathname.startsWith('/project-tracker')
+  const projectsActive = pathname.startsWith('/project')
   const homeActive =
     pathname === '/' || pathname === '/me' || pathname.startsWith('/me/')
 
@@ -206,6 +249,13 @@ const AppSidebar = ({ showQuickAccess = false }) => {
       setMobileResourcesOpen(true)
     }
   }, [resourcesActive])
+
+  useEffect(() => {
+    if (projectsActive) {
+      setProjectsOpen(true)
+      setMobileProjectsOpen(true)
+    }
+  }, [projectsActive])
 
   useEffect(() => {
     if (settingsActive) {
@@ -432,18 +482,39 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                   </div>
                 )}
 
-                <Link
-                  to={routes.projectTracker()}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                <button
+                  type="button"
+                  onClick={() => setMobileProjectsOpen((open) => !open)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
                     projectsActive
                       ? 'bg-gray-900 text-white'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   <i className="ri-briefcase-4-line text-base"></i>
-                  <span>Projects</span>
-                </Link>
+                  <span className="flex-1">Projects</span>
+                  <i
+                    className={`ri-arrow-down-s-line text-base transition-transform ${
+                      mobileProjectsOpen ? 'rotate-180' : ''
+                    }`}
+                  ></i>
+                </button>
+
+                {mobileProjectsOpen && (
+                  <div className="mt-1 space-y-1 pl-7">
+                    {projectItems.map((item) => (
+                      <Link
+                        key={item.key}
+                        to={item.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={nestedNavItemClass(isItemActive(item))}
+                      >
+                        <i className={`${item.icon} text-sm`}></i>
+                        <span>{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {isAdmin && (
@@ -704,17 +775,38 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                     </div>
                   )}
 
-                  <Link
-                    to={routes.projectTracker()}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                  <button
+                    type="button"
+                    onClick={() => setProjectsOpen((open) => !open)}
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
                       projectsActive
                         ? 'bg-gray-900 text-white'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
                     <i className="ri-briefcase-4-line text-base"></i>
-                    <span>Projects</span>
-                  </Link>
+                    <span className="flex-1">Projects</span>
+                    <i
+                      className={`ri-arrow-down-s-line text-base transition-transform ${
+                        projectsOpen ? 'rotate-180' : ''
+                      }`}
+                    ></i>
+                  </button>
+
+                  {projectsOpen && projectItems.length > 0 && (
+                    <div className="mt-1 space-y-1 pl-7">
+                      {projectItems.map((item) => (
+                        <Link
+                          key={item.key}
+                          to={item.to}
+                          className={nestedNavItemClass(isItemActive(item))}
+                        >
+                          <i className={`${item.icon} text-sm`}></i>
+                          <span>{item.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {isAdmin && (
@@ -847,13 +939,14 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                   itemIsActive: (item) => pathname.startsWith(item.to),
                 })}
 
-                <Link
-                  to={routes.projectTracker()}
-                  title="Projects"
-                  className={compactTriggerClass(projectsActive)}
-                >
-                  <i className="ri-briefcase-4-line text-xl"></i>
-                </Link>
+                {renderCompactDropdownMenu({
+                  title: 'Projects',
+                  ariaLabel: 'Projects menu',
+                  iconClassName: 'ri-briefcase-4-line',
+                  isActive: projectsActive,
+                  items: projectItems,
+                  menuWidthClass: 'w-56',
+                })}
 
                 <div className="my-2 h-px w-8 bg-gray-200"></div>
 
