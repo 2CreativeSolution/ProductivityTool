@@ -173,30 +173,37 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         matchPrefix: '/project',
         exact: true,
       },
+      {
+        key: 'projectTrackerMyReports',
+        label: 'My Reports',
+        to: routes.projectTrackerMyReports(),
+        icon: 'ri-bar-chart-line',
+        matchPrefix: '/project/my-reports',
+      },
     ]
 
     if (isAdmin) {
       items.push(
         {
           key: 'projectTrackerReports',
-          label: 'Reports',
+          label: 'Team Reports',
           to: routes.projectTrackerReports(),
           icon: 'ri-bar-chart-box-line',
           matchPrefix: '/project/reports',
         },
         {
-          key: 'projectTrackerManagement',
-          label: 'Management',
-          to: routes.projectTrackerManagement(),
-          icon: 'ri-settings-5-line',
-          matchPrefix: '/project/management',
-        },
-        {
           key: 'projectTrackerEmployees',
-          label: 'Employees',
+          label: 'Team Members',
           to: routes.projectTrackerEmployees(),
           icon: 'ri-group-line',
           matchPrefix: '/project/employees',
+        },
+        {
+          key: 'projectTrackerManagement',
+          label: 'Settings',
+          to: routes.projectTrackerManagement(),
+          icon: 'ri-settings-5-line',
+          matchPrefix: '/project/management',
         }
       )
     }
@@ -263,6 +270,13 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         to: routes.adminSupplyCategories(),
         icon: 'ri-price-tag-3-line',
         matchPrefix: '/admin/supply-categories',
+      },
+      {
+        key: 'adminMeetingRooms',
+        label: 'Manage Meeting Rooms',
+        to: routes.adminMeetingRooms(),
+        icon: 'ri-building-2-line',
+        matchPrefix: '/admin/meeting-rooms',
       },
       {
         key: 'diagnosticsTools',

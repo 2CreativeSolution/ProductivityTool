@@ -1,10 +1,9 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ExclamationTriangleIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline'
 import { gql } from 'graphql-tag'
@@ -25,11 +24,17 @@ import { toast } from '@redwoodjs/web/toast'
 import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import PageHeader from 'src/components/PageHeader/PageHeader'
-import { Pill, SummaryMetricCard } from 'src/components/ui'
+import {
+  AppDialog,
+  AdminDataTable,
+  AppDialogContent,
+  DataTableSelectFilterHeader,
+  DialogClose,
+  Pill,
+  SummaryMetricCard,
+} from 'src/components/ui'
 import { buttonVariants } from 'src/components/ui/button'
 import { Input } from 'src/components/ui/input'
-
-import SupplyRequestCard from '../SupplyRequestCard/SupplyRequestCard'
 
 const GET_MY_SUPPLY_REQUESTS = gql`
   query GetMySupplyRequests {
@@ -108,6 +113,20 @@ const DELETE_SUPPLY_REQUEST = gql`
   }
 `
 
+const formatCurrency = (value) => {
+  if (value == null) return '-'
+
+  return `$${Number(value).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`
+}
+
+const formatDate = (value) => {
+  if (!value) return '-'
+  return new Date(value).toLocaleDateString('en-US')
+}
+
 const SupplyRequestManager = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingRequest, setEditingRequest] = useState(null)
@@ -179,19 +198,6 @@ const SupplyRequestManager = () => {
     }
   }
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'PENDING':
-        return <ClockIcon className="h-5 w-5 text-yellow-500" />
-      case 'APPROVED':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />
-      case 'REJECTED':
-        return <XCircleIcon className="h-5 w-5 text-red-500" />
-      default:
-        return null
-    }
-  }
-
   const getStatusColor = (status) => {
     switch (status) {
       case 'PENDING':
@@ -218,19 +224,65 @@ const SupplyRequestManager = () => {
     }
   }
 
-  const filteredRequests = requestsData?.mySupplyRequests?.filter((request) => {
-    const matchesSearch =
-      request.supply.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.justification.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesSearch
-  })
+  const allRequests = useMemo(
+    () => requestsData?.mySupplyRequests || [],
+    [requestsData]
+  )
 
-  const statusCounts =
-    requestsData?.mySupplyRequests?.reduce((acc, request) => {
-      acc[request.status] = (acc[request.status] || 0) + 1
-      return acc
-    }, {}) || {}
-  const totalRequests = requestsData?.mySupplyRequests?.length || 0
+  const sortedRequests = useMemo(
+    () =>
+      [...allRequests].sort(
+        (left, right) => new Date(right.createdAt) - new Date(left.createdAt)
+      ),
+    [allRequests]
+  )
+
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase()
+  const filteredRequests = useMemo(() => {
+    if (!normalizedSearchTerm) {
+      return sortedRequests
+    }
+
+    return sortedRequests.filter((request) => {
+      const supplyName = (request?.supply?.name || '').toLowerCase()
+      const categoryName = (request?.supply?.category?.name || '').toLowerCase()
+      const justification = (request?.justification || '').toLowerCase()
+
+      return (
+        supplyName.includes(normalizedSearchTerm) ||
+        categoryName.includes(normalizedSearchTerm) ||
+        justification.includes(normalizedSearchTerm)
+      )
+    })
+  }, [normalizedSearchTerm, sortedRequests])
+
+  const statusFilterOptions = useMemo(() => {
+    const statuses = new Set(
+      allRequests.map((request) => request.status).filter(Boolean)
+    )
+
+    return Array.from(statuses).map((status) => ({
+      label: status,
+      value: status,
+    }))
+  }, [allRequests])
+
+  const urgencyFilterOptions = useMemo(() => {
+    const urgencies = new Set(
+      allRequests.map((request) => request.urgency).filter(Boolean)
+    )
+
+    return Array.from(urgencies).map((urgency) => ({
+      label: urgency,
+      value: urgency,
+    }))
+  }, [allRequests])
+
+  const statusCounts = allRequests.reduce((acc, request) => {
+    acc[request.status] = (acc[request.status] || 0) + 1
+    return acc
+  }, {})
+  const totalRequests = allRequests.length
   const pendingCount = statusCounts.PENDING || 0
   const approvedCount = statusCounts.APPROVED || 0
   const rejectedCount = statusCounts.REJECTED || 0
@@ -309,258 +361,333 @@ const SupplyRequestManager = () => {
         </div>
 
         {/* Request Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/20 bg-white/10 p-8 shadow-xl backdrop-blur-lg">
-              <h3 className="mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent">
-                {editingRequest ? 'Edit Supply Request' : 'New Supply Request'}
-              </h3>
-
-              <Form onSubmit={onSubmit} className="space-y-6">
-                <FormError
-                  error={null}
-                  wrapperClassName="rw-form-error-wrapper"
-                  titleClassName="rw-form-error-title"
-                  listClassName="rw-form-error-list"
-                />
-
-                {/* Supply Selection */}
-                <div className="space-y-2">
-                  <Label
-                    name="supplyId"
-                    className="text-sm font-semibold text-gray-700"
-                  >
-                    Select Supply *
-                  </Label>
-                  <SelectField
-                    name="supplyId"
-                    defaultValue={editingRequest?.supply?.id}
-                    className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                    validation={{ required: true }}
-                  >
-                    <option value="">Choose a supply...</option>
-                    {suppliesData?.officeSupplies?.map((supply) => (
-                      <option key={supply.id} value={supply.id}>
-                        {supply.name} ({supply.stockCount} available)
-                      </option>
-                    ))}
-                  </SelectField>
-                  <FieldError
-                    name="supplyId"
-                    className="text-sm text-red-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  {/* Quantity */}
-                  <div className="space-y-2">
-                    <Label
-                      name="quantityRequested"
-                      className="text-sm font-semibold text-gray-700"
-                    >
-                      Quantity Requested *
-                    </Label>
-                    <NumberField
-                      name="quantityRequested"
-                      defaultValue={editingRequest?.quantityRequested}
-                      className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter quantity"
-                      validation={{ required: true, min: 1 }}
-                    />
-                    <FieldError
-                      name="quantityRequested"
-                      className="text-sm text-red-500"
-                    />
-                  </div>
-
-                  {/* Urgency */}
-                  <div className="space-y-2">
-                    <Label
-                      name="urgency"
-                      className="text-sm font-semibold text-gray-700"
-                    >
-                      Urgency Level *
-                    </Label>
-                    <SelectField
-                      name="urgency"
-                      defaultValue={editingRequest?.urgency || 'MEDIUM'}
-                      className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                      validation={{ required: true }}
-                    >
-                      <option value="LOW">Low Priority</option>
-                      <option value="MEDIUM">Medium Priority</option>
-                      <option value="HIGH">High Priority</option>
-                    </SelectField>
-                    <FieldError
-                      name="urgency"
-                      className="text-sm text-red-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Justification */}
-                <div className="space-y-2">
-                  <Label
-                    name="justification"
-                    className="text-sm font-semibold text-gray-700"
-                  >
-                    Justification *
-                  </Label>
-                  <TextAreaField
-                    name="justification"
-                    defaultValue={editingRequest?.justification}
-                    className="w-full resize-none rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                    rows="4"
-                    placeholder="Explain why you need this supply..."
-                    validation={{ required: true }}
-                  />
-                  <FieldError
-                    name="justification"
-                    className="text-sm text-red-500"
-                  />
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex justify-end space-x-4 border-t border-gray-200 pt-6">
+        <AppDialog open={showForm} onOpenChange={setShowForm}>
+          <AppDialogContent
+            size="lg"
+            header
+            title={
+              editingRequest ? 'Edit Supply Request' : 'New Supply Request'
+            }
+            scrollable
+            footerContent={
+              <div className="flex items-center justify-end gap-3">
+                <DialogClose asChild>
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowForm(false)
-                      setEditingRequest(null)
-                    }}
-                    className="rounded-xl bg-gray-100 px-6 py-3 font-semibold text-gray-700 transition-all duration-200 hover:bg-gray-200"
+                    className={buttonVariants({ variant: 'outline' })}
+                    onClick={() => setEditingRequest(null)}
                   >
                     Cancel
                   </button>
-                  <Submit className="transform rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl">
-                    {editingRequest ? 'Update Request' : 'Submit Request'}
-                  </Submit>
-                </div>
-              </Form>
-            </div>
-          </div>
-        )}
-
-        {/* Requests List */}
-        <div className="space-y-4">
-          {requestsLoading ? (
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-8 text-center shadow-xl backdrop-blur-lg">
-              <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-              <p className="mt-4 text-gray-600">Loading your requests...</p>
-            </div>
-          ) : requestsError ? (
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-8 text-center text-red-600 shadow-xl backdrop-blur-lg">
-              <ExclamationTriangleIcon className="mx-auto mb-4 h-12 w-12" />
-              <p>Error loading requests: {requestsError.message}</p>
-            </div>
-          ) : filteredRequests?.length === 0 ? (
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-8 text-center text-gray-600 shadow-xl backdrop-blur-lg">
-              <DocumentTextIcon className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-              <p>No supply requests found.</p>
-              <button
-                type="button"
-                onClick={() => setShowForm(true)}
-                className={`${buttonVariants({ variant: 'primary' })} mt-4`}
-              >
-                Create Your First Request
-              </button>
-            </div>
-          ) : (
-            filteredRequests?.map((request) => (
-              <SupplyRequestCard
-                key={request.id}
-                icon={getStatusIcon(request.status)}
-                title={request.supply.name}
-                subtitle={request.supply.category.name}
-                metrics={
-                  <>
-                    <span className="text-sm font-medium">
-                      {request.quantityRequested} items
-                    </span>
-                    {request.supply.unitPrice && (
-                      <span className="text-sm text-gray-600">
-                        Total: $
-                        {request.totalCost?.toFixed(2) ||
-                          (
-                            request.quantityRequested * request.supply.unitPrice
-                          ).toFixed(2)}
-                      </span>
-                    )}
-                  </>
-                }
-                badges={
-                  <>
-                    <Pill className={getUrgencyColor(request.urgency)}>
-                      {request.urgency}
-                    </Pill>
-                    <Pill className={getStatusColor(request.status)}>
-                      {request.status}
-                    </Pill>
-                  </>
-                }
-                details={
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Justification:</span>{' '}
-                    {request.justification}
-                  </p>
-                }
-                notes={request.approverNotes}
-                footer={
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">
-                      <span>
-                        Requested:{' '}
-                        {new Date(request.createdAt).toLocaleDateString()}
-                      </span>
-                      {request.approvedAt && (
-                        <span className="ml-4">
-                          {request.status === 'APPROVED'
-                            ? 'Approved'
-                            : 'Rejected'}
-                          : {new Date(request.approvedAt).toLocaleDateString()}
-                        </span>
-                      )}
-                      {request.isOverdue && request.status === 'PENDING' && (
-                        <span className="ml-4 font-medium text-red-600">
-                          Overdue
-                        </span>
-                      )}
-                    </div>
-
-                    {request.status === 'PENDING' && (
-                      <div className="flex space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingRequest(request)
-                            setShowForm(true)
-                          }}
-                          className={buttonVariants({
-                            variant: 'secondary',
-                            size: 'sm',
-                          })}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleDelete(request.id, request.supply.name)
-                          }
-                          className={buttonVariants({
-                            variant: 'destructive',
-                            size: 'sm',
-                          })}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                }
+                </DialogClose>
+                <Submit
+                  form="supply-request-form"
+                  className={buttonVariants({ variant: 'primary' })}
+                >
+                  {editingRequest ? 'Update Request' : 'Submit Request'}
+                </Submit>
+              </div>
+            }
+          >
+            <Form
+              id="supply-request-form"
+              onSubmit={onSubmit}
+              className="space-y-6"
+            >
+              <FormError
+                error={null}
+                wrapperClassName="rw-form-error-wrapper"
+                titleClassName="rw-form-error-title"
+                listClassName="rw-form-error-list"
               />
-            ))
-          )}
+
+              {/* Supply Selection */}
+              <div className="space-y-2">
+                <Label
+                  name="supplyId"
+                  className="text-sm font-semibold text-gray-700"
+                >
+                  Select Supply *
+                </Label>
+                <SelectField
+                  name="supplyId"
+                  defaultValue={editingRequest?.supply?.id}
+                  className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                  validation={{ required: true }}
+                >
+                  <option value="">Choose a supply...</option>
+                  {suppliesData?.officeSupplies?.map((supply) => (
+                    <option key={supply.id} value={supply.id}>
+                      {supply.name} ({supply.stockCount} available)
+                    </option>
+                  ))}
+                </SelectField>
+                <FieldError name="supplyId" className="text-sm text-red-500" />
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {/* Quantity */}
+                <div className="space-y-2">
+                  <Label
+                    name="quantityRequested"
+                    className="text-sm font-semibold text-gray-700"
+                  >
+                    Quantity Requested *
+                  </Label>
+                  <NumberField
+                    name="quantityRequested"
+                    defaultValue={editingRequest?.quantityRequested}
+                    className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter quantity"
+                    validation={{ required: true, min: 1 }}
+                  />
+                  <FieldError
+                    name="quantityRequested"
+                    className="text-sm text-red-500"
+                  />
+                </div>
+
+                {/* Urgency */}
+                <div className="space-y-2">
+                  <Label
+                    name="urgency"
+                    className="text-sm font-semibold text-gray-700"
+                  >
+                    Urgency Level *
+                  </Label>
+                  <SelectField
+                    name="urgency"
+                    defaultValue={editingRequest?.urgency || 'MEDIUM'}
+                    className="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                    validation={{ required: true }}
+                  >
+                    <option value="LOW">Low Priority</option>
+                    <option value="MEDIUM">Medium Priority</option>
+                    <option value="HIGH">High Priority</option>
+                  </SelectField>
+                  <FieldError name="urgency" className="text-sm text-red-500" />
+                </div>
+              </div>
+
+              {/* Justification */}
+              <div className="space-y-2">
+                <Label
+                  name="justification"
+                  className="text-sm font-semibold text-gray-700"
+                >
+                  Justification *
+                </Label>
+                <TextAreaField
+                  name="justification"
+                  defaultValue={editingRequest?.justification}
+                  className="w-full resize-none rounded-xl border border-gray-200 bg-white/50 px-4 py-3 backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+                  rows="4"
+                  placeholder="Explain why you need this supply..."
+                  validation={{ required: true }}
+                />
+                <FieldError
+                  name="justification"
+                  className="text-sm text-red-500"
+                />
+              </div>
+            </Form>
+          </AppDialogContent>
+        </AppDialog>
+
+        {/* Requests Table */}
+        <div className="overflow-hidden rounded-md border bg-white">
+          <AdminDataTable
+            columns={[
+              {
+                accessorKey: 'supply.name',
+                header: 'Supply',
+                cell: ({ row }) => (
+                  <div>
+                    <div className="font-semibold text-slate-900">
+                      {row.original.supply?.name || '-'}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      Category: {row.original.supply?.category?.name || '-'}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                accessorKey: 'quantityRequested',
+                header: 'Req Qty',
+              },
+              {
+                accessorKey: 'supply.stockCount',
+                header: 'Stock',
+                cell: ({ row }) => row.original.supply?.stockCount ?? '-',
+              },
+              {
+                accessorKey: 'supply.unitPrice',
+                header: 'Unit Price',
+                cell: ({ row }) =>
+                  formatCurrency(row.original.supply?.unitPrice),
+              },
+              {
+                accessorKey: 'totalCost',
+                header: 'Total Cost',
+                cell: ({ row }) => formatCurrency(row.original.totalCost),
+              },
+              {
+                accessorKey: 'urgency',
+                header: ({ column }) => (
+                  <DataTableSelectFilterHeader
+                    column={column}
+                    label="Urgency"
+                    options={urgencyFilterOptions}
+                    allLabel="All"
+                  />
+                ),
+                filterFn: (row, id, value) => row.getValue(id) === value,
+                cell: ({ row }) => (
+                  <Pill
+                    variant="default"
+                    size="sm"
+                    className={getUrgencyColor(row.original.urgency)}
+                  >
+                    {row.original.urgency}
+                  </Pill>
+                ),
+              },
+              {
+                accessorKey: 'status',
+                header: ({ column }) => (
+                  <DataTableSelectFilterHeader
+                    column={column}
+                    label="Status"
+                    options={statusFilterOptions}
+                    allLabel="All"
+                  />
+                ),
+                filterFn: (row, id, value) => row.getValue(id) === value,
+                cell: ({ row }) => (
+                  <div className="flex items-center gap-2">
+                    <Pill
+                      variant="default"
+                      size="sm"
+                      className={getStatusColor(row.original.status)}
+                    >
+                      {row.original.status}
+                    </Pill>
+                    {row.original.isOverdue &&
+                    row.original.status === 'PENDING' ? (
+                      <Pill
+                        variant="default"
+                        size="sm"
+                        className="bg-red-100 text-red-700"
+                      >
+                        Overdue
+                      </Pill>
+                    ) : null}
+                  </div>
+                ),
+              },
+              {
+                accessorKey: 'createdAt',
+                header: 'Requested',
+                cell: ({ row }) => formatDate(row.original.createdAt),
+              },
+              {
+                accessorKey: 'approvedAt',
+                header: 'Approved/Rejected',
+                cell: ({ row }) => formatDate(row.original.approvedAt),
+              },
+              {
+                accessorKey: 'justification',
+                header: 'Justification',
+                enableSorting: false,
+                cell: ({ row }) => (
+                  <div
+                    className="max-w-[16rem] whitespace-normal break-words text-sm leading-5 text-slate-700"
+                    style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                    title={row.original.justification || ''}
+                  >
+                    {row.original.justification || '-'}
+                  </div>
+                ),
+              },
+              {
+                accessorKey: 'approverNotes',
+                header: 'Approver Notes',
+                enableSorting: false,
+                cell: ({ row }) => (
+                  <div
+                    className="max-w-[16rem] whitespace-normal break-words text-sm leading-5 text-slate-700"
+                    style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                    title={row.original.approverNotes || ''}
+                  >
+                    {row.original.approverNotes || '-'}
+                  </div>
+                ),
+              },
+              {
+                id: 'actions',
+                header: () => <div className="text-right">Actions</div>,
+                enableSorting: false,
+                cell: ({ row }) => {
+                  const request = row.original
+                  if (request.status !== 'PENDING') {
+                    return (
+                      <div className="text-right text-xs text-slate-500">-</div>
+                    )
+                  }
+
+                  return (
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        className="text-[11px] font-semibold uppercase tracking-wide text-[#322e85] transition hover:text-[#2b2773]"
+                        onClick={() => {
+                          setEditingRequest(request)
+                          setShowForm(true)
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        title={`Delete request ${request.id}`}
+                        aria-label={`Delete request ${request.id}`}
+                        className="inline-flex items-center text-red-600 transition hover:text-red-700"
+                        onClick={() =>
+                          handleDelete(request.id, request.supply.name)
+                        }
+                      >
+                        <i className="ri-delete-bin-line text-base" />
+                      </button>
+                    </div>
+                  )
+                },
+              },
+            ]}
+            data={filteredRequests}
+            emptyMessage={
+              requestsLoading
+                ? 'Loading your requests...'
+                : requestsError
+                  ? `Error loading requests: ${requestsError.message}`
+                  : 'No supply requests found.'
+            }
+            pagination
+            pageSizeOptions={[10, 20, 50, 100]}
+            initialPageSize={10}
+          />
         </div>
       </AppContentShell>
     </>

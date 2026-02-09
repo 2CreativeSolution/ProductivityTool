@@ -1,4 +1,6 @@
-import { requireAuth } from 'src/lib/auth'
+import { ForbiddenError } from '@redwoodjs/graphql-server'
+
+import { hasRole, requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 
 export const dailyProjectUpdates = ({ startDate, endDate }, { context }) => {
@@ -85,7 +87,13 @@ export const updatesByProject = ({ projectId }) => {
   })
 }
 
-export const updatesByUser = ({ userId }) => {
+export const updatesByUser = ({ userId }, { context }) => {
+  requireAuth({}, context)
+
+  if (!hasRole('ADMIN', context) && context.currentUser?.id !== userId) {
+    throw new ForbiddenError('You can only view your own updates')
+  }
+
   return db.dailyProjectUpdate.findMany({
     where: {
       allocation: {

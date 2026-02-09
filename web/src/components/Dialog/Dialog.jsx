@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useId, useState } from 'react'
 
-const Dialog = ({ isOpen, onClose, title, children }) => {
+import {
+  AppDialog,
+  AppDialogContent,
+  DialogClose,
+  buttonVariants,
+} from 'src/components/ui'
+
+const Dialog = ({ isOpen, onClose: _onClose, title, children }) => {
   if (!isOpen) return null
 
   return (
@@ -25,32 +32,43 @@ const ConfirmDialog = ({
   cancelText = 'Cancel',
 }) => {
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title={title}>
-      <div className="space-y-4">
-        <p className="text-sm text-gray-600">{message}</p>
-        <div className="flex justify-end space-x-3">
-          <button
-            onClick={onClose}
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
-          >
-            {cancelText}
-          </button>
-          <button
-            onClick={onConfirm}
-            className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            {confirmText}
-          </button>
-        </div>
-      </div>
-    </Dialog>
+    <AppDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <AppDialogContent
+        size="sm"
+        header
+        footer
+        title={title}
+        description={message}
+        footerContent={
+          <div className="flex items-center justify-end gap-3">
+            <DialogClose asChild>
+              <button
+                type="button"
+                className={buttonVariants({ variant: 'outline' })}
+              >
+                {cancelText}
+              </button>
+            </DialogClose>
+            <button
+              type="button"
+              onClick={onConfirm}
+              className={buttonVariants({ variant: 'destructive' })}
+            >
+              {confirmText}
+            </button>
+          </div>
+        }
+      />
+    </AppDialog>
   )
 }
 
 const ReturnAssetDialog = ({ isOpen, onClose, onConfirm, assetName }) => {
+  const idPrefix = useId()
   const [condition, setCondition] = useState('Good')
   const [returnNotes, setReturnNotes] = useState('')
   const [loading, setLoading] = useState(false)
+  const formId = 'return-asset-form'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -77,65 +95,83 @@ const ReturnAssetDialog = ({ isOpen, onClose, onConfirm, assetName }) => {
   }
 
   return (
-    <Dialog isOpen={isOpen} onClose={handleClose} title="Return Asset">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <p className="mb-4 text-sm text-gray-600">
-            You are about to return: <strong>{assetName}</strong>
-          </p>
-        </div>
+    <AppDialog
+      open={isOpen}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          handleClose()
+        }
+      }}
+    >
+      <AppDialogContent
+        header
+        title="Return Asset"
+        description={assetName ? `You are about to return: ${assetName}` : ''}
+        scrollable
+        footerContent={
+          <div className="flex items-center justify-end gap-3">
+            <DialogClose asChild>
+              <button
+                type="button"
+                className={buttonVariants({ variant: 'outline' })}
+              >
+                Cancel
+              </button>
+            </DialogClose>
+            <button
+              type="submit"
+              form={formId}
+              disabled={loading}
+              className={buttonVariants({ variant: 'primary' })}
+            >
+              {loading ? 'Returning...' : 'Return Asset'}
+            </button>
+          </div>
+        }
+      >
+        <form id={formId} onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              className="mb-1 block text-sm font-medium text-gray-700"
+              htmlFor={`${idPrefix}-condition`}
+            >
+              Asset Condition *
+            </label>
+            <select
+              id={`${idPrefix}-condition`}
+              value={condition}
+              onChange={(e) => setCondition(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+              disabled={loading}
+            >
+              <option value="Excellent">Excellent</option>
+              <option value="Good">Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Poor">Poor</option>
+            </select>
+          </div>
 
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Asset Condition *
-          </label>
-          <select
-            value={condition}
-            onChange={(e) => setCondition(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            disabled={loading}
-          >
-            <option value="Excellent">Excellent</option>
-            <option value="Good">Good</option>
-            <option value="Fair">Fair</option>
-            <option value="Poor">Poor</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Return Notes (Optional)
-          </label>
-          <textarea
-            value={returnNotes}
-            onChange={(e) => setReturnNotes(e.target.value)}
-            placeholder="Any notes about the asset condition or return..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows={3}
-            disabled={loading}
-          />
-        </div>
-
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={loading}
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
-          >
-            {loading ? 'Returning...' : 'Return Asset'}
-          </button>
-        </div>
-      </form>
-    </Dialog>
+          <div>
+            <label
+              className="mb-1 block text-sm font-medium text-gray-700"
+              htmlFor={`${idPrefix}-notes`}
+            >
+              Return Notes (Optional)
+            </label>
+            <textarea
+              id={`${idPrefix}-notes`}
+              value={returnNotes}
+              onChange={(e) => setReturnNotes(e.target.value)}
+              placeholder="Any notes about the asset condition or return..."
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={3}
+              disabled={loading}
+            />
+          </div>
+        </form>
+      </AppDialogContent>
+    </AppDialog>
   )
 }
 
@@ -146,6 +182,8 @@ const AssetRequestDialog = ({
   categories,
   assets,
 }) => {
+  const idPrefix = useId()
+  const formId = `${idPrefix}-asset-request-form`
   const [requestType, setRequestType] = useState('category') // 'category' or 'specific'
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedAsset, setSelectedAsset] = useState('')
@@ -196,159 +234,196 @@ const AssetRequestDialog = ({
     assets?.filter((asset) => asset.status === 'Available') || []
 
   return (
-    <Dialog isOpen={isOpen} onClose={handleClose} title="Request Asset">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Request Type *
-          </label>
-          <div className="flex space-x-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="category"
-                checked={requestType === 'category'}
-                onChange={(e) => setRequestType(e.target.value)}
-                className="mr-2"
+    <AppDialog
+      open={isOpen}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          handleClose()
+        }
+      }}
+    >
+      <AppDialogContent
+        header
+        title="Request Asset"
+        description="Submit an asset request for admin review."
+        scrollable
+        footerContent={
+          <div className="flex items-center justify-end gap-3">
+            <DialogClose asChild>
+              <button
+                type="button"
                 disabled={loading}
-              />
-              Asset Category
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="specific"
-                checked={requestType === 'specific'}
-                onChange={(e) => setRequestType(e.target.value)}
-                className="mr-2"
-                disabled={loading}
-              />
-              Specific Asset
-            </label>
+                className={buttonVariants({ variant: 'outline' })}
+              >
+                Cancel
+              </button>
+            </DialogClose>
+            <button
+              type="submit"
+              form={formId}
+              disabled={
+                loading ||
+                !reason ||
+                (requestType === 'category' && !selectedCategory) ||
+                (requestType === 'specific' && !selectedAsset)
+              }
+              className={buttonVariants({ variant: 'primary' })}
+            >
+              {loading ? 'Submitting...' : 'Submit Request'}
+            </button>
           </div>
-        </div>
-
-        {requestType === 'category' && (
+        }
+      >
+        <form id={formId} onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Asset Category *
+            <p className="mb-2 block text-sm font-medium text-gray-700">
+              Request Type *
+            </p>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value="category"
+                  checked={requestType === 'category'}
+                  onChange={(e) => setRequestType(e.target.value)}
+                  className="mr-2"
+                  disabled={loading}
+                />
+                Asset Category
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value="specific"
+                  checked={requestType === 'specific'}
+                  onChange={(e) => setRequestType(e.target.value)}
+                  className="mr-2"
+                  disabled={loading}
+                />
+                Specific Asset
+              </label>
+            </div>
+          </div>
+
+          {requestType === 'category' && (
+            <div>
+              <label
+                className="mb-1 block text-sm font-medium text-gray-700"
+                htmlFor={`${idPrefix}-category`}
+              >
+                Asset Category *
+              </label>
+              <select
+                id={`${idPrefix}-category`}
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                disabled={loading}
+              >
+                <option value="">Select a category</option>
+                {categories?.map((category) => (
+                  <option key={category.id} value={category.id.toString()}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {requestType === 'specific' && (
+            <div>
+              <label
+                className="mb-1 block text-sm font-medium text-gray-700"
+                htmlFor={`${idPrefix}-asset`}
+              >
+                Specific Asset *
+              </label>
+              <select
+                id={`${idPrefix}-asset`}
+                value={selectedAsset}
+                onChange={(e) => setSelectedAsset(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+                disabled={loading}
+              >
+                <option value="">Select an asset</option>
+                {availableAssets.map((asset) => (
+                  <option key={asset.id} value={asset.id.toString()}>
+                    {asset.assetId} - {asset.name} ({asset.model})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label
+              className="mb-1 block text-sm font-medium text-gray-700"
+              htmlFor={`${idPrefix}-reason`}
+            >
+              Reason for Request *
+            </label>
+            <textarea
+              id={`${idPrefix}-reason`}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Please explain why you need this asset..."
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows={3}
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <label
+              className="mb-1 block text-sm font-medium text-gray-700"
+              htmlFor={`${idPrefix}-urgency`}
+            >
+              Urgency *
             </label>
             <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              id={`${idPrefix}-urgency`}
+              value={urgency}
+              onChange={(e) => setUrgency(e.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={loading}
             >
-              <option value="">Select a category</option>
-              {categories?.map((category) => (
-                <option key={category.id} value={category.id.toString()}>
-                  {category.name}
-                </option>
-              ))}
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
             </select>
           </div>
-        )}
 
-        {requestType === 'specific' && (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Specific Asset *
+            <label
+              className="mb-1 block text-sm font-medium text-gray-700"
+              htmlFor={`${idPrefix}-duration`}
+            >
+              Expected Duration (Optional)
             </label>
             <select
-              value={selectedAsset}
-              onChange={(e) => setSelectedAsset(e.target.value)}
+              id={`${idPrefix}-duration`}
+              value={expectedDuration}
+              onChange={(e) => setExpectedDuration(e.target.value)}
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
               disabled={loading}
             >
-              <option value="">Select an asset</option>
-              {availableAssets.map((asset) => (
-                <option key={asset.id} value={asset.id.toString()}>
-                  {asset.assetId} - {asset.name} ({asset.model})
-                </option>
-              ))}
+              <option value="">Not specified</option>
+              <option value="1 week">1 week</option>
+              <option value="2 weeks">2 weeks</option>
+              <option value="1 month">1 month</option>
+              <option value="3 months">3 months</option>
+              <option value="6 months">6 months</option>
+              <option value="Permanent">Permanent</option>
             </select>
           </div>
-        )}
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Reason for Request *
-          </label>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Please explain why you need this asset..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows={3}
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Urgency *
-          </label>
-          <select
-            value={urgency}
-            onChange={(e) => setUrgency(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-            disabled={loading}
-          >
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Expected Duration (Optional)
-          </label>
-          <select
-            value={expectedDuration}
-            onChange={(e) => setExpectedDuration(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={loading}
-          >
-            <option value="">Not specified</option>
-            <option value="1 week">1 week</option>
-            <option value="2 weeks">2 weeks</option>
-            <option value="1 month">1 month</option>
-            <option value="3 months">3 months</option>
-            <option value="6 months">6 months</option>
-            <option value="Permanent">Permanent</option>
-          </select>
-        </div>
-
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={handleClose}
-            disabled={loading}
-            className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={
-              loading ||
-              !reason ||
-              (requestType === 'category' && !selectedCategory) ||
-              (requestType === 'specific' && !selectedAsset)
-            }
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-          >
-            {loading ? 'Submitting...' : 'Submit Request'}
-          </button>
-        </div>
-      </form>
-    </Dialog>
+        </form>
+      </AppDialogContent>
+    </AppDialog>
   )
 }
 
@@ -359,6 +434,8 @@ const ApprovalDialog = ({
   request,
   availableAssets,
 }) => {
+  const idPrefix = useId()
+  const formId = `${idPrefix}-approval-form`
   const [selectedAsset, setSelectedAsset] = useState('')
   const [fulfillmentNotes, setFulfillmentNotes] = useState('')
   const [loading, setLoading] = useState(false)
@@ -427,113 +504,144 @@ const ApprovalDialog = ({
     }) || []
 
   return (
-    <Dialog isOpen={isOpen} onClose={handleClose} title="Approve Asset Request">
-      <div className="space-y-4">
-        <div>
-          <h4 className="font-medium text-gray-900">Request Details</h4>
-          <p className="mt-1 text-sm text-gray-600">{request?.reason}</p>
-          <div className="mt-2 flex space-x-4 text-sm">
-            <span className="text-gray-500">
-              Urgency: <strong>{request?.urgency}</strong>
-            </span>
-            {request?.expectedDuration && (
-              <span className="text-gray-500">
-                Duration: <strong>{request?.expectedDuration}</strong>
-              </span>
-            )}
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              {request?.specificAsset
-                ? 'Asset Assignment (Specific Asset Requested)'
-                : 'Assign Asset (Optional)'}
-            </label>
-            <select
-              value={selectedAsset}
-              onChange={(e) => setSelectedAsset(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <AppDialog
+      open={isOpen}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          handleClose()
+        }
+      }}
+    >
+      <AppDialogContent
+        header
+        title="Approve Asset Request"
+        description="Review request details and optionally assign an asset."
+        scrollable
+        footerContent={
+          <div className="flex items-center justify-end gap-3">
+            <DialogClose asChild>
+              <button
+                type="button"
+                disabled={loading}
+                className={buttonVariants({ variant: 'outline' })}
+              >
+                Cancel
+              </button>
+            </DialogClose>
+            <button
+              type="submit"
+              form={formId}
               disabled={loading}
+              className={buttonVariants({ variant: 'primary' })}
             >
-              {request?.specificAsset ? (
-                filteredAssets.length > 0 ? (
+              {loading ? 'Approving...' : 'Approve'}
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <h4 className="font-medium text-gray-900">Request Details</h4>
+            <p className="mt-1 text-sm text-gray-600">{request?.reason}</p>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              <span className="text-gray-500">
+                Urgency: <strong>{request?.urgency}</strong>
+              </span>
+              {request?.expectedDuration && (
+                <span className="text-gray-500">
+                  Duration: <strong>{request?.expectedDuration}</strong>
+                </span>
+              )}
+            </div>
+          </div>
+
+          <form id={formId} onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label
+                className="mb-1 block text-sm font-medium text-gray-700"
+                htmlFor={`${idPrefix}-assign-asset`}
+              >
+                {request?.specificAsset
+                  ? 'Asset Assignment (Specific Asset Requested)'
+                  : 'Assign Asset (Optional)'}
+              </label>
+              <select
+                id={`${idPrefix}-assign-asset`}
+                value={selectedAsset}
+                onChange={(e) => setSelectedAsset(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
+              >
+                {request?.specificAsset ? (
+                  filteredAssets.length > 0 ? (
+                    <>
+                      <option value="">
+                        Do not assign the requested asset
+                      </option>
+                      {filteredAssets.map((asset) => (
+                        <option key={asset.id} value={asset.id.toString()}>
+                          {asset.assetId} - {asset.name} ({asset.model}) -
+                          REQUESTED ASSET
+                        </option>
+                      ))}
+                    </>
+                  ) : (
+                    <option value="">Requested asset is not available</option>
+                  )
+                ) : (
                   <>
-                    <option value="">Don't assign the requested asset</option>
+                    <option value="">
+                      Approve without immediate assignment
+                    </option>
                     {filteredAssets.map((asset) => (
                       <option key={asset.id} value={asset.id.toString()}>
-                        {asset.assetId} - {asset.name} ({asset.model}) -
-                        REQUESTED ASSET
+                        {asset.assetId} - {asset.name} ({asset.model})
                       </option>
                     ))}
                   </>
-                ) : (
-                  <option value="">Requested asset is not available</option>
-                )
-              ) : (
-                <>
-                  <option value="">Approve without immediate assignment</option>
-                  {filteredAssets.map((asset) => (
-                    <option key={asset.id} value={asset.id.toString()}>
-                      {asset.assetId} - {asset.name} ({asset.model})
-                    </option>
-                  ))}
-                </>
+                )}
+              </select>
+              {filteredAssets.length === 0 && request?.specificAsset && (
+                <p className="mt-1 text-sm text-red-600">
+                  The requested specific asset is not available for assignment
+                </p>
               )}
-            </select>
-            {filteredAssets.length === 0 && request?.specificAsset && (
-              <p className="mt-1 text-sm text-red-600">
-                The requested specific asset is not available for assignment
-              </p>
-            )}
-            {filteredAssets.length === 0 && !request?.specificAsset && (
-              <p className="mt-1 text-sm text-yellow-600">
-                No available assets found for this request type
-              </p>
-            )}
-            {request?.specificAsset && filteredAssets.length > 0 && (
-              <p className="mt-1 text-sm text-blue-600">
-                This user requested a specific asset. It has been automatically
-                selected for assignment.
-              </p>
-            )}
-          </div>
+              {filteredAssets.length === 0 && !request?.specificAsset && (
+                <p className="mt-1 text-sm text-yellow-600">
+                  No available assets found for this request type
+                </p>
+              )}
+              {request?.specificAsset && filteredAssets.length > 0 && (
+                <p className="mt-1 text-sm text-blue-600">
+                  This user requested a specific asset. It has been
+                  automatically selected for assignment.
+                </p>
+              )}
+            </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Fulfillment Notes (Optional)
-            </label>
-            <textarea
-              value={fulfillmentNotes}
-              onChange={(e) => setFulfillmentNotes(e.target.value)}
-              placeholder="Any notes about the approval or assignment..."
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={3}
-              disabled={loading}
-            />
-          </div>
+            <div>
+              <label
+                className="mb-1 block text-sm font-medium text-gray-700"
+                htmlFor={`${idPrefix}-fulfillment-notes`}
+              >
+                Fulfillment Notes (Optional)
+              </label>
+              <textarea
+                id={`${idPrefix}-fulfillment-notes`}
+                value={fulfillmentNotes}
+                onChange={(e) => setFulfillmentNotes(e.target.value)}
+                placeholder="Any notes about the approval or assignment..."
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={3}
+                disabled={loading}
+              />
+            </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={loading}
-              className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
-            >
-              {loading ? 'Approving...' : 'Approve Request'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </Dialog>
+            {/* Buttons moved to modal footer */}
+          </form>
+        </div>
+      </AppDialogContent>
+    </AppDialog>
   )
 }
 

@@ -18,6 +18,8 @@ Recover, understand, and polish this abandoned + low quality RedwoodJS + Netlify
 - Do not complain about dependency warnings; only report them if explicitly asked.
 - DO NOT touch/edit yarn.ock file(s). if you modify any package - run yarn install for relevant dir to update yarn.lock
 - Prefer reusable components for repeated UI and use data‑driven values instead of hardcoded strings.
+- When rendering any kinds of lists in tabular format, use the shared table components (e.g., `AdminDataTable`) as the default pattern.
+- For every new table (admin or non-admin), follow the Users list table container exactly: wrap table with `className="overflow-hidden rounded-md border bg-white"` so border radius/chrome stays consistent.
 - Before coding, choose the highest-leverage, lowest-maintenance solution: prioritize reuse, avoid duplication, align with system boundaries (web/api/shared), and don’t ship one-off hacks when a small abstraction or shared component is clearly the right move.
 - If any requirement is ambiguous (placement, scope, or behavior), ask for clarification before changing existing UI.
 - After making code changes, run `yarn rw lint <file> --fix` for each changed file (js/ts/jsx/tsx) to keep lint aligned.

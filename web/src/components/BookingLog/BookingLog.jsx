@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 
 import { useQuery } from '@redwoodjs/web'
 
+import { Widget } from 'src/components/ui/widget'
+import { parseBookingDateTime } from 'src/lib/bookingDateTime'
+
 const BOOKINGS_LOG_QUERY = gql`
   query BookingsLog {
     bookings {
@@ -25,8 +28,9 @@ const BOOKINGS_LOG_QUERY = gql`
 
 const getStatus = (startTime, endTime) => {
   const now = new Date()
-  const start = new Date(startTime)
-  const end = new Date(endTime)
+  const start = parseBookingDateTime(startTime)
+  const end = parseBookingDateTime(endTime)
+  if (!start || !end) return 'Expired'
   if (now < start) return 'Upcoming'
   if (now >= start && now <= end) return 'Ongoing'
   return 'Expired'
@@ -87,10 +91,15 @@ const BookingLog = () => {
   }, [refetch])
 
   const now = new Date()
-  const ongoing = bookings.filter(
-    (b) => new Date(b.startTime) <= now && new Date(b.endTime) > now
-  )
-  const upcoming = bookings.filter((b) => new Date(b.startTime) > now)
+  const ongoing = bookings.filter((b) => {
+    const start = parseBookingDateTime(b.startTime)
+    const end = parseBookingDateTime(b.endTime)
+    return start && end && start <= now && end > now
+  })
+  const upcoming = bookings.filter((b) => {
+    const start = parseBookingDateTime(b.startTime)
+    return start && start > now
+  })
 
   const filtered = [...upcoming, ...ongoing]
 
@@ -105,11 +114,14 @@ const BookingLog = () => {
   }
 
   return (
-    <div className="mt-12 rounded-xl border border-blue-200 bg-white p-6 shadow">
-      <h2 className="mb-4 text-xl font-semibold text-blue-700">
-        Booking Log (All Users)
-      </h2>
-      <div className="overflow-x-auto">
+    <Widget
+      className="mt-12"
+      shadow
+      header
+      title="Booking Log (All Users)"
+      titleClassName="text-xl font-semibold text-blue-700"
+    >
+      <div className="overflow-x-auto p-6">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="bg-blue-50">
@@ -125,6 +137,8 @@ const BookingLog = () => {
           <tbody>
             {filtered.map((b) => {
               const status = getStatus(b.startTime, b.endTime)
+              const startTime = parseBookingDateTime(b.startTime)
+              const endTime = parseBookingDateTime(b.endTime)
               return (
                 <tr key={b.id} className="border-t">
                   <td className="px-4 py-2">{b.title}</td>
@@ -140,16 +154,20 @@ const BookingLog = () => {
                     </span>
                   </td>
                   <td className="px-4 py-2">
-                    {new Date(b.startTime).toLocaleString([], {
-                      dateStyle: 'short',
-                      timeStyle: 'short',
-                    })}
+                    {startTime
+                      ? startTime.toLocaleString([], {
+                          dateStyle: 'short',
+                          timeStyle: 'short',
+                        })
+                      : '-'}
                   </td>
                   <td className="px-4 py-2">
-                    {new Date(b.endTime).toLocaleString([], {
-                      dateStyle: 'short',
-                      timeStyle: 'short',
-                    })}
+                    {endTime
+                      ? endTime.toLocaleString([], {
+                          dateStyle: 'short',
+                          timeStyle: 'short',
+                        })
+                      : '-'}
                   </td>
                   <td className="px-4 py-2">{b.notes}</td>
                 </tr>
@@ -158,7 +176,7 @@ const BookingLog = () => {
           </tbody>
         </table>
       </div>
-    </div>
+    </Widget>
   )
 }
 

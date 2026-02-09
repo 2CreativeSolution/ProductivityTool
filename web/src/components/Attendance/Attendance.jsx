@@ -16,8 +16,8 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
 import ExceptionForm from 'src/components/ExceptionForm'
-import FormModal from 'src/components/FormModal'
-import { AdminDataTable, Pill } from 'src/components/ui'
+import { AdminDataTable, DialogClose, Pill } from 'src/components/ui'
+import { AppDialog, AppDialogContent } from 'src/components/ui/app-dialog'
 import { buttonVariants } from 'src/components/ui/button'
 import { Widget } from 'src/components/ui/widget'
 
@@ -112,6 +112,7 @@ const getStatusBadgeClassName = (status) => {
 const Attendance = forwardRef(({ userId }, ref) => {
   const { currentUser } = useAuth()
   const [showModal, setShowModal] = useState(false)
+  const [exceptionSubmitting, setExceptionSubmitting] = useState(false)
 
   const { data, loading, error, refetch } = useQuery(ATTENDANCE_QUERY, {
     variables: { userId },
@@ -377,99 +378,129 @@ const Attendance = forwardRef(({ userId }, ref) => {
         </section>
 
         {/* Exception Management Section */}
-        <Widget className="flex w-full flex-col p-4 lg:w-1/3">
-          <h2 className="mb-4 text-lg font-bold text-gray-800">
-            Exception Management
-          </h2>
-          <button
-            className={`${buttonVariants({ variant: 'primary' })} mb-4 w-full`}
-            onClick={() => setShowModal(true)}
-          >
-            Submit New Exception
-          </button>
+        <Widget
+          className="flex w-full flex-col overflow-hidden lg:w-1/3"
+          header
+          title="Exception Management"
+        >
+          <div className="p-4">
+            <button
+              className={`${buttonVariants({ variant: 'primary' })} mb-4 w-full`}
+              onClick={() => setShowModal(true)}
+            >
+              Submit New Exception
+            </button>
 
-          <div className="mb-6 space-y-3">
-            {exceptionLoading ? (
-              <div>Loading...</div>
-            ) : exceptionError ? (
-              <div className="text-red-500">
-                Error: {exceptionError.message}
-              </div>
-            ) : !exceptionData?.user ? (
-              <div className="text-red-500">User not found or not loaded.</div>
-            ) : paginatedExceptions.length === 0 ? (
-              <div className="text-gray-500">
-                You have not submitted any requests.
-              </div>
-            ) : (
-              paginatedExceptions.map((ex) => (
-                <div
-                  key={ex.id}
-                  className="flex flex-col rounded-lg border bg-gray-50 px-4 py-3"
-                >
-                  <div className="mb-1 flex items-center justify-between">
-                    <span className="font-semibold text-gray-800">
-                      {ex.type}
-                    </span>
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs font-semibold
+            <div className="mb-6 space-y-3">
+              {exceptionLoading ? (
+                <div>Loading...</div>
+              ) : exceptionError ? (
+                <div className="text-red-500">
+                  Error: {exceptionError.message}
+                </div>
+              ) : !exceptionData?.user ? (
+                <div className="text-red-500">
+                  User not found or not loaded.
+                </div>
+              ) : paginatedExceptions.length === 0 ? (
+                <div className="text-gray-500">
+                  You have not submitted any requests.
+                </div>
+              ) : (
+                paginatedExceptions.map((ex) => (
+                  <div
+                    key={ex.id}
+                    className="flex flex-col rounded-lg border bg-gray-50 px-4 py-3"
+                  >
+                    <div className="mb-1 flex items-center justify-between">
+                      <span className="font-semibold text-gray-800">
+                        {ex.type}
+                      </span>
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs font-semibold
                       ${ex.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : ''}
                       ${ex.status === 'Approved' ? 'bg-green-100 text-green-700' : ''}
                       ${ex.status === 'Rejected' ? 'bg-red-100 text-red-700' : ''}`}
-                    >
-                      {ex.status}
-                    </span>
+                      >
+                        {ex.status}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {new Date(ex.date).toLocaleDateString('en-GB', {
+                        timeZone: 'UTC',
+                      })}{' '}
+                    </div>
+                    <p className="max-h-24 max-w-xs overflow-y-auto break-words text-sm text-gray-700">
+                      {ex.reason}
+                    </p>
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(ex.date).toLocaleDateString('en-GB', {
-                      timeZone: 'UTC',
-                    })}{' '}
-                  </div>
-                  <p className="max-h-24 max-w-xs overflow-y-auto break-words text-sm text-gray-700">
-                    {ex.reason}
-                  </p>
+                ))
+              )}
+            </div>
+            <div className="mt-4 flex items-center justify-between">
+              <button
+                className={buttonVariants({
+                  variant: 'primaryOutline',
+                  size: 'sm',
+                })}
+                disabled={exceptionPage <= 1 || exceptionTotalPages === 0}
+                onClick={() =>
+                  setExceptionPage((prev) => Math.max(prev - 1, 1))
+                }
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-600">
+                Page {exceptionDisplayPage} of {exceptionTotalPages}
+              </span>
+              <button
+                className={buttonVariants({
+                  variant: 'primaryOutline',
+                  size: 'sm',
+                })}
+                disabled={
+                  exceptionTotalPages === 0 ||
+                  exceptionPage >= exceptionTotalPages
+                }
+                onClick={() =>
+                  setExceptionPage((prev) =>
+                    Math.min(prev + 1, Math.max(exceptionTotalPages, 1))
+                  )
+                }
+              >
+                Next
+              </button>
+            </div>
+          </div>
+          <AppDialog open={showModal} onOpenChange={setShowModal}>
+            <AppDialogContent
+              size="md"
+              header
+              title="Submit Exception Request"
+              description="Submit an attendance exception for review."
+              scrollable
+              footerContent={
+                <div className="flex items-center justify-end gap-3">
+                  <DialogClose asChild>
+                    <button className={buttonVariants({ variant: 'outline' })}>
+                      Cancel
+                    </button>
+                  </DialogClose>
+                  <button
+                    className={buttonVariants({ variant: 'primary' })}
+                    type="submit"
+                    form="attendance-exception-form"
+                    disabled={exceptionSubmitting}
+                  >
+                    {exceptionSubmitting ? 'Submitting...' : 'Submit Request'}
+                  </button>
                 </div>
-              ))
-            )}
-          </div>
-          <div className="mt-4 flex items-center justify-between">
-            <button
-              className={buttonVariants({
-                variant: 'primaryOutline',
-                size: 'sm',
-              })}
-              disabled={exceptionPage <= 1 || exceptionTotalPages === 0}
-              onClick={() => setExceptionPage((prev) => Math.max(prev - 1, 1))}
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-600">
-              Page {exceptionDisplayPage} of {exceptionTotalPages}
-            </span>
-            <button
-              className={buttonVariants({
-                variant: 'primaryOutline',
-                size: 'sm',
-              })}
-              disabled={
-                exceptionTotalPages === 0 ||
-                exceptionPage >= exceptionTotalPages
-              }
-              onClick={() =>
-                setExceptionPage((prev) =>
-                  Math.min(prev + 1, Math.max(exceptionTotalPages, 1))
-                )
               }
             >
-              Next
-            </button>
-          </div>
-          {showModal && (
-            <FormModal onClose={() => setShowModal(false)}>
-              <h2 className="mb-4 text-xl font-bold">
-                Submit Exception Request
-              </h2>
               <ExceptionForm
+                formId="attendance-exception-form"
+                hideSubmitButton
+                onLoadingChange={setExceptionSubmitting}
                 onSuccess={async () => {
                   setShowModal(false)
                   const result = await refetchExceptions()
@@ -488,8 +519,8 @@ const Attendance = forwardRef(({ userId }, ref) => {
                   )
                 }}
               />
-            </FormModal>
-          )}
+            </AppDialogContent>
+          </AppDialog>
         </Widget>
       </div>
     </>

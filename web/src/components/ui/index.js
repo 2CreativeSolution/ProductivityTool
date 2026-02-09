@@ -1,5 +1,6 @@
 export * from './alert'
 export * from './admin-data-table'
+export * from './app-dialog'
 export * from './button'
 export * from './checkbox'
 export * from './data-table'
