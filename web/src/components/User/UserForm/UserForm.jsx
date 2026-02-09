@@ -1,15 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import {
-  Form,
-  FormError,
-  FieldError,
-  Label,
-  TextField,
-  Submit,
-} from '@redwoodjs/forms'
+import { Form, FormError, FieldError, Label, Submit } from '@redwoodjs/forms'
 
 import { useAuth } from 'src/auth'
+import { Input } from 'src/components/Forms/Input/Input'
 import { Button, buttonVariants } from 'src/components/ui/button'
 import { Pill } from 'src/components/ui/pill'
 
@@ -106,7 +100,6 @@ const UserForm = (props) => {
     const accountTitle = props.formTitle || 'Account Settings'
     const showFormTitle = props.showFormTitle ?? true
     const submitLabel = props.submitLabel || 'Save Changes'
-    const isEmailVerified = Boolean(props.user?.microsoftId)
     const summaryRolePillValues = props.user?.roles ?? []
     const rolePillValues = accountDraftValues.roles || []
     const hasValidAccountEmail = EMAIL_PATTERN.test(
@@ -150,20 +143,9 @@ const UserForm = (props) => {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
-                  Email Address
-                </h2>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                    isEmailVerified
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-amber-100 text-amber-700'
-                  }`}
-                >
-                  {isEmailVerified ? 'Verified' : 'Unverified'}
-                </span>
-              </div>
+              <h2 className="text-sm font-medium uppercase tracking-wide text-slate-500">
+                Email Address
+              </h2>
               <p className="text-sm font-medium text-slate-900">
                 {props.user?.email}
               </p>
@@ -212,7 +194,10 @@ const UserForm = (props) => {
               >
                 Name
               </Label>
-              <TextField
+              <Input
+                framework="redwood"
+                size="md"
+                type="text"
                 name="name"
                 value={accountDraftValues.name}
                 onChange={(event) =>
@@ -221,8 +206,6 @@ const UserForm = (props) => {
                     name: event.target.value,
                   }))
                 }
-                className="ring-offset-background flex h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#322e85]/30"
-                errorClassName="flex h-11 w-full rounded-md border border-red-400 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-red-200"
                 validation={{
                   required: {
                     value: true,
@@ -245,7 +228,10 @@ const UserForm = (props) => {
               >
                 Email Address
               </Label>
-              <TextField
+              <Input
+                framework="redwood"
+                size="md"
+                type="email"
                 name="email"
                 value={accountDraftValues.email}
                 onChange={(event) =>
@@ -254,8 +240,6 @@ const UserForm = (props) => {
                     email: event.target.value,
                   }))
                 }
-                className="ring-offset-background flex h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#322e85]/30"
-                errorClassName="flex h-11 w-full rounded-md border border-red-400 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-red-200"
                 validation={{
                   required: {
                     value: true,
@@ -375,7 +359,9 @@ const UserForm = (props) => {
           Name
         </Label>
 
-        <TextField
+        <Input
+          framework="redwood"
+          type="text"
           name="name"
           defaultValue={props.user?.name}
           className="rw-input"
@@ -393,7 +379,9 @@ const UserForm = (props) => {
           Email
         </Label>
 
-        <TextField
+        <Input
+          framework="redwood"
+          type="email"
           name="email"
           defaultValue={props.user?.email}
           className="rw-input"

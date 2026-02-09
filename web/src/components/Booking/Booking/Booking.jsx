@@ -10,6 +10,7 @@ import { useAuth } from 'src/auth'
 //import { toast } from '@redwoodjs/web/toast'
 import BookingLog from 'src/components/BookingLog/BookingLog'
 import { buttonVariants } from 'src/components/ui/button'
+import { Widget } from 'src/components/ui/widget'
 
 import 'react-calendar/dist/Calendar.css'
 
@@ -207,121 +208,113 @@ export const BookingForm = ({ refetchBookings }) => {
   }, [success, error])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-100 px-2 py-8 sm:px-4 md:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1600px] space-y-10 rounded-[2rem] border border-gray-200 bg-white/60 p-2 shadow-2xl backdrop-blur-xl sm:p-6 md:p-10 lg:p-16">
-        <h1 className="text-center text-3xl font-extrabold text-gray-800 sm:text-4xl md:text-5xl">
-          Book a Meeting Room
-        </h1>
-
-        <form
-          onSubmit={handleSubmit}
-          className="grid w-full grid-cols-1 items-start gap-6 md:grid-cols-2 md:gap-12"
-        >
-          {/* Calendar Column */}
-          <div className="w-full rounded-3xl border border-gray-300 bg-white/70 px-2 py-6 shadow-md backdrop-blur-md transition hover:shadow-xl sm:px-6 md:px-10 md:py-10">
-            <div className="mb-4 flex items-center justify-center gap-2 text-red-500 md:mb-6">
-              <FaRegCalendarAlt className="text-xl" />
-              <h2 className="text-lg font-semibold tracking-wide md:text-xl">
-                Choose Date
-              </h2>
-            </div>
-            <div className="flex justify-center">
-              <Calendar
-                onChange={setSelectedDate}
-                value={selectedDate}
-                minDate={new Date()}
-                className="react-calendar w-full max-w-[350px] rounded-2xl p-2 md:max-w-[700px] md:p-6"
-                tileClassName={({ date }) =>
-                  format(date, 'yyyy-MM-dd') ===
-                  format(selectedDate, 'yyyy-MM-dd')
-                    ? 'bg-red-500 text-white font-semibold rounded-xl shadow-md'
-                    : 'hover:bg-red-100 hover:shadow-sm rounded-xl transition-all'
-                }
-              />
-            </div>
+    <div className="w-full space-y-8">
+      <form
+        onSubmit={handleSubmit}
+        className="grid w-full grid-cols-1 items-start gap-6 md:grid-cols-2"
+      >
+        {/* Calendar Column */}
+        <Widget className="w-full p-4 sm:p-5">
+          <div className="mb-4 flex items-center justify-center gap-2 text-red-500 md:mb-6">
+            <FaRegCalendarAlt className="text-xl" />
+            <h2 className="text-lg font-semibold tracking-wide md:text-xl">
+              Choose Date
+            </h2>
           </div>
+          <div className="flex justify-center">
+            <Calendar
+              onChange={setSelectedDate}
+              value={selectedDate}
+              minDate={new Date()}
+              className="react-calendar w-full max-w-[350px] rounded-2xl p-2 md:max-w-[700px] md:p-6"
+              tileClassName={({ date }) =>
+                format(date, 'yyyy-MM-dd') ===
+                format(selectedDate, 'yyyy-MM-dd')
+                  ? 'bg-red-500 text-white font-semibold rounded-xl shadow-md'
+                  : 'hover:bg-red-100 hover:shadow-sm rounded-xl transition-all'
+              }
+            />
+          </div>
+        </Widget>
 
-          {/* Time Slots Column */}
-          <div className="flex w-full flex-col items-center rounded-3xl border border-gray-300 bg-white/70 px-2 py-6 shadow-md backdrop-blur-md transition hover:shadow-xl sm:px-6 md:px-10 md:py-10">
-            <div className="mb-2 flex items-center gap-2 text-red-500 md:mb-4">
-              <FaRegClock className="text-xl" />
-              <h2 className="text-lg font-semibold tracking-wide md:text-xl">
-                Choose Time Slots
-              </h2>
-            </div>
-            <p className="mb-4 text-center text-sm font-medium text-gray-600 md:mb-6 md:text-base">
-              {format(selectedDate, 'eeee, MMMM do yyyy')}
+        {/* Time Slots Column */}
+        <Widget className="flex w-full flex-col items-center p-4 sm:p-5">
+          <div className="mb-2 flex items-center gap-2 text-red-500 md:mb-4">
+            <FaRegClock className="text-xl" />
+            <h2 className="text-lg font-semibold tracking-wide md:text-xl">
+              Choose Time Slots
+            </h2>
+          </div>
+          <p className="mb-4 text-center text-sm font-medium text-gray-600 md:mb-6 md:text-base">
+            {format(selectedDate, 'eeee, MMMM do yyyy')}
+          </p>
+          <div className="grid max-h-[400px] w-full max-w-[520px] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 md:gap-4">
+            {slots
+              .filter((slot) => !isSlotInPast(slot) && !isSlotBooked(slot))
+              .map((slot, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => toggleSlotSelection(slot)}
+                  className={`transform rounded-xl border py-2 text-sm font-semibold transition duration-200 md:py-3 md:text-base ${
+                    selectedSlots.some(
+                      (s) => s.start === slot.start && s.end === slot.end
+                    )
+                      ? 'scale-105 bg-red-500 text-white shadow-lg'
+                      : 'bg-white text-gray-800 hover:scale-105 hover:bg-red-100'
+                  }`}
+                >
+                  {slot.start} - {slot.end}
+                </button>
+              ))}
+          </div>
+          {slots.filter((slot) => !isSlotInPast(slot) && !isSlotBooked(slot))
+            .length === 0 && (
+            <p className="mt-4 text-center text-gray-600">
+              No available slots for the selected date. Please choose another
+              date or check back later.
             </p>
-            <div className="grid max-h-[400px] w-full max-w-[520px] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 md:gap-4">
-              {slots
-                .filter((slot) => !isSlotInPast(slot) && !isSlotBooked(slot))
-                .map((slot, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => toggleSlotSelection(slot)}
-                    className={`transform rounded-xl border py-2 text-sm font-semibold transition duration-200 md:py-3 md:text-base ${
-                      selectedSlots.some(
-                        (s) => s.start === slot.start && s.end === slot.end
-                      )
-                        ? 'scale-105 bg-red-500 text-white shadow-lg'
-                        : 'bg-white text-gray-800 hover:scale-105 hover:bg-red-100'
-                    }`}
-                  >
-                    {slot.start} - {slot.end}
-                  </button>
-                ))}
-            </div>
-            {slots.filter((slot) => !isSlotInPast(slot) && !isSlotBooked(slot))
-              .length === 0 && (
-              <p className="mt-4 text-center text-gray-600">
-                No available slots for the selected date. Please choose another
-                date or check back later.
-              </p>
-            )}
-          </div>
+          )}
+        </Widget>
 
-          {/* Meeting Title and Notes */}
-          <div className="col-span-1 mt-6 flex flex-col gap-4 md:col-span-2 md:mt-8">
-            <div>
-              <MeetingRoomSelector
-                selectedRoomId={selectRoomId}
-                onChange={(roomId) => setSelectedRoomId(roomId)}
-              />
-            </div>
-            <input
-              type="text"
-              placeholder="Meeting Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="rw-input w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:ring focus:ring-red-500"
-            />
-            <textarea
-              placeholder="Notes (optional)"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="rw-input w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:ring focus:ring-red-500"
+        {/* Meeting Title and Notes */}
+        <div className="col-span-1 mt-2 flex flex-col gap-4 md:col-span-2">
+          <div>
+            <MeetingRoomSelector
+              selectedRoomId={selectRoomId}
+              onChange={(roomId) => setSelectedRoomId(roomId)}
             />
           </div>
+          <input
+            type="text"
+            placeholder="Meeting Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="rw-input w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:ring focus:ring-red-500"
+          />
+          <textarea
+            placeholder="Notes (optional)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="rw-input w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:ring focus:ring-red-500"
+          />
+        </div>
 
-          <div className="col-span-1 mt-6 flex justify-center md:col-span-2 md:mt-8">
-            <button
-              type="submit"
-              className={buttonVariants({ variant: 'primary' })}
-              disabled={!selectRoomId}
-            >
-              Book Now
-            </button>
-          </div>
-        </form>
-        {error && (
-          <div className="mb-2 text-center font-bold text-red-600">{error}</div>
-        )}
-        {success && (
-          <div className="mb-2 text-center font-bold text-green-600">
-            {success}
-          </div>
-        )}
-      </div>
+        <div className="col-span-1 mt-2 flex md:col-span-2">
+          <button
+            type="submit"
+            className={buttonVariants({ variant: 'primary' })}
+            disabled={!selectRoomId}
+          >
+            Book Now
+          </button>
+        </div>
+      </form>
+      {error && (
+        <div className="mb-2 text-sm font-medium text-red-600">{error}</div>
+      )}
+      {success && (
+        <div className="mb-2 text-sm font-medium text-green-600">{success}</div>
+      )}
       <BookingLog />
     </div>
   )

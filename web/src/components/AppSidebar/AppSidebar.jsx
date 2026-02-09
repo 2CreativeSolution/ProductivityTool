@@ -16,12 +16,14 @@ const AppSidebar = ({ showQuickAccess = false }) => {
   const { currentUser, hasRole, logOut } = useAuth()
 
   const [homeOpen, setHomeOpen] = useState(showQuickAccess)
+  const [assetsOpen, setAssetsOpen] = useState(false)
   const [resourcesOpen, setResourcesOpen] = useState(false)
   const [projectsOpen, setProjectsOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [adminOpen, setAdminOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileHomeOpen, setMobileHomeOpen] = useState(showQuickAccess)
+  const [mobileAssetsOpen, setMobileAssetsOpen] = useState(false)
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false)
   const [mobileProjectsOpen, setMobileProjectsOpen] = useState(false)
   const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false)
@@ -68,29 +70,98 @@ const AppSidebar = ({ showQuickAccess = false }) => {
     []
   )
 
-  const resourceItems = useMemo(
-    () => [
+  const assetItems = useMemo(() => {
+    const items = [
       {
-        key: 'assets',
-        label: 'Assets',
-        to: routes.assetTracker(),
-        icon: 'ri-computer-line',
+        key: 'assetsAssignments',
+        label: isAdmin ? 'Active Assignments' : 'My Assignments',
+        to: routes.assetsAssignments(),
+        icon: 'ri-briefcase-4-line',
+        matchPrefix: '/assets/assignments',
       },
       {
-        key: 'supplies',
-        label: 'Office Supplies',
-        to: routes.officeSupplies(),
-        icon: 'ri-archive-line',
+        key: 'assetsRequests',
+        label: isAdmin ? 'All Requests' : 'My Requests',
+        to: routes.assetsRequests(),
+        icon: 'ri-file-list-3-line',
+        matchPrefix: '/assets/requests',
       },
+    ]
+
+    if (!isAdmin) {
+      items.push({
+        key: 'assetsReportsMy',
+        label: 'My Reports',
+        to: routes.assetsReportsMy(),
+        icon: 'ri-bar-chart-line',
+        matchPrefix: '/assets/reports/my',
+      })
+    }
+
+    if (isAdmin) {
+      items.push(
+        {
+          key: 'assetsInventory',
+          label: 'Inventory',
+          to: routes.assetsInventory(),
+          icon: 'ri-computer-line',
+          matchPrefix: '/assets/inventory',
+        },
+        {
+          key: 'assetsManagement',
+          label: 'Management',
+          to: routes.assetsManagement(),
+          icon: 'ri-settings-5-line',
+          matchPrefix: '/assets/management',
+        },
+        {
+          key: 'assetsReportsOverview',
+          label: 'Overview Reports',
+          to: routes.assetsReportsOverview(),
+          icon: 'ri-pie-chart-line',
+          matchPrefix: '/assets/reports/overview',
+        },
+        {
+          key: 'assetsReportsEmployees',
+          label: 'Employee Reports',
+          to: routes.assetsReportsEmployees(),
+          icon: 'ri-group-line',
+          matchPrefix: '/assets/reports/employees',
+        },
+        {
+          key: 'assetsReportsDepartments',
+          label: 'Department Reports',
+          to: routes.assetsReportsDepartments(),
+          icon: 'ri-building-line',
+          matchPrefix: '/assets/reports/departments',
+        }
+      )
+    }
+
+    return items
+  }, [isAdmin])
+
+  const resourceItems = useMemo(() => {
+    const items = [
       {
         key: 'supplyRequests',
         label: 'Supply Requests',
         to: routes.supplyRequests(),
         icon: 'ri-shopping-cart-line',
       },
-    ],
-    []
-  )
+    ]
+
+    if (isAdmin) {
+      items.unshift({
+        key: 'supplies',
+        label: 'Office Supplies',
+        to: routes.officeSupplies(),
+        icon: 'ri-archive-line',
+      })
+    }
+
+    return items
+  }, [isAdmin])
 
   const projectItems = useMemo(() => {
     const items = [
@@ -102,17 +173,17 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         matchPrefix: '/project',
         exact: true,
       },
-      {
-        key: 'projectTrackerReports',
-        label: 'Reports',
-        to: routes.projectTrackerReports(),
-        icon: 'ri-bar-chart-box-line',
-        matchPrefix: '/project/reports',
-      },
     ]
 
     if (isAdmin) {
       items.push(
+        {
+          key: 'projectTrackerReports',
+          label: 'Reports',
+          to: routes.projectTrackerReports(),
+          icon: 'ri-bar-chart-box-line',
+          matchPrefix: '/project/reports',
+        },
         {
           key: 'projectTrackerManagement',
           label: 'Management',
@@ -234,6 +305,7 @@ const AppSidebar = ({ showQuickAccess = false }) => {
         : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
     }`
 
+  const assetsActive = assetItems.some((item) => isItemActive(item))
   const resourcesActive = resourceItems.some((item) =>
     pathname.startsWith(item.to)
   )
@@ -242,6 +314,13 @@ const AppSidebar = ({ showQuickAccess = false }) => {
   const projectsActive = pathname.startsWith('/project')
   const homeActive =
     pathname === '/' || pathname === '/me' || pathname.startsWith('/me/')
+
+  useEffect(() => {
+    if (assetsActive) {
+      setAssetsOpen(true)
+      setMobileAssetsOpen(true)
+    }
+  }, [assetsActive])
 
   useEffect(() => {
     if (resourcesActive) {
@@ -441,6 +520,40 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                       >
                         <i className={`${homeItem.icon} text-sm`}></i>
                         <span>{homeItem.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setMobileAssetsOpen((open) => !open)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
+                    assetsActive
+                      ? 'bg-gray-900 text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <i className="ri-folder-chart-line text-base"></i>
+                  <span className="flex-1">Assets</span>
+                  <i
+                    className={`ri-arrow-down-s-line text-base transition-transform ${
+                      mobileAssetsOpen ? 'rotate-180' : ''
+                    }`}
+                  ></i>
+                </button>
+
+                {mobileAssetsOpen && (
+                  <div className="mt-1 space-y-1 pl-7">
+                    {assetItems.map((item) => (
+                      <Link
+                        key={item.key}
+                        to={item.to}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={nestedNavItemClass(isItemActive(item))}
+                      >
+                        <i className={`${item.icon} text-sm`}></i>
+                        <span>{item.label}</span>
                       </Link>
                     ))}
                   </div>
@@ -742,6 +855,39 @@ const AppSidebar = ({ showQuickAccess = false }) => {
 
                   <button
                     type="button"
+                    onClick={() => setAssetsOpen((open) => !open)}
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
+                      assetsActive
+                        ? 'bg-gray-900 text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <i className="ri-folder-chart-line text-base"></i>
+                    <span className="flex-1">Assets</span>
+                    <i
+                      className={`ri-arrow-down-s-line text-base transition-transform ${
+                        assetsOpen ? 'rotate-180' : ''
+                      }`}
+                    ></i>
+                  </button>
+
+                  {assetsOpen && assetItems.length > 0 && (
+                    <div className="mt-1 space-y-1 pl-7">
+                      {assetItems.map((item) => (
+                        <Link
+                          key={item.key}
+                          to={item.to}
+                          className={nestedNavItemClass(isItemActive(item))}
+                        >
+                          <i className={`${item.icon} text-sm`}></i>
+                          <span>{item.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
                     onClick={() => setResourcesOpen((open) => !open)}
                     className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
                       resourcesActive
@@ -928,6 +1074,15 @@ const AppSidebar = ({ showQuickAccess = false }) => {
                   iconClassName: 'ri-home-4-line',
                   isActive: homeActive,
                   items: homeItems,
+                })}
+
+                {renderCompactDropdownMenu({
+                  title: 'Assets',
+                  ariaLabel: 'Assets menu',
+                  iconClassName: 'ri-folder-chart-line',
+                  isActive: assetsActive,
+                  items: assetItems,
+                  menuWidthClass: 'w-56',
                 })}
 
                 {renderCompactDropdownMenu({

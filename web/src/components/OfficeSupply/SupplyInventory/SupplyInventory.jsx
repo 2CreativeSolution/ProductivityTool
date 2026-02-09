@@ -168,6 +168,23 @@ const SupplyInventory = () => {
     : 0
   const supplyActionTextClass =
     'text-[11px] font-semibold uppercase tracking-wide text-[#322e85] transition hover:text-[#2b2773]'
+  const renderSortableHeader = (column, label, align = 'left') => {
+    const sorted = column.getIsSorted()
+    const indicator = sorted === 'asc' ? '↑' : sorted === 'desc' ? '↓' : '↕'
+
+    return (
+      <div className={align === 'right' ? 'flex justify-end' : undefined}>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 text-sm font-semibold text-white/90 transition hover:text-white"
+          onClick={() => column.toggleSorting(sorted === 'asc')}
+        >
+          <span>{label}</span>
+          <span className="text-xs text-white/70">{indicator}</span>
+        </button>
+      </div>
+    )
+  }
   const supplyTableColumns = [
     {
       accessorKey: 'name',
@@ -202,7 +219,8 @@ const SupplyInventory = () => {
     },
     {
       accessorKey: 'stockCount',
-      header: 'Stock Count',
+      header: ({ column }) =>
+        renderSortableHeader(column, 'Stock Count', 'right'),
       cell: ({ row }) => (
         <div className="w-full text-right font-semibold">
           {row.original.stockCount}
@@ -211,7 +229,8 @@ const SupplyInventory = () => {
     },
     {
       accessorKey: 'unitPrice',
-      header: 'Unit Price',
+      header: ({ column }) =>
+        renderSortableHeader(column, 'Unit Price', 'right'),
       cell: ({ row }) => (
         <div className="w-full text-right font-semibold">
           ${row.original.unitPrice?.toFixed(2) || '0.00'}
@@ -221,7 +240,8 @@ const SupplyInventory = () => {
     {
       accessorFn: (row) => row.stockCount * (row.unitPrice || 0),
       id: 'totalValue',
-      header: 'Total Value',
+      header: ({ column }) =>
+        renderSortableHeader(column, 'Total Value', 'right'),
       cell: ({ row }) => (
         <div className="w-full text-right font-semibold">
           $

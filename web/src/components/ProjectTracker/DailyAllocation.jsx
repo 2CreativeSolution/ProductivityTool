@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import { useMutation, gql } from '@redwoodjs/web'
 import { toast } from '@redwoodjs/web/toast'
 
+import { buttonVariants } from 'src/components/ui/button'
+
 import DailyUpdateDialog from '../Dialog/DailyUpdateDialog'
 
 const CREATE_DAILY_UPDATE_MUTATION = gql`
@@ -40,7 +42,7 @@ const DailyAllocation = ({
   allocations,
   loading,
   selectedDate,
-  currentUser,
+  currentUser: _currentUser,
   onRefresh,
   formatDate,
   getStatusBadgeColor,
@@ -152,7 +154,7 @@ const DailyAllocation = ({
             No Project Allocations
           </h3>
           <p className="text-gray-500">
-            You don't have any project allocations for this date.
+            You don&apos;t have any project allocations for this date.
           </p>
         </div>
       )}
@@ -224,7 +226,7 @@ const DailyAllocation = ({
               {allocation.project.meetings.length > 0 && (
                 <div className="mb-4">
                   <h4 className="mb-2 text-sm font-medium text-gray-900">
-                    Today's Meetings
+                    Today&apos;s Meetings
                   </h4>
                   <div className="space-y-2">
                     {allocation.project.meetings.map((meeting) => (
@@ -289,11 +291,11 @@ const DailyAllocation = ({
               {/* Action Button */}
               <button
                 onClick={() => openUpdateDialog(allocation)}
-                className={`w-full rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                  hasUpdate
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-green-600 text-white hover:bg-green-700'
-                }`}
+                className={buttonVariants({
+                  variant: 'primary',
+                  size: 'sm',
+                  className: 'w-full',
+                })}
               >
                 {hasUpdate ? 'Update Status' : 'Submit Daily Update'}
               </button>

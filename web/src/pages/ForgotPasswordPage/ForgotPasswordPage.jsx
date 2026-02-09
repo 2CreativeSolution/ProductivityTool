@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-import { Form, TextField, Submit, FieldError } from '@redwoodjs/forms'
+import { Form, Submit, FieldError } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
@@ -8,6 +8,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 import { useAuth } from 'src/auth'
 import AuthFooter from 'src/components/AuthFooter/AuthFooter'
 import AuthNav from 'src/components/AuthNav/AuthNav'
+import { Input } from 'src/components/Forms/Input/Input'
 import { buttonVariants } from 'src/components/ui/button'
 import 'src/styles/brand-nxa.css'
 
@@ -56,9 +57,10 @@ const ForgotPasswordPage = () => {
               </p>
 
               <Form onSubmit={onSubmit} className="nxa-form">
-                <TextField
+                <Input
+                  framework="redwood"
+                  type="email"
                   name="email"
-                  className="nxa-input"
                   ref={usernameRef}
                   placeholder="Email address"
                   validation={{

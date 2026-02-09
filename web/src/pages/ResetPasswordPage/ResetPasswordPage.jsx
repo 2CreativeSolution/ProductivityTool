@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { Form, PasswordField, Submit, FieldError } from '@redwoodjs/forms'
+import { Form, Submit, FieldError } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
@@ -8,6 +8,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 import { useAuth } from 'src/auth'
 import AuthFooter from 'src/components/AuthFooter/AuthFooter'
 import AuthNav from 'src/components/AuthNav/AuthNav'
+import { Input } from 'src/components/Forms/Input/Input'
 import { buttonVariants } from 'src/components/ui/button'
 import 'src/styles/brand-nxa.css'
 
@@ -75,11 +76,11 @@ const ResetPasswordPage = ({ resetToken }) => {
               </p>
 
               <Form onSubmit={onSubmit} className="nxa-form">
-                <PasswordField
+                <Input
+                  framework="redwood"
+                  type="password"
                   name="password"
                   autoComplete="new-password"
-                  className="nxa-input"
-                  errorClassName="nxa-input nxa-input-error"
                   disabled={!enabled}
                   ref={passwordRef}
                   placeholder="New password"

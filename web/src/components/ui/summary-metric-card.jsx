@@ -90,6 +90,7 @@ function SummaryMetricCard({
   const sizeTokens = sizeTokenMap[size] || sizeTokenMap.default
   const trendTone = trendToneByDirection[trend?.direction] || 'neutral'
   const TrendIcon = trendIconByTone[trendTone]
+  const showTrendIcon = trend?.showIcon !== false
 
   return (
     <article className={cn(summaryMetricCardVariants({ size, className }))}>
@@ -112,7 +113,9 @@ function SummaryMetricCard({
                 trendPillVariants({ tone: trendTone, size })
               )}
             >
-              <TrendIcon className={sizeTokens.trendIcon} />
+              {showTrendIcon ? (
+                <TrendIcon className={sizeTokens.trendIcon} />
+              ) : null}
               <span>{trend.label}</span>
             </span>
           ) : null}

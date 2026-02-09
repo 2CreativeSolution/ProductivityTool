@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Calendar, Clock3, Plane } from 'lucide-react'
+
 import { Link, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { useQuery, useMutation } from '@redwoodjs/web'
@@ -9,6 +11,7 @@ import AppContentShell from 'src/components/AppContentShell/AppContentShell'
 import AppSidebar from 'src/components/AppSidebar/AppSidebar'
 import AttendanceCard from 'src/components/AttendanceCard/AttendanceCard'
 import PageHeader from 'src/components/PageHeader/PageHeader'
+import { SummaryMetricCard } from 'src/components/ui'
 import UpcomingBookings from 'src/components/UpcomingBookings/UpcomingBookings'
 
 const CLOCK_IN_MUTATION = gql`
@@ -78,6 +81,17 @@ const WEEKLY_BREAKS_QUERY = gql`
   }
 `
 
+const VACATION_SUMMARY_QUERY = gql`
+  query DashboardVacationSummaryQuery {
+    userVacationRequests {
+      id
+      status
+      startDate
+      endDate
+    }
+  }
+`
+
 // Helper for UTC midnight ISO string
 function getUTCMidnightISOString(date = new Date()) {
   const utc = new Date(
@@ -114,7 +128,11 @@ const DashboardPage = () => {
   const firstName = currentUser?.name?.trim()?.split(/\s+/)?.[0] || 'there'
 
   // For bookings and other attendance data
-  const { loading: bookingsLoading, refetch } = useQuery(BOOKINGS_QUERY, {
+  const {
+    data: bookingsData,
+    loading: bookingsLoading,
+    refetch,
+  } = useQuery(BOOKINGS_QUERY, {
     variables: { userId },
     fetchPolicy: 'network-only',
   })
@@ -132,6 +150,11 @@ const DashboardPage = () => {
     },
     fetchPolicy: 'network-only',
   })
+
+  const { data: vacationSummaryData, loading: vacationSummaryLoading } =
+    useQuery(VACATION_SUMMARY_QUERY, {
+      fetchPolicy: 'cache-and-network',
+    })
 
   const [clockInMutation, { loading: clockInLoading }] = useMutation(
     CLOCK_IN_MUTATION,
@@ -238,9 +261,99 @@ const DashboardPage = () => {
   const localDateISO = `${localDateString}T00:00:00.000Z`
 
   const weeklyAttendances = weeklyData?.attendancesInRange || []
+  const bookings = bookingsData?.bookings || []
+  const vacationRequests = vacationSummaryData?.userVacationRequests || []
   const utcDateString = getUTCMidnightISOString()
+  const now = new Date()
+  const nowUtcDayValue = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate()
+  )
   const todayAttendance =
     weeklyAttendances.find((a) => a.date.startsWith(utcDateString)) || null
+
+  const upcomingBookingsCount = bookings.filter(
+    (booking) => new Date(booking.endTime) > now
+  ).length
+  const weeklyAttendanceCount = weeklyAttendances.filter((attendance) =>
+    Boolean(attendance.clockIn)
+  ).length
+  const pendingVacationCount = vacationRequests.filter(
+    (request) => request.status === 'Pending'
+  ).length
+  const approvedVacationCount = vacationRequests.filter(
+    (request) => request.status === 'Approved'
+  ).length
+  const activeVacationCount = vacationRequests.filter((request) => {
+    if (request.status !== 'Approved') {
+      return false
+    }
+
+    const startDate = new Date(request.startDate)
+    const endDate = new Date(request.endDate)
+    const startUtcDayValue = Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate()
+    )
+    const endUtcDayValue = Date.UTC(
+      endDate.getUTCFullYear(),
+      endDate.getUTCMonth(),
+      endDate.getUTCDate()
+    )
+
+    return (
+      startUtcDayValue <= nowUtcDayValue && nowUtcDayValue <= endUtcDayValue
+    )
+  }).length
+  const todayAttendanceStateLabel = todayAttendance?.clockOut
+    ? 'Complete today'
+    : todayAttendance?.clockIn
+      ? 'Clocked in'
+      : 'Not started'
+
+  const quickAccessSummaryCards = [
+    {
+      key: 'bookings',
+      to: routes.meBookings(),
+      title: 'Meeting Bookings',
+      value: bookingsLoading ? '...' : upcomingBookingsCount.toString(),
+      subtitle: 'Upcoming bookings',
+      icon: <Calendar />,
+      trend: {
+        direction: 'neutral',
+        label: 'Manage',
+      },
+    },
+    {
+      key: 'attendance',
+      to: routes.meAttendance(),
+      title: 'Attendance Logs',
+      value: weeklyLoading ? '...' : weeklyAttendanceCount.toString(),
+      subtitle: 'Days logged this week',
+      icon: <Clock3 />,
+      trend: {
+        direction: todayAttendance?.clockIn ? 'positive' : 'neutral',
+        label: todayAttendanceStateLabel,
+      },
+    },
+    {
+      key: 'vacation',
+      to: routes.meVacation(),
+      title: 'Vacation Planner',
+      value: vacationSummaryLoading ? '...' : approvedVacationCount.toString(),
+      subtitle: vacationSummaryLoading
+        ? 'Pending requests'
+        : `Pending requests: ${pendingVacationCount}`,
+      icon: <Plane />,
+      trend: {
+        direction: activeVacationCount > 0 ? 'positive' : 'neutral',
+        label: `Active: ${activeVacationCount}`,
+        showIcon: false,
+      },
+    },
+  ]
 
   // Breaks and overtime state
   const [breaks, setBreaks] = React.useState([])
@@ -488,7 +601,27 @@ const DashboardPage = () => {
           titleClassName="font-normal"
         />
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {quickAccessSummaryCards.map((card) => (
+            <Link
+              key={card.key}
+              to={card.to}
+              className="group block focus-visible:outline-none"
+            >
+              <SummaryMetricCard
+                size="sm"
+                title={card.title}
+                value={card.value}
+                subtitle={card.subtitle}
+                icon={card.icon}
+                trend={card.trend}
+                className="transition group-hover:border-slate-300 group-hover:shadow-[0_18px_40px_-26px_rgba(15,23,42,0.45)] group-focus-visible:ring-2 group-focus-visible:ring-[#322e85]/30"
+              />
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left: Upcoming Bookings (2/3 width on large screens) */}
           <div className="lg:col-span-2">
             <UpcomingBookings userId={userId} refetchBookings={refetch} />
@@ -516,42 +649,6 @@ const DashboardPage = () => {
               onOvertimeClockOut={handleOvertimeClockOut}
             />
           </div>
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Link
-            to={routes.meBookings()}
-            className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
-          >
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Bookings
-            </p>
-            <p className="mt-2 text-base font-semibold text-slate-900">
-              Manage meeting room bookings
-            </p>
-          </Link>
-          <Link
-            to={routes.meAttendance()}
-            className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
-          >
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Attendance
-            </p>
-            <p className="mt-2 text-base font-semibold text-slate-900">
-              View logs, exceptions, and exports
-            </p>
-          </Link>
-          <Link
-            to={routes.meVacation()}
-            className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm"
-          >
-            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-              Vacation
-            </p>
-            <p className="mt-2 text-base font-semibold text-slate-900">
-              Track and manage leave requests
-            </p>
-          </Link>
         </div>
       </AppContentShell>
     </>

@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import {
-  Form,
-  TextField,
-  PasswordField,
-  FieldError,
-  Submit,
-} from '@redwoodjs/forms'
+import { Form, FieldError, Submit } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
@@ -14,6 +8,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 import { useAuth } from 'src/auth'
 import AuthFooter from 'src/components/AuthFooter/AuthFooter'
 import AuthNav from 'src/components/AuthNav/AuthNav'
+import { Input } from 'src/components/Forms/Input/Input'
 import { buttonVariants } from 'src/components/ui/button'
 import 'src/styles/brand-nxa.css'
 
@@ -70,9 +65,10 @@ const SignupPage = () => {
               </p>
 
               <Form onSubmit={onSubmit} className="nxa-form">
-                <TextField
+                <Input
+                  framework="redwood"
+                  type="email"
                   name="username"
-                  className="nxa-input"
                   ref={usernameRef}
                   placeholder="Email address"
                   validation={{
@@ -85,9 +81,10 @@ const SignupPage = () => {
 
                 <FieldError name="username" className="nxa-error" />
 
-                <TextField
+                <Input
+                  framework="redwood"
+                  type="text"
                   name="name"
-                  className="nxa-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Full name"
@@ -101,9 +98,10 @@ const SignupPage = () => {
 
                 <FieldError name="name" className="nxa-error" />
 
-                <PasswordField
+                <Input
+                  framework="redwood"
+                  type="password"
                   name="password"
-                  className="nxa-input"
                   placeholder="Password"
                   autoComplete="current-password"
                   validation={{

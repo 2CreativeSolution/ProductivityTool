@@ -38,6 +38,10 @@ Use the single source of truth setup guide:
 - Functions directory: `api/dist/functions`
 (Verify values against `netlify.toml`.)
 
+## Versioning
+- This repo is currently tagged as a pre-release via package versions: `1.0.0-beta` in `package.json`, `api/package.json`, and `web/package.json`.
+- These packages are `private` (not published to npm). The version is primarily an internal release label; bump it when cutting beta releases (e.g. `1.0.0-beta.1`).
+
 ---
 
 ## Review / evidence documents

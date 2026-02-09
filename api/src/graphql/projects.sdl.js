@@ -20,7 +20,7 @@ export const schema = gql`
   }
 
   type Query {
-    projects: [Project!]! @requireAuth
+    projects: [Project!]! @requireAuth(roles: ["ADMIN"])
     project(id: Int!): Project @requireAuth
     activeProjects: [Project!]! @requireAuth
     projectsByManager(managerId: Int!): [Project!]! @requireAuth

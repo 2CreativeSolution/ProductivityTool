@@ -46,7 +46,7 @@ export const schema = gql`
   type Query {
     assetAssignments: [AssetAssignment!]! @requireAuth
     assetAssignment(id: Int!): AssetAssignment @requireAuth
-    activeAssetAssignments: [AssetAssignment!]! @requireAuth
+    activeAssetAssignments: [AssetAssignment!]! @requireAuth(roles: ["ADMIN"])
     myAssetAssignments: [AssetAssignment!]! @requireAuth
     myAssetAssignmentReport(
       startDate: DateTime

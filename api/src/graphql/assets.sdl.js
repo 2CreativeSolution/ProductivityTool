@@ -24,11 +24,11 @@ export const schema = gql`
   }
 
   type Query {
-    assets: [Asset!]! @requireAuth
-    asset(id: Int!): Asset @requireAuth
-    assetByAssetId(assetId: String!): Asset @requireAuth
+    assets: [Asset!]! @requireAuth(roles: ["ADMIN"])
+    asset(id: Int!): Asset @requireAuth(roles: ["ADMIN"])
+    assetByAssetId(assetId: String!): Asset @requireAuth(roles: ["ADMIN"])
     availableAssets: [Asset!]! @requireAuth(roles: ["ADMIN"])
-    assetsByCategory(categoryId: Int!): [Asset!]! @requireAuth
+    assetsByCategory(categoryId: Int!): [Asset!]! @requireAuth(roles: ["ADMIN"])
     assetsByUser(userId: Int!): [Asset!]! @requireAuth
   }
 

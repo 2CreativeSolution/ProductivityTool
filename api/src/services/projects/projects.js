@@ -1,6 +1,9 @@
+import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
 
-export const projects = () => {
+export const projects = (_args, { context }) => {
+  requireAuth({ roles: ['ADMIN'] }, context)
+
   return db.project.findMany({
     include: {
       manager: true,
@@ -111,7 +114,7 @@ export const projectsWithUserAllocations = ({ userId }) => {
   })
 }
 
-export const createProject = ({ input }, { context }) => {
+export const createProject = ({ input }, { _context }) => {
   return db.project.create({
     data: input,
     include: {
@@ -121,7 +124,7 @@ export const createProject = ({ input }, { context }) => {
   })
 }
 
-export const updateProject = ({ id, input }, { context }) => {
+export const updateProject = ({ id, input }, { _context }) => {
   return db.project.update({
     data: input,
     where: { id },
@@ -132,7 +135,7 @@ export const updateProject = ({ id, input }, { context }) => {
   })
 }
 
-export const deleteProject = ({ id }, { context }) => {
+export const deleteProject = ({ id }, { _context }) => {
   return db.project.delete({
     where: { id },
   })

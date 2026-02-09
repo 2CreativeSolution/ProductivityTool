@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import {
-  Form,
-  TextField,
-  PasswordField,
-  FieldError,
-  Submit,
-} from '@redwoodjs/forms'
+import { Form, FieldError, Submit } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { Metadata } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
@@ -14,6 +8,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 import { useAuth } from 'src/auth'
 import AuthFooter from 'src/components/AuthFooter/AuthFooter'
 import AuthNav from 'src/components/AuthNav/AuthNav'
+import { Input } from 'src/components/Forms/Input/Input'
 import { buttonVariants } from 'src/components/ui/button'
 import { STORAGE_KEYS } from 'src/lib/storageKeys'
 import 'src/styles/brand-nxa.css'
@@ -75,9 +70,10 @@ const LoginPage = () => {
               </p>
 
               <Form onSubmit={onSubmit} className="nxa-form">
-                <TextField
+                <Input
+                  framework="redwood"
+                  type="email"
                   name="username"
-                  className="nxa-input"
                   ref={usernameRef}
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
@@ -91,9 +87,10 @@ const LoginPage = () => {
                 />
                 <FieldError name="username" className="nxa-error" />
 
-                <PasswordField
+                <Input
+                  framework="redwood"
+                  type="password"
                   name="password"
-                  className="nxa-input"
                   placeholder="Password"
                   autoComplete="current-password"
                   validation={{
