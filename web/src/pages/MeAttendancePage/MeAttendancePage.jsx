@@ -27,7 +27,11 @@ const MeAttendancePage = () => {
       <AppSidebar showQuickAccess={true} />
       <AppContentShell>
         <PageHeader
-          title="Attendance"
+          title={
+            currentUser.name
+              ? `Attendance — ${currentUser.name}`
+              : 'Attendance'
+          }
           description="View attendance history, exceptions, and exports."
         >
           <DropdownMenu>
