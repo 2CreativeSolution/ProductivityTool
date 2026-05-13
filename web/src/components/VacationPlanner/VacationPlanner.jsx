@@ -559,23 +559,6 @@ const VacationPlanner = forwardRef(
             )
           }
 
-          if (request.status === 'Approved') {
-            return (
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => openCancelDialog(request.id)}
-                  className={buttonVariants({
-                    variant: 'destructive',
-                    size: 'xs',
-                  })}
-                >
-                  Cancel
-                </button>
-              </div>
-            )
-          }
-
           if (request.status === 'Rejected') {
             return (
               <div className="flex justify-end">
