@@ -26,6 +26,37 @@ const WORK_HOURS_DEFAULT = 8
 const WORKDAY_START_HOUR = 9
 const WORKDAY_END_HOUR = 18
 
+const COMPANY_TZ = 'America/Toronto'
+
+// Build a UTC Date that represents the given wall-clock time in COMPANY_TZ.
+// Without this, `new Date(y,m,d,h,...)` uses the seeder's local TZ — if seeding
+// runs in a UTC container, "9 AM" gets stored as 09:00 UTC and renders as 4 AM
+// for Toronto viewers. DST-correct via Intl.
+const zonedToUtc = (year, month, day, hour, minute) => {
+  const guess = new Date(Date.UTC(year, month, day, hour, minute, 0))
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: COMPANY_TZ,
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).formatToParts(guess)
+  const m = Object.fromEntries(parts.map((p) => [p.type, p.value]))
+  const hh = m.hour === '24' ? '00' : m.hour
+  const asLocal = Date.UTC(
+    +m.year,
+    +m.month - 1,
+    +m.day,
+    +hh,
+    +m.minute,
+    +m.second
+  )
+  return new Date(guess.getTime() - (asLocal - guess.getTime()))
+}
+
 const WORKDAYS = [1, 2, 3, 4, 5] // Mon-Fri
 const VACATION_REASON = 'Annual leave'
 const EXCEPTION_TYPES = ['Late Arrival', 'Early Departure', 'WFH']
@@ -288,17 +319,23 @@ function* workingDaysWithinPastYear() {
 }
 
 function makeWorkdayWindow(day) {
-  // Clock-in between 8:45–9:30 AM
-  const clockIn = new Date(day)
-  const clockInMinutesOffset = Math.floor(randomBetween(-15, 30)) // -15 to +30 minutes around 9:00
-  clockIn.setHours(WORKDAY_START_HOUR, 0, 0, 0)
-  clockIn.setMinutes(clockIn.getMinutes() + clockInMinutesOffset)
+  const y = day.getFullYear()
+  const mo = day.getMonth()
+  const d = day.getDate()
 
-  // Clock-out between 17:30–19:00 PM
-  const clockOut = new Date(day)
-  const clockOutMinutesOffset = Math.floor(randomBetween(30, 120)) // 30 to 120 minutes after 17:00
-  clockOut.setHours(17, 0, 0, 0)
-  clockOut.setMinutes(clockOut.getMinutes() + clockOutMinutesOffset)
+  // Clock-in between 8:45–9:30 AM (Toronto wall-clock)
+  const clockInOffset = Math.floor(randomBetween(-15, 30))
+  const clockIn = zonedToUtc(
+    y,
+    mo,
+    d,
+    WORKDAY_START_HOUR,
+    clockInOffset
+  )
+
+  // Clock-out between 17:30–19:00 PM (Toronto wall-clock)
+  const clockOutOffset = Math.floor(randomBetween(30, 120))
+  const clockOut = zonedToUtc(y, mo, d, 17, clockOutOffset)
 
   // Ensure clockOut is after clockIn by at least 6h; if not, push clockOut
   const minDurationMinutes = 6 * 60
